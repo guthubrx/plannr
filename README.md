@@ -1,6 +1,8 @@
-# Riskr
-
-Application web d'analyse et de cartographie des risques avec matrices Before/After et gestion collaborative.
+<div align="center">
+  <img src="riskr.png" alt="Riskr Logo" width="128" height="128">
+  <h1>Riskr</h1>
+  <p>Application web d'analyse et de cartographie des risques avec matrices Before/After et gestion collaborative.</p>
+</div>
 
 ## 📋 À propos
 
