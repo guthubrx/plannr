@@ -5081,53 +5081,63 @@
             beforeDatasetsDraw: (chart) => {
                 const { ctx, chartArea: { left, top, width, height }, scales: { x, y } } = chart;
 
-                // Matrice symétrique basée sur criticité (P×I)
-                // Seuils: 1-4 vert, 5-9 jaune, 10-12 orange, 13-16 rouge
-                // Diagonale haut-gauche → bas-droit en vert plus pâle
+                // Matrice 5×5 complète avec carrés égaux
+                // Criticité = P×I : 1-4 vert, 5-9 jaune, 10-14 orange, 15-25 rouge
                 const zones = [
-                    // Impact 4 (ligne du haut)
-                    { xMin: 1, xMax: 2, yMin: 3, yMax: 4, color: '#E8F5E9' },  // P=1, I=4, Crit=4 (vert pâle - diagonale)
-                    { xMin: 2, xMax: 3, yMin: 3, yMax: 4, color: '#FFE699' },  // P=2, I=4, Crit=8 (jaune)
-                    { xMin: 3, xMax: 4, yMin: 3, yMax: 4, color: '#F4B183' },  // P=3, I=4, Crit=12 (orange)
-                    { xMin: 4, xMax: 5, yMin: 3, yMax: 4, color: '#FFC7CE' },  // P=4, I=4, Crit=16 (rouge)
+                    // Impact 5 (ligne du haut)
+                    { xMin: 0.5, xMax: 1.5, yMin: 4.5, yMax: 5.5, color: '#E8F5E9' },  // P=1, I=5, Crit=5 (vert pâle)
+                    { xMin: 1.5, xMax: 2.5, yMin: 4.5, yMax: 5.5, color: '#FFE699' },  // P=2, I=5, Crit=10 (orange)
+                    { xMin: 2.5, xMax: 3.5, yMin: 4.5, yMax: 5.5, color: '#F4B183' },  // P=3, I=5, Crit=15 (rouge)
+                    { xMin: 3.5, xMax: 4.5, yMin: 4.5, yMax: 5.5, color: '#FFC7CE' },  // P=4, I=5, Crit=20 (rouge)
+                    { xMin: 4.5, xMax: 5.5, yMin: 4.5, yMax: 5.5, color: '#FFC7CE' },  // P=5, I=5, Crit=25 (rouge)
+
+                    // Impact 4
+                    { xMin: 0.5, xMax: 1.5, yMin: 3.5, yMax: 4.5, color: '#C5E0B3' },  // P=1, I=4, Crit=4 (vert)
+                    { xMin: 1.5, xMax: 2.5, yMin: 3.5, yMax: 4.5, color: '#FFE699' },  // P=2, I=4, Crit=8 (jaune)
+                    { xMin: 2.5, xMax: 3.5, yMin: 3.5, yMax: 4.5, color: '#F4B183' },  // P=3, I=4, Crit=12 (orange)
+                    { xMin: 3.5, xMax: 4.5, yMin: 3.5, yMax: 4.5, color: '#FFC7CE' },  // P=4, I=4, Crit=16 (rouge)
+                    { xMin: 4.5, xMax: 5.5, yMin: 3.5, yMax: 4.5, color: '#FFC7CE' },  // P=5, I=4, Crit=20 (rouge)
 
                     // Impact 3
-                    { xMin: 1, xMax: 2, yMin: 2, yMax: 3, color: '#C5E0B3' },  // P=1, I=3, Crit=3 (vert)
-                    { xMin: 2, xMax: 3, yMin: 2, yMax: 3, color: '#E8F5E9' },  // P=2, I=3, Crit=6 (vert pâle - diagonale)
-                    { xMin: 3, xMax: 4, yMin: 2, yMax: 3, color: '#FFE699' },  // P=3, I=3, Crit=9 (jaune)
-                    { xMin: 4, xMax: 5, yMin: 2, yMax: 3, color: '#F4B183' },  // P=4, I=3, Crit=12 (orange)
+                    { xMin: 0.5, xMax: 1.5, yMin: 2.5, yMax: 3.5, color: '#C5E0B3' },  // P=1, I=3, Crit=3 (vert)
+                    { xMin: 1.5, xMax: 2.5, yMin: 2.5, yMax: 3.5, color: '#E8F5E9' },  // P=2, I=3, Crit=6 (vert pâle)
+                    { xMin: 2.5, xMax: 3.5, yMin: 2.5, yMax: 3.5, color: '#FFE699' },  // P=3, I=3, Crit=9 (jaune)
+                    { xMin: 3.5, xMax: 4.5, yMin: 2.5, yMax: 3.5, color: '#F4B183' },  // P=4, I=3, Crit=12 (orange)
+                    { xMin: 4.5, xMax: 5.5, yMin: 2.5, yMax: 3.5, color: '#FFC7CE' },  // P=5, I=3, Crit=15 (rouge)
 
                     // Impact 2
-                    { xMin: 1, xMax: 2, yMin: 1, yMax: 2, color: '#C5E0B3' },  // P=1, I=2, Crit=2 (vert)
-                    { xMin: 2, xMax: 3, yMin: 1, yMax: 2, color: '#C5E0B3' },  // P=2, I=2, Crit=4 (vert)
-                    { xMin: 3, xMax: 4, yMin: 1, yMax: 2, color: '#E8F5E9' },  // P=3, I=2, Crit=6 (vert pâle - diagonale)
-                    { xMin: 4, xMax: 5, yMin: 1, yMax: 2, color: '#FFE699' },  // P=4, I=2, Crit=8 (jaune)
+                    { xMin: 0.5, xMax: 1.5, yMin: 1.5, yMax: 2.5, color: '#C5E0B3' },  // P=1, I=2, Crit=2 (vert)
+                    { xMin: 1.5, xMax: 2.5, yMin: 1.5, yMax: 2.5, color: '#C5E0B3' },  // P=2, I=2, Crit=4 (vert)
+                    { xMin: 2.5, xMax: 3.5, yMin: 1.5, yMax: 2.5, color: '#E8F5E9' },  // P=3, I=2, Crit=6 (vert pâle)
+                    { xMin: 3.5, xMax: 4.5, yMin: 1.5, yMax: 2.5, color: '#FFE699' },  // P=4, I=2, Crit=8 (jaune)
+                    { xMin: 4.5, xMax: 5.5, yMin: 1.5, yMax: 2.5, color: '#F4B183' },  // P=5, I=2, Crit=10 (orange)
 
                     // Impact 1
-                    { xMin: 1, xMax: 2, yMin: 0, yMax: 1, color: '#C5E0B3' },  // P=1, I=1, Crit=1 (vert)
-                    { xMin: 2, xMax: 3, yMin: 0, yMax: 1, color: '#C5E0B3' },  // P=2, I=1, Crit=2 (vert)
-                    { xMin: 3, xMax: 4, yMin: 0, yMax: 1, color: '#C5E0B3' },  // P=3, I=1, Crit=3 (vert)
-                    { xMin: 4, xMax: 5, yMin: 0, yMax: 1, color: '#E8F5E9' }   // P=4, I=1, Crit=4 (vert pâle - diagonale)
+                    { xMin: 0.5, xMax: 1.5, yMin: 0.5, yMax: 1.5, color: '#C5E0B3' },  // P=1, I=1, Crit=1 (vert)
+                    { xMin: 1.5, xMax: 2.5, yMin: 0.5, yMax: 1.5, color: '#C5E0B3' },  // P=2, I=1, Crit=2 (vert)
+                    { xMin: 2.5, xMax: 3.5, yMin: 0.5, yMax: 1.5, color: '#C5E0B3' },  // P=3, I=1, Crit=3 (vert)
+                    { xMin: 3.5, xMax: 4.5, yMin: 0.5, yMax: 1.5, color: '#C5E0B3' },  // P=4, I=1, Crit=4 (vert)
+                    { xMin: 4.5, xMax: 5.5, yMin: 0.5, yMax: 1.5, color: '#E8F5E9' }   // P=5, I=1, Crit=5 (vert pâle)
                 ];
-                
+
                 ctx.save();
-                
+
                 zones.forEach(zone => {
                     const xStart = x.getPixelForValue(zone.xMin);
                     const xEnd = x.getPixelForValue(zone.xMax);
                     const yStart = y.getPixelForValue(zone.yMax);
                     const yEnd = y.getPixelForValue(zone.yMin);
-                    
+
                     // Remplir le carré avec la couleur
                     ctx.fillStyle = zone.color;
                     ctx.fillRect(xStart, yStart, xEnd - xStart, yEnd - yStart);
-                    
+
                     // Dessiner la bordure blanche
                     ctx.strokeStyle = 'white';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(xStart, yStart, xEnd - xStart, yEnd - yStart);
                 });
-                
+
                 ctx.restore();
             }
         };
@@ -5211,15 +5221,16 @@
                     },
                     scales: {
                         x: {
-                            min: 1,
-                            max: 5,
+                            min: 0.5,
+                            max: 5.5,
                             ticks: {
                                 stepSize: 1,
                                 font: {
                                     size: 12
                                 },
                                 callback: function(value) {
-                                    return value;
+                                    // Afficher seulement les valeurs entières 1-5
+                                    return (value >= 1 && value <= 5 && Number.isInteger(value)) ? value : '';
                                 }
                             },
                             grid: {
@@ -5235,15 +5246,16 @@
                             }
                         },
                         y: {
-                            min: 1,
-                            max: 5,
+                            min: 0.5,
+                            max: 5.5,
                             ticks: {
                                 stepSize: 1,
                                 font: {
                                     size: 12
                                 },
                                 callback: function(value) {
-                                    return value;
+                                    // Afficher seulement les valeurs entières 1-5
+                                    return (value >= 1 && value <= 5 && Number.isInteger(value)) ? value : '';
                                 }
                             },
                             grid: {
@@ -5770,12 +5782,15 @@
                     },
                     scales: {
                         x: {
-                            min: 1,
-                            max: 5,
+                            min: 0.5,
+                            max: 5.5,
                             ticks: {
                                 stepSize: 1,
                                 font: { size: 12 },
-                                callback: function(value) { return value; }
+                                callback: function(value) {
+                                    // Afficher seulement les valeurs entières 1-5
+                                    return (value >= 1 && value <= 5 && Number.isInteger(value)) ? value : '';
+                                }
                             },
                             grid: { display: false },
                             title: {
@@ -5785,12 +5800,15 @@
                             }
                         },
                         y: {
-                            min: 1,
-                            max: 5,
+                            min: 0.5,
+                            max: 5.5,
                             ticks: {
                                 stepSize: 1,
                                 font: { size: 12 },
-                                callback: function(value) { return value; }
+                                callback: function(value) {
+                                    // Afficher seulement les valeurs entières 1-5
+                                    return (value >= 1 && value <= 5 && Number.isInteger(value)) ? value : '';
+                                }
                             },
                             grid: { display: false },
                             title: {
