@@ -1,49 +1,43 @@
 <div align="center">
-  <img src="riskr.png" alt="Riskr Logo" width="128" height="128">
-  <h1>Riskr</h1>
-  <p>Application web d'analyse et de cartographie des risques avec matrices Before/After et gestion collaborative.</p>
+  <img src="icon.svg" alt="Plannr Logo" width="128" height="128">
+  <h1>Plannr</h1>
+  <p>Application web de gestion de planning et diagramme de Gantt interactif.</p>
 </div>
 
 ## 📋 À propos
 
-**Riskr** est une application web one-page complète pour l'analyse et la gestion des risques. Elle permet de visualiser l'évolution des risques avant et après la mise en place de mesures de remédiation, à travers des matrices interactives et des tableaux détaillés.
+**Plannr** est une application web one-page complète pour la gestion de projet. Elle permet de visualiser et d'organiser vos phases et tâches à travers un diagramme de Gantt interactif, des vues compactes intelligentes et des tableaux de bord détaillés.
 
 ## ✨ Fonctionnalités
 
-### Gestion des Risques
-- **Édition inline** de tous les champs (titres, descriptions, catégories)
-- **Ajout/suppression** de risques et de groupes de risques
-- **Drag & drop** pour réorganiser les risques
-- **Renumération automatique** lors des modifications
-- **Catégorisation** par groupes thématiques
+### Gestion de Planning
+- **Édition inline** de tous les champs (phases, tâches, dates, responsables)
+- **Ajout/suppression** de tâches et de phases (groupes)
+- **Drag & drop interactif** pour déplacer les tâches et les jalons directement sur le Gantt
+- **Jalons (Milestones)** : Transformation facile de tâches en jalons et inversement
+- **Renumérotation automatique** des tâches lors des modifications
 
 ### Visualisation
-- **Matrices Before/After** avec Chart.js
-- Visualisation comparative de l'impact des remédiations
-- Moyennes par groupe de risques
-- Légende interactive avec codes couleur
+- **Diagramme de Gantt interactif** propulsé par Chart.js
+- **Mode Compact** : Algorithme de compactage intelligent pour minimiser l'espace vertical tout en gardant les titres lisibles (placement alterné, tiges de liaison)
+- **Mode Cascade** : Vue classique une ligne par tâche
+- **Dashboard Dynamique** : Statistiques en temps réel (Tâches totales, En cours, Terminées, Durée totale, Progression %)
+
+### Export et Partage
+- **Export PDF Premium** : Génération de rapports incluant une capture haute résolution de votre diagramme de Gantt
+- **Export Excel & CSV** : Exportation structurée de toutes les données du planning
+- **Export/Import JSON** : Sauvegarde complète de vos données de projet
 
 ### Système d'Historique
-- **Undo/Redo** jusqu'à 50 étapes (Cmd+Z / Cmd+Y sur Mac, Ctrl+Z / Ctrl+Y sur Windows/Linux)
-- Sauvegarde automatique de chaque modification
-- Navigation dans l'historique des changements
-
-### Persistance des Données
-- **localStorage** automatique pour sauvegarde locale
-- **Export/Import JSON** pour partage et backup
-- Aucune connexion serveur requise
-
-### Interface
-- **Design responsive** adapté mobile, tablette et desktop
-- **Sections pliables** pour une navigation optimisée
-- **Édition inline** fluide avec feedbacks visuels
-- **Thème moderne** inspiré du design Apple
+- **Undo/Redo** complet (Cmd+Z / Cmd+Y)
+- Sauvegarde automatique locale (localStorage)
+- Fonctionne entièrement hors-ligne
 
 ## 🚀 Utilisation
 
-**Riskr est une application one-page** - un seul fichier HTML autonome.
+**Plannr est une application "No-Build"** - un seul fichier HTML autonome.
 
-1. Télécharger \`riskr.html\`
+1. Télécharger `plannr.html`
 2. Ouvrir le fichier dans votre navigateur
 3. C'est tout ! Aucune installation requise
 
@@ -51,31 +45,17 @@
 ## 🛠️ Stack Technique
 
 ### Frontend
-- **HTML5** - Structure sémantique
-- **CSS3** - Styles modernes avec flexbox/grid
-- **JavaScript (ES6+)** - Vanilla JS, aucune dépendance framework
+- **HTML5 / CSS3** - Design moderne inspiré des codes visuels d'Apple
+- **JavaScript (ES6+)** - Vanilla JS pur, aucune dépendance framework complexe
 
 ### Bibliothèques
-- **Chart.js** - Visualisation des matrices de risques
-- Aucune autre dépendance externe
-
-### Persistance
-- **localStorage** - Stockage navigateur natif
-- Format JSON pour import/export
-
-### Architecture
-- **One-page application** - Tout dans un seul fichier HTML
-- Aucun build ou bundler requis
-- Fonctionne offline une fois chargé
+- **Chart.js** - Moteur de rendu du diagramme de Gantt
+- **jsPDF** - Génération des rapports PDF
+- **SheetJS** - Exportation vers Excel (XLSX)
 
 ## 📄 License
 
 Ce projet est sous licence **GNU Affero General Public License v3.0 (AGPL-3.0)**.
-
-### Résumé de la licence
-- ✅ Libre d'utiliser, modifier et distribuer
-- ✅ Code source disponible et modifiable
-- ⚠️ **Important pour SaaS** : Si vous utilisez Riskr sur un serveur accessible via réseau (SaaS), vous devez partager le code source modifié avec vos utilisateurs
 
 Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
@@ -84,17 +64,17 @@ Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 Les contributions sont les bienvenues !
 
 1. Fork le projet
-2. Créer une branche pour votre fonctionnalité (\`git checkout -b feature/AmazingFeature\`)
-3. Commit vos changements (\`git commit -m 'Add some AmazingFeature'\`)
-4. Push vers la branche (\`git push origin feature/AmazingFeature\`)
+2. Créer une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
+3. Commit vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrir une Pull Request
 
 ## 📞 Support
 
 Pour toute question ou suggestion :
-- Ouvrir une [issue](https://github.com/guthubrx/Riskr/issues)
+- Ouvrir une [issue](https://github.com/guthubrx/plannr/issues)
 - Consulter la documentation dans le code source
 
 ---
 
-© 2025 Riskr — Application d'analyse et de cartographie des risques
+© 2026 Plannr — Gestion de planning et diagramme de Gantt
