@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
+<html lang="fr"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plannr - Planning de Projet</title>
@@ -20,6 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="plannr-data.js"></script>
     <style>
         * {
             margin: 0;
@@ -73,6 +74,13 @@
             align-items: center;
             flex-shrink: 0;
         }
+
+        /* Mode iframe/embedded : masquer la barre d'outils */
+        .embedded .studio-toolbar { display: none !important; }
+        .embedded .app-header { display: none !important; }
+        .embedded .app-controls { display: none !important; }
+        .in-iframe .app-header { display: none !important; }
+        .in-iframe .app-controls { display: none !important; }
 
         h1 {
             color: #1d1d1f;
@@ -1791,16 +1799,29 @@
             position: relative;
         }
 
+        .date-display {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1d1d1f;
+            transition: background 0.15s;
+        }
+        .date-display:hover {
+            background: #f0f0f5;
+        }
+
         .milestone-x {
             cursor: pointer;
-            font-size: 24px;
+            font-size: 16px;
             font-weight: bold;
             color: #ff3b30;
             transition: all 0.2s;
             display: inline-block;
-            width: 30px;
-            height: 30px;
-            line-height: 26px;
+            vertical-align: middle;
+            width: 22px;
+            height: 22px;
+            line-height: 20px;
             text-align: center;
             border-radius: 3px;
         }
@@ -1812,10 +1833,8 @@
 
         /* Badge de jalon */
         .milestone-badge {
-            position: absolute;
-            right: 2px;
-            top: 50%;
-            transform: translateY(-50%);
+            display: inline-block;
+            vertical-align: middle;
             font-size: 14px;
             color: #0071e3;
             cursor: pointer;
@@ -2068,30 +2087,65 @@
                 padding: 6px 10px !important;
             }
         }
+    /* ── Mode Présentation ── */
+    .pres-toggle { padding: 8px 14px; font-size: 13px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.1); font-weight: 600; color: #1d1d1f; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+    .pres-toggle:hover { background: #f5f5f7; }
+    .pres-toggle.active { background: #1d1d1f; color: white; border-color: #1d1d1f; }
+
+    body.presentation-mode .app-controls > *:not(.pres-toggle) { display: none !important; }
+    body.presentation-mode .risks-table input[type="date"] { -webkit-appearance: none !important; appearance: none !important; border: none !important; background: transparent !important; outline: none !important; pointer-events: none !important; color: inherit !important; font-family: inherit !important; }
+    body.presentation-mode .risks-table input[type="date"]::-webkit-calendar-picker-indicator { display: none !important; }
+    body.presentation-mode .risks-table input[type="date"]::-webkit-inner-spin-button { display: none !important; }
+    body.presentation-mode .risks-table select { -webkit-appearance: none !important; appearance: none !important; border: none !important; background: transparent !important; outline: none !important; pointer-events: none !important; color: inherit !important; font-family: inherit !important; }
+    body.presentation-mode .delete-btn,
+    body.presentation-mode .delete-risk-btn { display: none !important; }
+    body.presentation-mode .risk-separator-row { display: none !important; }
+    body.presentation-mode .milestone-x { display: none !important; }
+    body.presentation-mode .add-group-btn { display: none !important; }
+    body.presentation-mode .risks-table th:last-child,
+    body.presentation-mode .risks-table td:last-child { display: none !important; }
+    body.presentation-mode .risks-table td { border-color: transparent !important; }
+    body.presentation-mode .risks-table th { border-color: rgba(0,0,0,.08) !important; }
+    body.presentation-mode .date-display { pointer-events: none !important; cursor: default !important; }
+    body.presentation-mode .editable-risk-title,
+    body.presentation-mode .editable-responsable,
+    body.presentation-mode .editable-group-name,
+    body.presentation-mode .editable-group-desc { pointer-events: none !important; }
+    body.presentation-mode .collapsible-header { pointer-events: none !important; }
+    body.presentation-mode .sticky-toggle-btn { display: none !important; }
+    body.presentation-mode .view-toggle-btn { pointer-events: none !important; }
+    body.presentation-mode #language-selector { display: none !important; }
+    body.presentation-mode #color-palette-selector { display: none !important; }
+    body.presentation-mode .remediation-row { display: none !important; }
     </style>
 </head>
-<body>
+<body class="">
     <div class="container">
         <!-- Header avec icône, titre et contrôles -->
         <div class="app-header">
             <img src="icon.svg" alt="Plannr" class="app-icon">
 
             <div class="app-title-section">
-                <h1 id="main-title" class="editable-title"><span data-i18n="pageTitle">Plannr - Planning de Projet</span></h1>
-                <p id="main-subtitle" class="editable-subtitle" style="color: #86868b; margin: 4px 0 0 0; font-size: 15px;" data-i18n="pageSubtitle">Gestion des phases et tâches du projet</p>
+                <h1 id="main-title" class="editable-title" data-editing-initialized="true">Plannr - Planning de Projet</h1>
+                <p id="main-subtitle" class="editable-subtitle" style="color: #86868b; margin: 4px 0 0 0; font-size: 15px;" data-i18n="pageSubtitle" data-editing-initialized="true">ViGi360 · SNCF Gares &amp; Connexions · Gare du Nord / Gare de Lyon · Avril–Août 2026</p>
             </div>
 
-            <div class="app-controls">
+            <div class="app-controls studio-toolbar">
                 <!-- Input caché pour l'import -->
                 <input type="file" id="import-file" style="display: none" accept=".json" onchange="importFromJSON(this)">
                 
+                <!-- Bouton Recharger données -->
+                <button onclick="reloadPlannrData()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;" title="Recharger plannr-data.js (contourne le cache)">
+                    <span>🔄</span> Recharger
+                </button>
+
                 <!-- Bouton Import -->
                 <button onclick="document.getElementById('import-file').click()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;">
                     <span>📥</span> Import
                 </button>
 
-                <select id="export-format-selector" onchange="handleExport(this.value)" style="padding: 8px 12px 8px 36px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2386868b%22 stroke-width=%222%22><path d=%22M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4%22/><polyline points=%227 10 12 15 17 10%22/><line x1=%2212%22 y1=%2215%22 x2=%2212%22 y2=%223%22/></svg>') no-repeat 10px center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); appearance: none; padding-right: 30px; background-size: 16px;">
-                    <option value="" disabled selected>Exporter...</option>
+                <select id="export-format-selector" onchange="handleExport(this.value)" style="padding: 8px 12px 8px 36px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white url('data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2386868b%22 stroke-width=%222%22&gt;&lt;path d=%22M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4%22/&gt;&lt;polyline points=%227 10 12 15 17 10%22/&gt;&lt;line x1=%2212%22 y1=%2215%22 x2=%2212%22 y2=%223%22/&gt;&lt;/svg&gt;') no-repeat 10px center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); appearance: none; padding-right: 30px; background-size: 16px;">
+                    <option value="" disabled="disabled" selected="selected">Exporter...</option>
                     <option value="pdf">📄 PDF</option>
                     <option value="excel">📊 Excel (XLSX)</option>
                     <option value="csv">📋 CSV</option>
@@ -2099,7 +2153,7 @@
                     <option value="json">💾 JSON (Données)</option>
                 </select>
                 <select id="language-selector" onchange="setLanguage(this.value)" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-                    <option value="fr">🇫🇷 Français</option>
+                    <option value="fr" selected="selected">🇫🇷 Français</option>
                     <option value="en">🇬🇧 English</option>
                     <option value="es">🇪🇸 Español</option>
                     <option value="ar">🇸🇦 العربية</option>
@@ -2108,6 +2162,9 @@
 
                 <!-- Sélecteur de palette de couleurs pour le Gantt -->
                 <div id="color-palette-selector"></div>
+
+                <!-- Mode Présentation -->
+                <button class="pres-toggle" id="pres-toggle" onclick="togglePresentation()" title="Mode présentation — masquer les contrôles">🖥️ Présentation</button>
             </div>
         </div>
 
@@ -2116,21 +2173,21 @@
             <div class="dashboard-grid">
                 <div class="dashboard-card">
                     <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="9" y1="9" x2="15" y2="9"/>
-                        <line x1="9" y1="13" x2="15" y2="13"/>
-                        <line x1="9" y1="17" x2="13" y2="17"/>
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="9" x2="15" y2="9"></line>
+                        <line x1="9" y1="13" x2="15" y2="13"></line>
+                        <line x1="9" y1="17" x2="13" y2="17"></line>
                     </svg>
                     <div class="dashboard-card-content">
-                        <div class="dashboard-card-value" id="dashboard-total-tasks">0</div>
+                        <div class="dashboard-card-value" id="dashboard-total-tasks">14</div>
                         <div class="dashboard-card-label" data-i18n="dashboardTotalTasks">Tâches totales</div>
                     </div>
                 </div>
 
                 <div class="dashboard-card">
                     <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                     <div class="dashboard-card-content">
                         <div class="dashboard-card-value" id="dashboard-in-progress">0</div>
@@ -2140,8 +2197,8 @@
 
                 <div class="dashboard-card">
                     <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
                     </svg>
                     <div class="dashboard-card-content">
                         <div class="dashboard-card-value" id="dashboard-completed">0</div>
@@ -2151,21 +2208,21 @@
 
                 <div class="dashboard-card">
                     <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <polyline points="19 12 12 19 5 12"/>
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
                     </svg>
                     <div class="dashboard-card-content">
-                        <div class="dashboard-card-value" id="dashboard-total-duration">-</div>
+                        <div class="dashboard-card-value" id="dashboard-total-duration">187 j</div>
                         <div class="dashboard-card-label" data-i18n="dashboardTotalDuration">Durée totale</div>
                     </div>
                 </div>
 
                 <div class="dashboard-card">
                     <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <polyline points="20 6 9 17 4 12"/>
+                        <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                     <div class="dashboard-card-content">
-                        <div class="dashboard-card-value" id="dashboard-progression">-</div>
+                        <div class="dashboard-card-value" id="dashboard-progression" style="color: rgb(102, 102, 102);">0%</div>
                         <div class="dashboard-card-label" data-i18n="dashboardProgression">Progression</div>
                     </div>
                 </div>
@@ -2186,14 +2243,15 @@
             <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="sticky-toggle-label">Vue :</span>
                 <div class="view-toggle-wrapper" style="background: #e5e5e7; padding: 2px; border-radius: 8px; display: flex;">
-                    <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn" style="border: none; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #666; cursor: pointer; transition: all 0.2s;">Compact</button>
-                    <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active" style="border: none; background: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #1d1d1f; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.1); transition: all 0.2s;">Cascade</button>
+                    <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active" style="border: medium; background: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(29, 29, 31); cursor: pointer; box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px; transition: 0.2s;">Cascade</button>
+                    <button onclick="setGanttView('consolide')" id="view-btn-consolide" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Consolidé</button>
+                    <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Compact</button>
                 </div>
             </div>
         </div>
 
         <!-- Diagramme de Gantt sticky en haut -->
-        <div class="sticky-charts-section" id="sticky-section">
+        <div class="sticky-charts-section sticky-disabled" id="sticky-section">
 
             <!-- Section collapsable pour le Gantt -->
             <div class="collapsible-section" style="margin-bottom: 8px;">
@@ -2208,9 +2266,9 @@
                                 <div class="chart-header">
                                     <h3 data-i18n="ganttTitle">Diagramme de Gantt - Planning du projet</h3>
                                 </div>
-                                <div class="chart-canvas" style="height: 430px;">
-                                    <canvas id="ganttChart"></canvas>
-                                </div>
+                                <div class="chart-canvas" style="height: 840px; position: relative;">
+                                    <canvas id="ganttChart" width="3481" height="840" style="box-sizing: border-box; cursor: grab; display: block; height: 840px; width: 3481px;"></canvas>
+                                <div id="gantt-separator-overlay" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none;"></div></div>
                             </div>
                         </div>
                     </div>
@@ -2219,7 +2277,770 @@
         </div>
 
         <!-- Conteneur principal pour la liste des tâches (Planning) -->
-        <div id="planning-container"></div>
+        <div id="planning-container"><div class="group-separator" data-insert-position="0">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#2E86C1">1</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-1" data-group-id="1" data-editing-initialized="true">Phase 1 — Cadrage &amp; Prérequis</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-1" data-group-id="1" data-editing-initialized="true">Audit couverture caméras, commande licences IPSOTEK, installation serveur nouvelle version</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-1" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-1-risks" data-group-id="1">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.1" data-risk-index="0" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.1" data-editing-initialized="true">1.1. Audit couverture caméras — périmètre POC</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="1.1" onclick="toggleMilestone('1.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">01/04/2026</span><input type="date" class="editable-date" data-risk-id="1.1" data-date-type="startDate" value="2026-04-01" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">30/04/2026</span><input type="date" class="editable-date" data-risk-id="1.1" data-date-type="endDate" value="2026-04-30" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-0">
+                                30
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-0" data-risk-id="1.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.1" data-editing-initialized="true">Xavier / François</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="1" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="1" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.2" data-risk-index="1" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.2" data-editing-initialized="true">1.2. Commande licences IPSOTEK PREVENT</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="1.2" onclick="toggleMilestone('1.2', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">30/04/2026</span><input type="date" class="editable-date" data-risk-id="1.2" data-date-type="startDate" value="2026-04-30" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">14/05/2026</span><input type="date" class="editable-date" data-risk-id="1.2" data-date-type="endDate" value="2026-05-14" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-1">
+                                14
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-1" data-risk-id="1.2" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.2" data-editing-initialized="true">Xavier / Régis Bonin</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.2')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="2" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="2" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.3" data-risk-index="2" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.3" data-editing-initialized="true">1.3. Déploiement et industrialisation de l'infrastructure</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="1.3" onclick="toggleMilestone('1.3', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">14/05/2026</span><input type="date" class="editable-date" data-risk-id="1.3" data-date-type="startDate" value="2026-05-14" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">12/06/2026</span><input type="date" class="editable-date" data-risk-id="1.3" data-date-type="endDate" value="2026-06-12" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-2">
+                                29
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-2" data-risk-id="1.3" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.3" data-editing-initialized="true">Alex / ATOS-Eviden</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.3')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="3" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="3" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.4" data-risk-index="3" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.4" data-editing-initialized="true">1.4. Recette</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="1.4" onclick="toggleMilestone('1.4', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">14/05/2026</span><input type="date" class="editable-date" data-risk-id="1.4" data-date-type="startDate" value="2026-05-14" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">21/05/2026</span><input type="date" class="editable-date" data-risk-id="1.4" data-date-type="endDate" value="2026-05-21" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-3">
+                                7
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-3" data-risk-id="1.4" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.4" data-editing-initialized="true">Cliquer pour ajouter</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.4')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="4" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="4" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.5" data-risk-index="4" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.5" data-editing-initialized="true">1.5. Feu vert DG — lancement POC</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-badge" onclick="toggleMilestone('1.5', event)" title="Clic pour retransformer en tâche" style="cursor:pointer; margin-right:4px;">◆</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">01/04/2026</span><input type="date" class="editable-date" data-risk-id="1.5" data-date-type="startDate" value="2026-04-01" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">01/04/2026</span><input type="date" class="editable-date" data-risk-id="1.5" data-date-type="endDate" value="2026-04-01" disabled="disabled" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-4">
+                                1
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-4" data-risk-id="1.5" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.5" data-editing-initialized="true">Cliquer pour ajouter</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.5')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="5" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="5" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="1">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#27AE60">2</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-2" data-group-id="2" data-editing-initialized="true">Phase 2 — Déploiement technique</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-2" data-group-id="2" data-editing-initialized="true">Raccordement des caméras cibles et affinage des paramétrages de détection</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-2" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-2-risks" data-group-id="2">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="2" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="2" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="2.1" data-risk-index="5" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="2.1" data-editing-initialized="true">2.1. Raccordement et reprise des caméras cibles</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="2.1" onclick="toggleMilestone('2.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">12/06/2026</span><input type="date" class="editable-date" data-risk-id="2.1" data-date-type="startDate" value="2026-06-12" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">02/07/2026</span><input type="date" class="editable-date" data-risk-id="2.1" data-date-type="endDate" value="2026-07-02" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-5">
+                                20
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-5" data-risk-id="2.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="2.1" data-editing-initialized="true">Alex / Régie</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('2.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="2" data-risk-position="1" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="2" data-risk-position="1" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="2.2" data-risk-index="6" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="2.2" data-editing-initialized="true">2.2. Paramétrage des scenes</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="2.2" onclick="toggleMilestone('2.2', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">12/06/2026</span><input type="date" class="editable-date" data-risk-id="2.2" data-date-type="startDate" value="2026-06-12" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">19/06/2026</span><input type="date" class="editable-date" data-risk-id="2.2" data-date-type="endDate" value="2026-06-19" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-6">
+                                7
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-6" data-risk-id="2.2" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="2.2" data-editing-initialized="true">Cliquer pour ajouter</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('2.2')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="2" data-risk-position="2" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="2" data-risk-position="2" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="2.3" data-risk-index="7" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="2.3" data-editing-initialized="true">2.3. Affinage paramétrages — détection objets délaissés</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="2.3" onclick="toggleMilestone('2.3', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">31/05/2026</span><input type="date" class="editable-date" data-risk-id="2.3" data-date-type="startDate" value="2026-05-31" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">10/06/2026</span><input type="date" class="editable-date" data-risk-id="2.3" data-date-type="endDate" value="2026-06-10" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-7">
+                                10
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-7" data-risk-id="2.3" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="2.3" data-editing-initialized="true">François / ATOS-Eviden</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('2.3')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="2" data-risk-position="3" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="2" data-risk-position="3" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="2">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#e8000d">5</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-5" data-group-id="5" data-editing-initialized="true">Congés d'été</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-5" data-group-id="5" data-editing-initialized="true">Période bloquée — aucune activité POC en août</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-5" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-5-risks" data-group-id="5">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="5" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="5" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="5.1" data-risk-index="8" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="5.1" data-editing-initialized="true">5.1. Congés d'été — période bloquée</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="5.1" onclick="toggleMilestone('5.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">01/07/2026</span><input type="date" class="editable-date" data-risk-id="5.1" data-date-type="startDate" value="2026-07-01" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">31/07/2026</span><input type="date" class="editable-date" data-risk-id="5.1" data-date-type="endDate" value="2026-07-31" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-8">
+                                30
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-8" data-risk-id="5.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="5.1" data-editing-initialized="true">Toute l'équipe</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('5.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="5" data-risk-position="1" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="5" data-risk-position="1" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="3">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#ff9500">3</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-3" data-group-id="3" data-editing-initialized="true">Phase 3 — Exploitation active</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-3" data-group-id="3" data-editing-initialized="true">Deux sprints terrain : correction paramétrage puis qualification des algorithmes (faux négatifs)</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-3" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-3-risks" data-group-id="3">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="3" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="3" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="3.1" data-risk-index="9" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="3.1" data-editing-initialized="true">3.1. Sprint 1 — détection terrain &amp; correction paramétrage</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="3.1" onclick="toggleMilestone('3.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">01/08/2026</span><input type="date" class="editable-date" data-risk-id="3.1" data-date-type="startDate" value="2026-08-01" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">15/08/2026</span><input type="date" class="editable-date" data-risk-id="3.1" data-date-type="endDate" value="2026-08-15" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-9">
+                                15
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-9" data-risk-id="3.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="3.1" data-editing-initialized="true">Xavier / François</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('3.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="3" data-risk-position="1" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="3" data-risk-position="1" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="3.2" data-risk-index="10" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="3.2" data-editing-initialized="true">3.2. Sprint 2 — corrections algorithmiques &amp; qualification faux négatifs</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="3.2" onclick="toggleMilestone('3.2', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">10/08/2026</span><input type="date" class="editable-date" data-risk-id="3.2" data-date-type="startDate" value="2026-08-10" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">22/08/2026</span><input type="date" class="editable-date" data-risk-id="3.2" data-date-type="endDate" value="2026-08-22" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-10">
+                                13
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-10" data-risk-id="3.2" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="3.2" data-editing-initialized="true">François / ATOS-Eviden</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('3.2')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="3" data-risk-position="2" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="3" data-risk-position="2" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="4">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#8E44AD">4</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-4" data-group-id="4" data-editing-initialized="true">Phase 4 — Bilan &amp; Décision</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-4" data-group-id="4" data-editing-initialized="true">Consolidation KPI, bilan POC, recommandation déploiement national — décision le 31/08</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-4" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-4-risks" data-group-id="4">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="4" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="4" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="4.1" data-risk-index="11" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="4.1" data-editing-initialized="true">4.1. Consolidation KPI — vrais positifs / faux négatifs</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="4.1" onclick="toggleMilestone('4.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">22/08/2026</span><input type="date" class="editable-date" data-risk-id="4.1" data-date-type="startDate" value="2026-08-22" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">27/08/2026</span><input type="date" class="editable-date" data-risk-id="4.1" data-date-type="endDate" value="2026-08-27" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-11">
+                                6
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-11" data-risk-id="4.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="4.1" data-editing-initialized="true">Xavier</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('4.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="4" data-risk-position="1" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="4" data-risk-position="1" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="4.2" data-risk-index="12" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="4.2" data-editing-initialized="true">4.2. Bilan POC &amp; recommandation déploiement national</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="4.2" onclick="toggleMilestone('4.2', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">28/08/2026</span><input type="date" class="editable-date" data-risk-id="4.2" data-date-type="startDate" value="2026-08-28" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">31/08/2026</span><input type="date" class="editable-date" data-risk-id="4.2" data-date-type="endDate" value="2026-08-31" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-12">
+                                4
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-12" data-risk-id="4.2" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="4.2" data-editing-initialized="true">Xavier / DG</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('4.2')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="4" data-risk-position="2" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="4" data-risk-position="2" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="4.3" data-risk-index="13" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="4.3" data-editing-initialized="true">4.3. Décision industrialisation</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-badge" onclick="toggleMilestone('4.3', event)" title="Clic pour retransformer en tâche" style="cursor:pointer; margin-right:4px;">◆</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">31/08/2026</span><input type="date" class="editable-date" data-risk-id="4.3" data-date-type="startDate" value="2026-08-31" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">31/08/2026</span><input type="date" class="editable-date" data-risk-id="4.3" data-date-type="endDate" value="2026-08-31" disabled="disabled" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-13">
+                                1
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-13" data-risk-id="4.3" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="4.3" data-editing-initialized="true">Cliquer pour ajouter</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('4.3')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="4" data-risk-position="3" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="4" data-risk-position="3" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="5">
+                <div class="group-separator-label">
+                    <span class="group-separator-icon">+</span>
+                    <span>Ajouter une phase</span>
+                </div>
+            </div></div>
     </div>
 
     <!-- Footer -->
@@ -2227,7 +3048,7 @@
         <div class="footer-links">
             <a href="https://github.com/guthubrx/plannr" target="_blank" rel="noopener noreferrer">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
                 </svg>
                 GitHub
             </a>
@@ -2240,6 +3061,16 @@
     </footer>
 
     <script>
+        // Detection mode iframe/embedded
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var embedded = params.get('embedded') === '1';
+            var inIframe = false;
+            try { if (window.parent !== window) inIframe = true; } catch(e) {}
+            if (embedded) document.documentElement.classList.add('embedded');
+            if (inIframe) document.documentElement.classList.add('in-iframe');
+        })();
+
         // ========================================
         // Système de Toast Notifications
         // ========================================
@@ -2434,6 +3265,18 @@
 
         // Lancer l'initialisation quand le DOM est prêt
         document.addEventListener('DOMContentLoaded', initInlineEditing);
+
+        // ========================================
+        // Mode Présentation
+        // ========================================
+
+        function togglePresentation() {
+            document.body.classList.toggle('presentation-mode');
+            var btn = document.getElementById('pres-toggle');
+            var active = document.body.classList.contains('presentation-mode');
+            btn.classList.toggle('active', active);
+            btn.textContent = active ? '✏️ Édition' : '🖥️ Présentation';
+        }
 
         // ========================================
         // Toggle sticky mode
@@ -3080,6 +3923,12 @@
                     // Mettre à jour la date
                     task[dateType] = newValue;
 
+                    // Mettre à jour le span d'affichage français
+                    var displaySpan = input.previousElementSibling;
+                    if (displaySpan && displaySpan.classList.contains('date-display')) {
+                        displaySpan.textContent = formatDateFR(newValue);
+                    }
+
                     // Recalculer la durée
                     if (task.startDate && task.endDate) {
                         task.duration = calculateDuration(task.startDate, task.endDate);
@@ -3228,7 +4077,7 @@
             const link = document.createElement('a');
             link.href = url;
             const dateStr = new Date().toISOString().slice(0, 10);
-            link.download = `riskr_data_${dateStr}.json`;
+            link.download = `plannr_data_${dateStr}.json`;
             
             document.body.appendChild(link);
             link.click();
@@ -3865,6 +4714,14 @@
         // DONNÉES - Tâches et Phases
         // ========================================
 
+        // Formate une date ISO (YYYY-MM-DD) en français (DD/MM/YYYY)
+        function formatDateFR(dateStr) {
+            if (!dateStr) return '—';
+            var parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            return parts[2] + '/' + parts[1] + '/' + parts[0];
+        }
+
         // Calcule la durée en jours entre deux dates
         function calculateDuration(startDate, endDate) {
             const start = new Date(startDate);
@@ -3894,62 +4751,95 @@
             phase.duration = calculateDuration(phase.startDate, phase.endDate);
         }
 
-        // Données des tâches
-        const tasks = [
-            // Phase 1: Initialisation
-            { id: "1.1", title: "Définir le périmètre du projet",
-              startDate: "2025-01-20", endDate: "2025-01-25",
-              duration: 5, statut: "À faire", assignedTo: "" },
-            { id: "1.2", title: "Identifier les parties prenantes",
-              startDate: "2025-01-26", endDate: "2025-01-31",
-              duration: 5, statut: "À faire", assignedTo: "" },
+        // ========================================
+        // RECHARGEMENT DES DONNÉES (contourne le cache navigateur)
+        // ========================================
+        function reloadPlannrData() {
+            // Étape 1 : Recharger plannr-data.js sans cache et mettre à jour en mémoire
+            var oldScript = document.querySelector('script[src^="plannr-data"]');
+            if (oldScript) oldScript.remove();
+            var s = document.createElement('script');
+            s.src = 'plannr-data.js?t=' + Date.now();
+            s.onload = function() {
+                var extData = window.PLANNR_DATA;
+                if (!extData || !extData.riskGroups) {
+                    alert('Données invalides dans plannr-data.js');
+                    return;
+                }
+                // Mettre à jour les variables globales
+                riskGroups.length = 0;
+                risks.length = 0;
+                extData.riskGroups.forEach(function(g) {
+                    riskGroups.push(g);
+                    if (g.tasks) g.tasks.forEach(function(t) { risks.push(t); });
+                });
+                // Mettre à jour titre et sous-titre
+                if (extData.appState) {
+                    if (extData.appState.title) {
+                        var el = document.getElementById('main-title');
+                        if (el) el.textContent = extData.appState.title;
+                    }
+                    if (extData.appState.subtitle) {
+                        var el2 = document.getElementById('main-subtitle');
+                        if (el2) el2.textContent = extData.appState.subtitle;
+                    }
+                }
+                // Re-rendre toute l'interface
+                if (typeof renderPlanning === 'function') renderPlanning();
+                if (typeof updateGantt === 'function') updateGantt();
+                if (typeof updateDashboard === 'function') updateDashboard();
+                if (typeof showToast === 'function') showToast('Données rechargées');
 
-            // Phase 2: Conception
-            { id: "2.1", title: "Analyser l'existant",
-              startDate: "2025-02-01", endDate: "2025-02-10",
-              duration: 9, statut: "À faire", assignedTo: "" },
-            { id: "2.2", title: "Concevoir l'architecture",
-              startDate: "2025-02-11", endDate: "2025-02-25",
-              duration: 14, statut: "À faire", assignedTo: "" },
+                // Étape 2 : Recharger la page complète avec cache-buster
+                // pour que le HTML embarqué se mette aussi à jour
+                var url = window.location.pathname;
+                window.location.href = url + '?reload=' + Date.now();
+            };
+            s.onerror = function() { alert('Impossible de charger plannr-data.js'); };
+            document.head.appendChild(s);
+        }
 
-            // Phase 3: Développement
-            { id: "3.1", title: "Développer la base",
-              startDate: "2025-02-26", endDate: "2025-03-15",
-              duration: 17, statut: "À faire", assignedTo: "" },
-            { id: "3.2", title: "Intégration et tests",
-              startDate: "2025-03-16", endDate: "2025-03-31",
-              duration: 15, statut: "À faire", assignedTo: "" }
-        ];
+        // ========================================
+        // CHARGEMENT DES DONNÉES
+        // ========================================
+        let tasks, phases;
 
-        // Phases du projet
-        const phases = [
-            {
-                id: 1,
-                name: "Phase 1 : Initialisation",
-                description: "Lancement et cadrage du projet",
-                tasks: tasks.filter(t => t.id.startsWith("1.")),
-                color: "#0071e3"
-            },
-            {
-                id: 2,
-                name: "Phase 2 : Conception",
-                description: "Architecture et design de la solution",
-                tasks: tasks.filter(t => t.id.startsWith("2.")),
-                color: "#34c759"
-            },
-            {
-                id: 3,
-                name: "Phase 3 : Développement",
-                description: "Implémentation et tests",
-                tasks: tasks.filter(t => t.id.startsWith("3.")),
-                color: "#ff9500"
+        if (window.PLANNR_DATA && window.PLANNR_DATA.riskGroups) {
+            const extData = window.PLANNR_DATA;
+            phases = extData.riskGroups;
+            tasks = [];
+            phases.forEach(group => {
+                if (group.tasks && Array.isArray(group.tasks)) {
+                    group.tasks.forEach(t => tasks.push(t));
+                }
+            });
+            if (extData.appState) {
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (extData.appState.title) {
+                        const el = document.getElementById('main-title');
+                        if (el) { el.textContent = extData.appState.title; localStorage.setItem('analysis-main-title', extData.appState.title); }
+                    }
+                    if (extData.appState.subtitle) {
+                        const el = document.getElementById('main-subtitle');
+                        if (el) { el.textContent = extData.appState.subtitle; localStorage.setItem('analysis-main-subtitle', extData.appState.subtitle); }
+                    }
+                    if (extData.appState.language && typeof setLanguage === 'function') {
+                        setLanguage(extData.appState.language);
+                    }
+                });
             }
-        ];
+        } else {
+            tasks = [
+                { id: "1.0", title: "Jalon de démarrage", startDate: "2026-04-01", endDate: "2026-04-01", duration: 1, statut: "À faire", assignedTo: "", isMilestone: true },
+                { id: "1.1", title: "Tâche exemple 1", startDate: "2026-04-01", endDate: "2026-04-15", duration: 15, statut: "À faire", assignedTo: "Équipe" },
+                { id: "1.2", title: "Tâche exemple 2", startDate: "2026-04-16", endDate: "2026-04-30", duration: 15, statut: "À faire", assignedTo: "Équipe" }
+            ];
+            phases = [
+                { id: 1, name: "Phase 1 — Exemple", description: "Données de démonstration", tasks: tasks, color: "#5E81AC" }
+            ];
+        }
 
-        // Calculer les dates de chaque phase
         phases.forEach(updatePhaseDates);
-
-        // Alias pour compatibilité avec le code existant
         const risks = tasks;
         const riskGroups = phases;
 
@@ -4125,7 +5015,10 @@
                 const colorIndex = index % colors.length;
                 phase.color = colors[colorIndex];
             });
+            if (typeof renderPlanning === 'function') renderPlanning();
             updateGantt();
+            if (typeof updateDashboard === 'function') updateDashboard();
+            saveState();
         }
 
         // Changer la palette de couleurs
@@ -4261,7 +5154,7 @@
             saveState();
 
             // Trouver le groupe contenant ce risque
-            const group = riskGroups.find(g => g.risks.some(r => r.id === riskId));
+            const group = riskGroups.find(g => g.tasks.some(r => r.id === riskId));
             if (!group) return;
 
             // Supprimer le risque du groupe
@@ -4687,7 +5580,7 @@
                 };
                 headerDiv.innerHTML = `
                     <span class="collapse-icon">▼</span>
-                    <div class="risk-group-number">${group.id}</div>
+                    <div class="risk-group-number" style="background:${group.color}">${group.id}</div>
                     <div style="flex: 1;">
                         <div class="risk-group-title editable-group-name" id="group-name-${group.id}" data-group-id="${group.id}">${group.name}</div>
                         <div class="risk-group-description editable-group-description" id="group-desc-${group.id}" data-group-id="${group.id}">${group.description}</div>
@@ -4821,14 +5714,11 @@
                             <td class="risk-title-cell">
                                 <span class="editable-risk-title" data-risk-id="${risk.id}">${risk.id}. ${risk.title}</span>
                             </td>
-                            <td class="milestone-cell" style="text-align: center;">
-                                ${!risk.isMilestone ? `<span class="milestone-x" data-risk-id="${risk.id}" onclick="toggleMilestone('${risk.id}', event)" title="Transformer en jalon">×</span>` : '<span class="milestone-badge" onclick="toggleMilestone(\'' + risk.id + '\', event)" title="Clic pour retransformer en tâche">◆</span>'}
+                            <td class="date-cell" style="white-space: nowrap;">
+                                ${!risk.isMilestone ? `<span class="milestone-x" data-risk-id="${risk.id}" onclick="toggleMilestone('${risk.id}', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span>` : `<span class="milestone-badge" onclick="toggleMilestone('${risk.id}', event)" title="Clic pour retransformer en tâche" style="cursor:pointer; margin-right:4px;">◆</span>`}<span class="date-display" onclick="this.nextElementSibling.showPicker()">${formatDateFR(risk.startDate)}</span><input type="date" class="editable-date" data-risk-id="${risk.id}" data-date-type="startDate" value="${risk.startDate || ''}" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
                             </td>
                             <td class="date-cell">
-                                <input type="date" class="editable-date" data-risk-id="${risk.id}" data-date-type="startDate" value="${risk.startDate || ''}">
-                            </td>
-                            <td class="date-cell">
-                                <input type="date" class="editable-date" data-risk-id="${risk.id}" data-date-type="endDate" value="${risk.endDate || ''}" ${risk.isMilestone ? 'disabled' : ''}>
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">${formatDateFR(risk.endDate)}</span><input type="date" class="editable-date" data-risk-id="${risk.id}" data-date-type="endDate" value="${risk.endDate || ''}" ${risk.isMilestone ? 'disabled' : ''} style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
                             </td>
                             <td class="duration-cell" id="duration-${index}">
                                 ${risk.duration || 0}
@@ -5524,9 +6414,10 @@
             // Mettre à jour les boutons
             const btnCompact = document.getElementById('view-btn-compact');
             const btnCascade = document.getElementById('view-btn-cascade');
+            const btnConsolide = document.getElementById('view-btn-consolide');
 
             // Reset tous les boutons
-            [btnCompact, btnCascade].forEach(btn => {
+            [btnCompact, btnCascade, btnConsolide].forEach(btn => {
                 if (btn) {
                     btn.style.background = 'transparent';
                     btn.style.color = '#666';
@@ -5539,6 +6430,7 @@
             let activeBtn = null;
             if (mode === 'compact') activeBtn = btnCompact;
             else if (mode === 'cascade') activeBtn = btnCascade;
+            else if (mode === 'consolide') activeBtn = btnConsolide;
 
             if (activeBtn) {
                 activeBtn.style.background = 'white';
@@ -5554,7 +6446,7 @@
         // Initialiser la vue au chargement
         function initGanttView() {
             const savedView = localStorage.getItem('plannr-gantt-view');
-            if (savedView && ['compact', 'cascade'].includes(savedView)) {
+            if (savedView && ['compact', 'cascade', 'consolide'].includes(savedView)) {
                 setGanttView(savedView);
             } else {
                 setGanttView('cascade'); // Défaut
@@ -5718,6 +6610,88 @@
 
                     ctx.restore();
                 }
+
+                // En mode consolidé, dessiner séparateurs de phase + labels à gauche
+                if (ganttViewMode === 'consolide') {
+                    const layout = chart.options.consolidatedPhaseLayout;
+                    if (!layout) return;
+
+                    ctx.save();
+
+                    layout.forEach((entry, entryIndex) => {
+                        const phase = entry.phase;
+                        const startLine = entry.startLine;
+                        const numPhaseLines = entry.numLines;
+
+                        if (numPhaseLines === 0) return;
+
+                        // Pixels Y du début et de la fin du bloc de phase
+                        const yTop = yAxis.getPixelForValue(startLine - 0.5);
+                        const yBottom = yAxis.getPixelForValue(startLine + numPhaseLines - 0.5);
+                        const yMid = (yTop + yBottom) / 2;
+
+                        // Convertir la couleur hex en rgba pour le fond
+                        const r = parseInt(phase.color.slice(1, 3), 16);
+                        const g = parseInt(phase.color.slice(3, 5), 16);
+                        const b = parseInt(phase.color.slice(5, 7), 16);
+
+                        // Fond légèrement coloré dans la marge de gauche
+                        const labelAreaRight = xAxis.left;
+                        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.08)`;
+                        ctx.fillRect(0, yTop, labelAreaRight, yBottom - yTop);
+
+                        // Barre verticale de couleur à gauche
+                        ctx.fillStyle = phase.color;
+                        ctx.fillRect(labelAreaRight - 4, yTop + 2, 4, yBottom - yTop - 4);
+
+                        // Texte du nom de phase
+                        ctx.fillStyle = phase.color;
+                        ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        const labelX = 8;
+                        const maxLabelWidth = labelAreaRight - 20;
+
+                        // Afficher le nom sur plusieurs lignes si trop long
+                        const phaseName = phase.name || ('Phase ' + (entryIndex + 1));
+                        const phaseLineHeight = 14;
+                        if (ctx.measureText(phaseName).width <= maxLabelWidth) {
+                            ctx.fillText(phaseName, labelX, yMid);
+                        } else {
+                            // Découper en mots et répartir sur plusieurs lignes
+                            const words = phaseName.split(' ');
+                            const phaseLines = [];
+                            let currentLine = '';
+                            for (const word of words) {
+                                const test = currentLine ? currentLine + ' ' + word : word;
+                                if (ctx.measureText(test).width <= maxLabelWidth) {
+                                    currentLine = test;
+                                } else {
+                                    if (currentLine) phaseLines.push(currentLine);
+                                    currentLine = word;
+                                }
+                            }
+                            if (currentLine) phaseLines.push(currentLine);
+                            const totalTextHeight = phaseLines.length * phaseLineHeight;
+                            const startY = yMid - totalTextHeight / 2 + phaseLineHeight / 2;
+                            phaseLines.forEach((line, i) => {
+                                ctx.fillText(line, labelX, startY + i * phaseLineHeight);
+                            });
+                        }
+
+                        // Séparateur horizontal entre phases (sauf avant la première)
+                        if (entryIndex > 0) {
+                            ctx.beginPath();
+                            ctx.moveTo(0, yTop);
+                            ctx.lineTo(xAxis.right, yTop);
+                            ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.4)`;
+                            ctx.lineWidth = 1.5;
+                            ctx.stroke();
+                        }
+                    });
+
+                    ctx.restore();
+                }
             }
         });
 
@@ -5774,7 +6748,7 @@
                         ctx.restore();
                     });
                 } else {
-                    // Modes groupe et compact : utiliser l'ancienne méthode (jalons dans ganttData)
+                    // Modes groupe, compact et consolidé : utiliser l'ancienne méthode (jalons dans ganttData)
                     const labels = chart.data.labels;
                     if (!ganttData) return;
 
@@ -5785,7 +6759,7 @@
 
                             // En mode compact, décaler le jalon vers le bas pour qu'il apparaisse sous la tâche
                             if (dataPoint.compactMode) {
-                                y += 45; // Adapté aux barres de 60px
+                                y += 28; // Adapté aux barres de 40px
                             }
 
                             // Utiliser dataPoint.task si disponible, sinon chercher par index
@@ -5795,7 +6769,7 @@
                             const date = new Date(task.startDate);
                             const dateStr = `${date.getDate()}/${date.getMonth() + 1}`;
 
-                            const phase = phases.find(p => p.id === parseInt(task.id.split('.')[0]));
+                            const phase = phases.find(p => p.tasks.some(t => t.id === task.id));
                             const phaseColor = phase ? phase.color : '#0071e3';
 
                             const capsuleWidth = 42;
@@ -5827,8 +6801,8 @@
         Chart.register({
             id: 'taskLabelsPlugin',
             afterDatasetsDraw: function(chart) {
-                // Actif uniquement en mode compact
-                if (ganttViewMode !== 'compact') return;
+                // Actif en mode compact et consolidé
+                if (ganttViewMode !== 'compact' && ganttViewMode !== 'consolide') return;
 
                 const ctx = chart.ctx;
                 const xAxis = chart.scales.x;
@@ -5888,22 +6862,23 @@
                     itemsByLine[d.y].push({ ...d, index: i });
                 });
 
-                // Altitudes ajustées pour barres de 60px (bords à +/- 30px)
-                // Niveau 0: Au-dessus (-65px)
-                // Niveau 1: En-dessous du jalon (+75px) -> Jalon est à +45px
-                // Niveau 2: Au-dessus loin (-85px)
-                // Niveau 3: En-dessous très loin (+95px)
-                const altitudes = [-65, 75, -85, 95];
-                const lineHeight = 12; // Hauteur de ligne
+                // Altitudes ajustées pour barres de 40px (bords à +/- 20px)
+                // 4 niveaux suffisent avec l'espacement réduit
+                const altitudes = [-35, 42, -50, 58, -65, 75];
+                const lineHeight = 12;
                 
+                const allLineKeys = Object.keys(itemsByLine).map(Number).sort((a, b) => a - b);
+                const maxLineIndex = allLineKeys.length > 0 ? allLineKeys[allLineKeys.length - 1] : 0;
+
                 Object.keys(itemsByLine).forEach(yIndex => {
                     const lineItems = itemsByLine[yIndex];
+                    const isLastLine = Number(yIndex) === maxLineIndex;
                     
                     // Trier par position X
                     lineItems.sort((a, b) => a.x[0] - b.x[0]);
 
                     // Suivi de la fin du dernier texte pour chaque niveau d'altitude
-                    const lastTextEnd = [-9999, -9999, -9999, -9999];
+                    const lastTextEnd = altitudes.map(() => -9999);
 
                     lineItems.forEach(itemData => {
                         const task = itemData.task;
@@ -5911,20 +6886,47 @@
 
                         const xStart = xAxis.getPixelForValue(itemData.x[0]);
                         const xEnd = xAxis.getPixelForValue(itemData.x[1]);
-                        
+
                         // Centrage : sur la date exacte pour les jalons, au milieu de la barre pour les tâches
                         const xCenter = itemData.isMilestone ? xStart : (xStart + xEnd) / 2;
-                        
+
                         const yCenter = yAxis.getPixelForValue(itemData.y);
 
-                        // Calcul de la largeur max dynamique
                         const boxWidth = xEnd - xStart;
-                        const dynamicMaxWidth = Math.max(boxWidth, 100);
+                        const label = task.title;
+                        const inBarPadding = 16; // marge intérieure
+
+                        // === TENTATIVE : texte DANS la barre ===
+                        if (!itemData.isMilestone && boxWidth > 60) {
+                            const barColor = itemData.color || '#1d1d1f';
+                            const singleLineWidth = ctx.measureText(label).width;
+                            if (singleLineWidth <= boxWidth - inBarPadding) {
+                                // Tient sur 1 ligne dans la barre
+                                ctx.fillStyle = barColor;
+                                ctx.fillText(label, xCenter, yCenter);
+                                return; // Pas de déport
+                            }
+                            // Essayer sur 2 lignes
+                            const inBarLines = getBalancedLines(ctx, label, boxWidth - inBarPadding);
+                            let maxW = 0;
+                            inBarLines.forEach(l => { const w = ctx.measureText(l).width; if (w > maxW) maxW = w; });
+                            if (inBarLines.length <= 2 && maxW <= boxWidth - inBarPadding) {
+                                ctx.fillStyle = barColor;
+                                inBarLines.forEach((lt, li) => {
+                                    const ly = yCenter + (li - (inBarLines.length - 1) / 2) * lineHeight;
+                                    ctx.fillText(lt, xCenter, ly);
+                                });
+                                return; // Pas de déport
+                            }
+                        }
+
+                        // === FALLBACK : texte déporté (comportement original) ===
+                        // Calcul de la largeur max dynamique — plafonné pour éviter les étiquettes géantes
+                        const dynamicMaxWidth = Math.min(Math.max(boxWidth, 100), 180);
 
                         // Découpage du texte équilibré (max 2 lignes)
-                        const label = task.title;
                         const lines = getBalancedLines(ctx, label, dynamicMaxWidth);
-                        
+
                         // Calculer la largeur max pour la collision
                         let maxLineWidth = 0;
                         lines.forEach(l => {
@@ -5935,46 +6937,30 @@
                         const textWidth = maxLineWidth;
                         const textStart = xCenter - (textWidth / 2);
                         const textEnd = xCenter + (textWidth / 2);
-                        const padding = 20;
+                        const padding = 30;
 
-                        // Détecter si une tâche chevauche un jalon (pour éviter la collision en bas)
-                        let hasMilestoneOverlap = false;
-                        if (!itemData.isMilestone) {
-                            for (const otherItem of lineItems) {
-                                if (otherItem.isMilestone) {
-                                    const msX = xAxis.getPixelForValue(otherItem.x[0]);
-                                    // Si le centre de la tâche est proche du jalon (< 80px)
-                                    if (Math.abs(msX - xCenter) < 80) {
-                                        hasMilestoneOverlap = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        // Trouver la première altitude disponible
+                        // Trouver le meilleur niveau parmi tous (haut et bas)
+                        // Préférence : bas d'abord (1,3,5) puis haut (0,2,4)
                         let chosenLevel = 0;
-                        
-                        // Stratégie de positionnement :
-                        // - Jalons : Toujours en BAS (1 ou 3)
-                        // - Tâches sous jalon : Toujours en HAUT (0 ou 2) pour éviter collision
-                        // - Autres : Libre [0, 1, 2, 3]
-                        let possibleAltitudes = [0, 1, 2, 3];
-                        
-                        if (itemData.isMilestone) {
-                            possibleAltitudes = [1, 3];
-                        } else if (hasMilestoneOverlap) {
-                            possibleAltitudes = [0, 2];
-                        }
-                        
-                        for (const i of possibleAltitudes) {
+                        const preferredOrder = [1, 0, 3, 2, 5, 4]; // alterner bas/haut
+
+                        let placed = false;
+                        for (const i of preferredOrder) {
                             if (textStart > lastTextEnd[i] + padding) {
                                 chosenLevel = i;
+                                placed = true;
                                 break;
                             }
-                            // Fallback sur le dernier possible
-                            if (i === possibleAltitudes[possibleAltitudes.length - 1]) {
-                                chosenLevel = i;
+                        }
+                        // Fallback : trouver le niveau avec le moins de chevauchement
+                        if (!placed) {
+                            let bestOverlap = Infinity;
+                            for (const i of preferredOrder) {
+                                const overlap = lastTextEnd[i] + padding - textStart;
+                                if (overlap < bestOverlap) {
+                                    bestOverlap = overlap;
+                                    chosenLevel = i;
+                                }
                             }
                         }
 
@@ -5987,18 +6973,18 @@
                         ctx.strokeStyle = color;
                         ctx.lineWidth = 1;
                         ctx.setLineDash([2, 2]);
-                        
+
                         if (itemData.isMilestone) {
                             // JALON : La tige part du jalon (+45px + 8px de rayon)
-                            ctx.moveTo(xCenter, yCenter + 45 + 8);
+                            ctx.moveTo(xCenter, yCenter + 28);
                             ctx.lineTo(xCenter, basePos - 8);
                         } else if (altitudes[chosenLevel] < 0) {
                             // Vers le haut (Tâche) : part du bord haut de la grosse barre (-30px)
-                            ctx.moveTo(xCenter, yCenter - 30);
+                            ctx.moveTo(xCenter, yCenter - 20);
                             ctx.lineTo(xCenter, basePos + 8);
                         } else {
-                            // Vers le bas (Tâche) : part du bord bas de la grosse barre (+30px)
-                            ctx.moveTo(xCenter, yCenter + 30);
+                            // Vers le bas (Tâche) : part du bord bas de la barre (+20px)
+                            ctx.moveTo(xCenter, yCenter + 20);
                             ctx.lineTo(xCenter, basePos - 8);
                         }
                         ctx.stroke();
@@ -6007,7 +6993,7 @@
                         // 2. Dessiner le texte
                         ctx.lineJoin = 'round';
                         ctx.lineWidth = 3;
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; 
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
                         ctx.fillStyle = color;
 
                         lines.forEach((lineText, lineIndex) => {
@@ -6028,6 +7014,77 @@
                             ctx.fillText(lineText, xCenter, lineY);
                         });
                     });
+                });
+
+                ctx.restore();
+            }
+        });
+
+        // Plugin pour afficher les titres DANS les barres en mode cascade (quand ça tient)
+        Chart.register({
+            id: 'cascadeInBarLabelsPlugin',
+            afterDatasetsDraw: function(chart) {
+                if (ganttViewMode !== 'cascade') return;
+
+                const ctx = chart.ctx;
+                const xAxis = chart.scales.x;
+                const yAxis = chart.scales.y;
+                const ganttData = chart.options.ganttData;
+
+                if (!ganttData) return;
+
+                ctx.save();
+                ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI"';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const lineHeight = 12;
+                const inBarPadding = 16;
+
+                ganttData.forEach((dataPoint) => {
+                    if (dataPoint.isMilestone) return;
+                    const task = dataPoint.task;
+                    if (!task) return;
+
+                    const xStart = xAxis.getPixelForValue(dataPoint.x[0]);
+                    const xEnd = xAxis.getPixelForValue(dataPoint.x[1]);
+                    const barWidth = xEnd - xStart;
+                    const xCenter = (xStart + xEnd) / 2;
+                    const yCenter = yAxis.getPixelForValue(dataPoint.y);
+
+                    if (barWidth < 60) return; // Trop petit, on ne tente pas
+
+                    const label = task.title;
+                    const singleW = ctx.measureText(label).width;
+
+                    // Trouver la couleur de la phase (= couleur de bordure)
+                    const phases = chart.options.phasesData;
+                    const phase = phases ? phases.find(p => p.tasks.some(t => t.id === task.id)) : null;
+                    const barColor = phase ? phase.color : '#1d1d1f';
+
+                    if (singleW <= barWidth - inBarPadding) {
+                        ctx.fillStyle = barColor;
+                        ctx.fillText(label, xCenter, yCenter);
+                    } else {
+                        // Essayer sur 2 lignes
+                        const words = label.split(' ');
+                        if (words.length < 2) return;
+                        let bestSplit = 1, minDiff = Infinity;
+                        for (let i = 1; i < words.length; i++) {
+                            const w1 = ctx.measureText(words.slice(0, i).join(' ')).width;
+                            const w2 = ctx.measureText(words.slice(i).join(' ')).width;
+                            const diff = Math.abs(w1 - w2);
+                            if (diff < minDiff) { minDiff = diff; bestSplit = i; }
+                        }
+                        const l1 = words.slice(0, bestSplit).join(' ');
+                        const l2 = words.slice(bestSplit).join(' ');
+                        const maxW = Math.max(ctx.measureText(l1).width, ctx.measureText(l2).width);
+                        if (maxW <= barWidth - inBarPadding) {
+                            ctx.fillStyle = barColor;
+                            ctx.fillText(l1, xCenter, yCenter - lineHeight / 2);
+                            ctx.fillText(l2, xCenter, yCenter + lineHeight / 2);
+                        }
+                    }
                 });
 
                 ctx.restore();
@@ -6593,16 +7650,32 @@
             let numLines = 0;
             const allTasks = phases.flatMap(p => p.tasks);
             let compactedLines = [];
-            
+            let consolidatedLayout = null;
+
             if (ganttViewMode === 'cascade') {
                 numLines = allTasks.length;
+            } else if (ganttViewMode === 'consolide') {
+                // Compacter les tâches PHASE PAR PHASE
+                let totalLines = 0;
+                consolidatedLayout = [];
+                phases.forEach(phase => {
+                    const phaseCompacted = compactTasksAndMilestones(phase.tasks);
+                    consolidatedLayout.push({
+                        phase: phase,
+                        startLine: totalLines,
+                        numLines: phaseCompacted.length,
+                        compactedLines: phaseCompacted
+                    });
+                    totalLines += phaseCompacted.length;
+                });
+                numLines = totalLines;
             } else {
                 compactedLines = compactTasksAndMilestones(allTasks);
                 numLines = compactedLines.length;
             }
 
-            // Hauteur aérée : 160px par ligne en compact (pour barres de 60px), 60px sinon
-            const minHeightPerLine = (ganttViewMode === 'compact') ? 160 : 60;
+            // Hauteur par ligne : 90px en compact/consolidé (réduit car les labels tiennent souvent dans les barres), 60px en cascade
+            const minHeightPerLine = (ganttViewMode === 'compact' || ganttViewMode === 'consolide') ? 90 : 60;
             const targetHeight = Math.max(450, numLines * minHeightPerLine);
             canvas.parentElement.style.height = targetHeight + 'px';
 
@@ -6680,6 +7753,44 @@
                         }
                     });
                 });
+            } else if (ganttViewMode === 'consolide') {
+                // Mode Consolidé : compactage par phase, labels de phase à gauche
+                consolidatedLayout.forEach((layoutEntry) => {
+                    const phase = layoutEntry.phase;
+                    const startLine = layoutEntry.startLine;
+
+                    layoutEntry.compactedLines.forEach((lineData, lineIndex) => {
+                        const globalLineIndex = startLine + lineIndex;
+                        labels.push(`Ligne ${globalLineIndex + 1}`);
+
+                        lineData.line.forEach(task => {
+                            const start = new Date(task.startDate).getTime();
+                            const phaseColor = phase.color;
+
+                            if (task.isMilestone || !task.endDate) {
+                                const end = start + (2 * 24 * 60 * 60 * 1000);
+                                ganttData.push({
+                                    x: [start, end],
+                                    y: globalLineIndex,
+                                    isMilestone: true,
+                                    compactMode: true,
+                                    task: task,
+                                    color: phaseColor
+                                });
+                            } else {
+                                const end = new Date(task.endDate).getTime();
+                                ganttData.push({
+                                    x: [start, end],
+                                    y: globalLineIndex,
+                                    isMilestone: false,
+                                    task: task,
+                                    color: phaseColor
+                                });
+                            }
+                            colors.push(phaseColor);
+                        });
+                    });
+                });
             } else {
                 // Mode Compact : minimiser les lignes, jalons intégrés aux lignes de tâches
                 const allTasks = phases.flatMap(p => p.tasks);
@@ -6694,7 +7805,7 @@
                     // Ajouter toutes les tâches/jalons de cette ligne
                     line.forEach(task => {
                         const start = new Date(task.startDate).getTime();
-                        const phase = phases.find(p => p.id === parseInt(task.id.split('.')[0]));
+                        const phase = phases.find(p => p.tasks.some(t => t.id === task.id));
                         const phaseColor = phase ? phase.color : currentPalette[0];
 
                         if (task.isMilestone || !task.endDate) {
@@ -6750,8 +7861,8 @@
                         borderColor: colors.map((color, index) => ganttData[index].isMilestone ? 'transparent' : color),
                         borderWidth: 1,
                         borderSkipped: false,
-                        barThickness: (ganttViewMode === 'compact') ? 60 : 35, // Doublé en compact
-                        categoryPercentage: (ganttViewMode === 'compact') ? 0.4 : 0.65 // Plus d'espace en compact
+                        barThickness: (ganttViewMode === 'compact' || ganttViewMode === 'consolide') ? 40 : 35,
+                        categoryPercentage: (ganttViewMode === 'compact' || ganttViewMode === 'consolide') ? 0.4 : 0.65
                     }]
                 },
                 options: {
@@ -6759,13 +7870,15 @@
                     ganttData: ganttData,
                     phasesData: phases,
                     milestonesData: milestones,
+                    consolidatedPhaseLayout: consolidatedLayout || null,
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: { padding: { left: (ganttViewMode === 'consolide') ? 180 : 60, right: 100, top: 30 } },
                     scales: {
                         x: {
-                            min: minDate,
-                            max: maxDate + dayMs,
+                            min: minDate - 3 * dayMs,
+                            max: maxDate + 3 * dayMs,
                             ticks: {
                                 callback: function(value) {
                                     const date = new Date(value);
@@ -6783,19 +7896,42 @@
                                 display: false // Pas de titre pour l'axe X
                             }
                         },
-                        y: {
+                        y: (ganttViewMode === 'compact') ? {
+                            type: 'linear',
                             beginAtZero: true,
-                            grid: {
-                                display: false // Désactiver les lignes de grille par défaut
-                            },
-                            title: {
-                                display: true,
-                                text: t('axisPhases')
-                            },
-                            // Réduire l'espacement entre les lanes
+                            min: -0.5,
+                            max: numLines - 0.5,
+                            reverse: true,
+                            grid: { display: false },
+                            title: { display: false },
                             ticks: {
-                                padding: 4 // Réduire le padding autour des labels (défaut = 10)
+                                stepSize: 1,
+                                padding: 4,
+                                callback: function(value) {
+                                    if (Number.isInteger(value) && value >= 0 && value < numLines) {
+                                        return 'Ligne ' + (value + 1);
+                                    }
+                                    return '';
+                                }
                             }
+                        } : (ganttViewMode === 'consolide') ? {
+                            type: 'linear',
+                            beginAtZero: true,
+                            min: -0.5,
+                            max: numLines - 0.5,
+                            reverse: true,
+                            grid: { display: false },
+                            title: { display: false },
+                            ticks: {
+                                stepSize: 1,
+                                padding: 4,
+                                callback: function() { return ''; }
+                            }
+                        } : {
+                            beginAtZero: true,
+                            grid: { display: false },
+                            title: { display: false },
+                            ticks: { padding: 4 }
                         }
                     },
                     plugins: {
@@ -6898,7 +8034,7 @@
 
                             // Appliquer le décalage si mode compact
                             if (ganttViewMode === 'compact' && dataPoint.compactMode) {
-                                capsuleY += 45;
+                                capsuleY += 28;
                             }
 
                             const capsuleWidth = 50;
@@ -7172,7 +8308,7 @@
                     task.duration = calculateDuration(task.startDate, task.endDate);
 
                     // Recalculer les dates de la phase
-                    const phase = phases.find(p => p.id === parseInt(task.id.split('.')[0]));
+                    const phase = phases.find(p => p.tasks.some(t => t.id === task.id));
                     if (phase) {
                         updatePhaseDates(phase);
                     }
@@ -7257,7 +8393,7 @@
                     }
 
                     // Recalculer les dates de la phase
-                    const phase = phases.find(p => p.id === parseInt(task.id.split('.')[0]));
+                    const phase = phases.find(p => p.tasks.some(t => t.id === task.id));
                     if (phase) {
                         updatePhaseDates(phase);
                     }
@@ -7511,5 +8647,6 @@
         // Sauvegarder l'état initial pour le système undo/redo
         saveState();
     </script>
-</body>
-</html>
+
+
+<div class="toast-container"></div></body></html>
