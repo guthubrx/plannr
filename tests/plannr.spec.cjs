@@ -272,6 +272,53 @@ test('infobulle : contenu de la tâche survolée, jamais posée sur sa barre', a
     }
 });
 
+test('mode consolidé : pas de bouton + sur les barres, drag fonctionnel', async ({ page }) => {
+    // Régressions couvertes : (1) l'affordance « + jalon » apparaissait SUR
+    // les barres en consolidé/compact et volait le clic ; (2) les listeners
+    // s'empilaient à chaque updateGantt et, après changement de vue, l'ancien
+    // closure committait le drag sur la mauvaise tâche.
+    await page.evaluate(() => {
+        document.getElementById('ganttChart').scrollIntoView({ block: 'center' });
+        setGanttView('consolide');
+    });
+    await page.waitForTimeout(1300);
+
+    const pt = await page.evaluate(() => {
+        const gd = ganttChart.options.ganttData;
+        const i = gd.findIndex(g => g.task && g.task.id === '2.1');
+        const x = ganttChart.scales.x, y = ganttChart.scales.y;
+        const rect = ganttChart.canvas.getBoundingClientRect();
+        const x0 = x.getPixelForValue(gd[i].x[0]), x1 = x.getPixelForValue(gd[i].x[1]);
+        return { x: rect.left + (x0 + x1) / 2,
+                 y: rect.top + y.getPixelForValue(gd[i].y),
+                 pxPerDay: (x1 - x0) / Math.max(1, (gd[i].x[1] - gd[i].x[0]) / 86400000) };
+    });
+
+    // 1. souris sur la barre -> aucune affordance « + »
+    await page.mouse.move(pt.x, pt.y);
+    await page.waitForTimeout(400);
+    const plusVisible = await page.evaluate(() => {
+        const o = document.getElementById('gantt-separator-overlay');
+        return !!o && o.children.length > 0 && o.style.display !== 'none';
+    });
+    expect(plusVisible).toBe(false);
+
+    // 2. drag de la barre en consolidé -> la BONNE tâche bouge, et elle seule
+    const before = await page.evaluate(() =>
+        Object.fromEntries(risks.map(r => [r.id, r.startDate])));
+    await page.keyboard.down('Shift');
+    await page.mouse.down();
+    await page.mouse.move(pt.x + pt.pxPerDay * 6, pt.y, { steps: 6 });
+    await page.mouse.up();
+    await page.keyboard.up('Shift');
+    await page.waitForTimeout(300);
+    const after = await page.evaluate(() =>
+        Object.fromEntries(risks.map(r => [r.id, r.startDate])));
+    expect(after['2.1'] > before['2.1']).toBe(true);
+    const moved = Object.keys(after).filter(id => after[id] !== before[id]);
+    expect(moved).toEqual(['2.1']);
+});
+
 test('avancement : édition du % met à jour la progression pondérée', async ({ page }) => {
     const before = await page.evaluate(() =>
         document.getElementById('dashboard-progression').textContent);

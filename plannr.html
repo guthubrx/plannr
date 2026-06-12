@@ -8542,6 +8542,29 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     return;
                 }
 
+                // v2.1.3 : JAMAIS d'affordance « + » quand la souris est SUR une
+                // barre — en consolidé/compact les frontières de lanes peuvent
+                // traverser les barres, et le bouton volait alors le clic en
+                // empêchant le drag & drop. L'affordance reste disponible dans
+                // les zones vides (et sous les barres, comme en cascade).
+                const gdGuard = chart.options.ganttData || [];
+                const metaGuard = chart.getDatasetMeta(0);
+                for (let gi = 0; gi < gdGuard.length; gi++) {
+                    const elG = metaGuard.data[gi];
+                    if (!elG) continue;
+                    const gx0 = Math.min(elG.base, elG.x);
+                    const gx1 = Math.max(elG.base, elG.x);
+                    let gyC = elG.y;
+                    if (gdGuard[gi].isMilestone && gdGuard[gi].compactMode &&
+                        ganttViewMode === 'compact') gyC += 28;
+                    const gHalf = ((elG.height || 35) / 2) + 4;
+                    if (mouseX >= gx0 - 4 && mouseX <= gx1 + 4 &&
+                        mouseY >= gyC - gHalf && mouseY <= gyC + gHalf) {
+                        hideSeparatorButtons();
+                        return;
+                    }
+                }
+
                 // IMPORTANT: En mode cascade, les lanes correspondent aux tâches normales seulement
                 // Les jalons sont ENTRE les lanes, donc ne comptent pas pour le nombre de lanes
                 let totalLanes = yAxis.ticks.length;
@@ -9334,7 +9357,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             // ===== EVENT LISTENERS POUR LE DRAG & DROP =====
             canvas.style.cursor = 'grab';
 
-            canvas.addEventListener('mousedown', function(e) {
+            // v2.1.3 : purger les listeners du build précédent. Ils
+            // s'empilaient à chaque updateGantt ; après un changement de
+            // vue, l'ANCIEN closure (indexé sur l'autre mode) interceptait
+            // le mouseup et committait le drag sur la MAUVAISE tâche.
+            if (canvas._plannrDragListeners) {
+                for (const [evType, evFn] of canvas._plannrDragListeners) {
+                    canvas.removeEventListener(evType, evFn);
+                }
+            }
+            canvas._plannrDragListeners = [];
+            const addGanttListener = (evType, evFn) => {
+                canvas.addEventListener(evType, evFn);
+                canvas._plannrDragListeners.push([evType, evFn]);
+            };
+
+            addGanttListener('mousedown', function(e) {
                 const rect = canvas.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
@@ -9520,7 +9558,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 }
             });
 
-            canvas.addEventListener('mousemove', function(e) {
+            addGanttListener('mousemove', function(e) {
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
@@ -9663,7 +9701,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 ganttChart.update('none'); // Update sans animation pour la fluidité
             });
 
-            canvas.addEventListener('mouseup', function(e) {
+            addGanttListener('mouseup', function(e) {
                 // Gestion de la fin du redimensionnement
                 if (isResizing) {
                     const task = ganttData[resizeTaskIndex].task;
@@ -9839,7 +9877,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 }
             });
 
-            canvas.addEventListener('mouseleave', function() {
+            addGanttListener('mouseleave', function() {
                 if (isDragging) {
                     isDragging = false;
                     draggedTaskIndex = null;
