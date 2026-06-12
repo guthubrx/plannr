@@ -1,0 +1,12 @@
+{
+  "name": "plannr",
+  "private": true,
+  "description": "Planning de projet interactif single-file (Gantt, dependances, baseline)",
+  "scripts": {
+    "build": "python3 build.py",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

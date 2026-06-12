@@ -1,0 +1,32 @@
+name: CI
+
+# Aucun input non fiable (github.event.*) n'est interpole dans les `run:` —
+# pas de surface d'injection (cf. guide GitHub Actions injections).
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Determinisme du build (src/ doit regenerer plannr.html a l'identique)
+        run: |
+          python3 build.py
+          git diff --exit-code plannr.html
+
+      - name: Installer les dependances de test
+        run: npm install
+
+      - name: Installer Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Tests e2e
+        run: npx playwright test

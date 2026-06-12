@@ -10,6 +10,24 @@
 
 ## ✨ Fonctionnalités
 
+### Planification (v2.1)
+- **Dépendances entre tâches** (`dependsOn`) : édition dans le tableau, flèches
+  sur le Gantt, **décalage automatique en cascade** des successeurs (un
+  successeur démarre au plus tôt le jour ouvré suivant la fin de ses
+  prédécesseurs), détection de cycles
+- **Chemin critique** : plus long chemin du graphe de dépendances, surligné
+  en pointillé rouge sur le Gantt
+- **Jours ouvrés** : durées calculées hors week-ends et **fériés français**
+  (fixes + Pâques/Ascension/Pentecôte calculés), jours non ouvrés grisés
+  sur le Gantt
+- **Baseline** : bouton 📌 pour figer le planning de référence — la dérive
+  s'affiche en barres fantômes grises sous les barres actuelles
+- **Ligne « Aujourd'hui »** sur le Gantt + **détection des retards** (badge
+  rouge dans le tableau, contour rouge sur le Gantt, carte « En retard »
+  au dashboard)
+- **% d'avancement par tâche** : éditable dans le tableau, rempli dans les
+  barres du Gantt, **progression globale pondérée par la durée ouvrée**
+
 ### Gestion de Planning
 - **Édition inline** de tous les champs (phases, tâches, dates, responsables)
 - **Ajout/suppression** de tâches et de phases (groupes)
@@ -21,25 +39,54 @@
 - **Diagramme de Gantt interactif** propulsé par Chart.js
 - **Mode Compact** : Algorithme de compactage intelligent pour minimiser l'espace vertical tout en gardant les titres lisibles (placement alterné, tiges de liaison)
 - **Mode Cascade** : Vue classique une ligne par tâche
-- **Dashboard Dynamique** : Statistiques en temps réel (Tâches totales, En cours, Terminées, Durée totale, Progression %)
+- **Dashboard Dynamique** : Statistiques en temps réel (Tâches totales, En cours, Terminées, En retard, Durée totale ouvrée, Progression pondérée)
 
 ### Export et Partage
 - **Export PDF Premium** : Génération de rapports incluant une capture haute résolution de votre diagramme de Gantt
 - **Export Excel & CSV** : Exportation structurée de toutes les données du planning
-- **Export/Import JSON** : Sauvegarde complète de vos données de projet
+- **Export/Import JSON** : Sauvegarde complète de vos données (format canonique v2.1, clé `phases` ; l'ancienne clé `riskGroups` reste lue)
+- **Export plannr-data.js** : fichier de données rechargeable à reposer à côté du HTML
+- **Export ICS** : les jalons deviennent des événements calendrier (Outlook, Apple Calendar…)
+- **Impression** : feuille `@media print` dédiée (A3 paysage, contrôles masqués)
 
 ### Système d'Historique
 - **Undo/Redo** complet (Cmd+Z / Cmd+Y)
-- Sauvegarde automatique locale (localStorage)
-- Fonctionne entièrement hors-ligne
+- Sauvegarde automatique locale (localStorage, **namespacée par document** —
+  plusieurs copies de Plannr sur le même domaine ne se polluent pas)
+- Fonctionne **entièrement hors-ligne** : les 4 bibliothèques sont vendorisées
+  inline dans le HTML, aucune dépendance CDN
 
 ## 🚀 Utilisation
 
-**Plannr est une application "No-Build"** - un seul fichier HTML autonome.
+**L'artefact livré est un seul fichier HTML autonome.**
 
-1. Télécharger `plannr.html`
+1. Télécharger `plannr.html` (+ optionnellement `plannr-data.js` pour vos données)
 2. Ouvrir le fichier dans votre navigateur
-3. C'est tout ! Aucune installation requise
+3. C'est tout ! Aucune installation requise, aucun réseau nécessaire
+
+Les données vivent dans `plannr-data.js` (`window.PLANNR_DATA`, format
+canonique v2.1 documenté en tête de fichier). Le menu Exporter propose un
+`plannr-data.js` rechargeable qui se repose tel quel à côté du HTML.
+
+## 🧑‍💻 Développement
+
+Le HTML est **généré** — ne pas l'éditer directement :
+
+```bash
+# Sources éditables
+src/head.html      # <head> (meta, favicon)
+src/styles.css     # CSS applicatif (+ @media print)
+src/body.html      # markup
+src/features.js    # module v2.1 (jours ouvrés, dépendances, baseline, plugins Gantt)
+src/app.js         # application historique
+src/libs/          # bibliothèques vendorisées (pinnées)
+
+python3 build.py   # assemble -> plannr.html (déterministe, vérifié en CI)
+
+npm install && npx playwright install chromium
+npm test           # suite e2e (8 tests : libs, jours ouvrés, cascade,
+                   # round-trip, rétro-compat, UI v2.1, progression)
+```
 
 
 ## 🛠️ Stack Technique
