@@ -135,20 +135,74 @@
             return set;
         }
 
+        // ------------------------------------------------------------------
+        // Calendrier MÉTIER paramétrable (v2.2 / FR-11) : porté par
+        // PLANNR_DATA.calendar (décision de l'agent, par projet), avec
+        // override utilisateur persisté pour le samedi. Affecte durées,
+        // cascade, chemin critique et grisage — c'est voulu.
+        // ------------------------------------------------------------------
+        var calendarConfig = {
+            saturdayWorked: false,
+            extraHolidays: new Set(),
+            skippedHolidays: new Set()
+        };
+
+        function initCalendarConfig() {
+            const data = (window.PLANNR_DATA && window.PLANNR_DATA.calendar) || {};
+            calendarConfig.extraHolidays =
+                new Set(Array.isArray(data.extraHolidays) ? data.extraHolidays : []);
+            calendarConfig.skippedHolidays =
+                new Set(Array.isArray(data.skippedHolidays) ? data.skippedHolidays : []);
+            const stored = appStorage.getItem('plannr-saturday-worked');
+            calendarConfig.saturdayWorked =
+                stored !== null ? stored === 'true' : !!data.saturdayWorked;
+            const cb = document.getElementById('toggle-saturday-worked');
+            if (cb) cb.checked = calendarConfig.saturdayWorked;
+        }
+
+        function toggleSaturdayWorked(checked) {
+            calendarConfig.saturdayWorked = !!checked;
+            appStorage.setItem('plannr-saturday-worked', String(!!checked));
+            // MÉTIER : recalcul complet des durées puis des contraintes
+            risks.forEach(tk => {
+                tk.duration = tk.isMilestone ? 0 :
+                    workingDaysBetween(tk.startDate, tk.endDate || tk.startDate);
+            });
+            applyDependencyCascade({ silent: true });
+            recomputeCriticalPath();
+            renderPlanning();
+            updateGantt();
+            updateDashboard();
+        }
+
         // date : objet Date ancré à midi UTC (évite les dérives de fuseau)
         function isWeekendDay(date) {
             const day = date.getUTCDay();
-            return day === 0 || day === 6;
+            return day === 0 || (day === 6 && !calendarConfig.saturdayWorked);
         }
 
         function isFrenchHoliday(date) {
-            return frenchHolidays(date.getUTCFullYear()).has(date.toISOString().slice(0, 10));
+            const iso = date.toISOString().slice(0, 10);
+            if (calendarConfig.extraHolidays.has(iso)) return true;
+            if (calendarConfig.skippedHolidays.has(iso)) return false;
+            return frenchHolidays(date.getUTCFullYear()).has(iso);
         }
 
         // Référence MÉTIER (durées, cascade) : ne dépend PAS des préférences
         // d'affichage des barres de neutralisation.
         function isWorkingDay(date) {
             return !isWeekendDay(date) && !isFrenchHoliday(date);
+        }
+
+        // N-ième jour ouvré STRICTEMENT après dateStr. O(n) sur l'intervalle.
+        function addWorkingDays(dateStr, n) {
+            let d = new Date(dateStr + 'T12:00:00Z');
+            let count = 0, guard = 0;
+            while (count < n && guard++ < 3700) {
+                d = new Date(d.getTime() + 86400000);
+                if (isWorkingDay(d)) count++;
+            }
+            return d.toISOString().slice(0, 10);
         }
 
         // ------------------------------------------------------------------
@@ -198,13 +252,6 @@
             return new Date(d.getTime() + days * 86400000).toISOString().slice(0, 10);
         }
 
-        function nextWorkingDayISO(dateStr) {
-            let d = new Date(dateStr + 'T12:00:00Z');
-            let guard = 0;
-            while (!isWorkingDay(d) && guard++ < 30) d = new Date(d.getTime() + 86400000);
-            return d.toISOString().slice(0, 10);
-        }
-
         // --------------------------------------------------------------
         // Statut, retard, avancement
         // --------------------------------------------------------------
@@ -236,8 +283,18 @@
         // --------------------------------------------------------------
         // Dépendances : cascade + chemin critique
         // --------------------------------------------------------------
+        // Entrées dependsOn : "1.2" ou "1.2+3" (lag de 3 jours OUVRÉS après
+        // le jour ouvré suivant la fin du prédécesseur) — FR-7
+        function parseDependsOnFull(task) {
+            if (!Array.isArray(task.dependsOn)) return [];
+            return task.dependsOn.filter(Boolean).map(entry => {
+                const m = String(entry).match(/^(.*?)(?:\+(\d+))?$/);
+                return { id: m[1].trim(), lag: m[2] ? parseInt(m[2], 10) : 0 };
+            });
+        }
+
         function parseDependsOn(task) {
-            return Array.isArray(task.dependsOn) ? task.dependsOn.filter(Boolean) : [];
+            return parseDependsOnFull(task).map(dep => dep.id);
         }
 
         function tasksById() {
@@ -256,6 +313,8 @@
         // Complexité : O(V+E) (DFS mémoïsé), anti-cycle par marquage.
         function applyDependencyCascade(options) {
             const opts = options || {};
+            const exceededBefore = new Set(
+                risks.filter(isDeadlineExceeded).map(tk => tk.id));
             const byId = tasksById();
             const memo = new Set();
             const visiting = new Set();
@@ -267,13 +326,14 @@
                 if (visiting.has(task.id)) { cycle = true; return; }
                 visiting.add(task.id);
                 let minStart = null;
-                parseDependsOn(task).forEach(pid => {
-                    const pred = byId[pid];
+                parseDependsOnFull(task).forEach(dep => {
+                    const pred = byId[dep.id];
                     if (!pred) return;
                     resolve(pred);
                     const predEnd = taskEndForDeps(pred);
                     if (!predEnd) return;
-                    const candidate = nextWorkingDayISO(addCalendarDays(predEnd, 1));
+                    // jour ouvré suivant la fin + lag éventuel (en jours ouvrés)
+                    const candidate = addWorkingDays(predEnd, 1 + dep.lag);
                     if (minStart === null || candidate > minStart) minStart = candidate;
                 });
                 visiting.delete(task.id);
@@ -301,6 +361,13 @@
                 riskGroups.forEach(updatePhaseDates);
                 if (!opts.silent && typeof showToast === 'function') {
                     showToast(t('tasksShifted').replace('{n}', shifted));
+                    // FR-3 : alerter si la cascade vient de faire sauter une butoir
+                    const newlyExceeded = risks.filter(tk =>
+                        isDeadlineExceeded(tk) && !exceededBefore.has(tk.id));
+                    if (newlyExceeded.length) {
+                        showToast('⚑ Butoir dépassée : ' +
+                            newlyExceeded.map(tk => tk.id).join(', '), 'error');
+                    }
                 }
             }
             return shifted;
@@ -541,6 +608,397 @@
                 });
             });
         }
+
+        // ==================================================================
+        // v2.2 — sécurité, butoirs, bandeau, journal, charge, fenêtre, disque
+        // ==================================================================
+
+        // Les données viennent d'un agent : tout passage en innerHTML est échappé
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        // Seuls les liens http(s) sont acceptés (pas de javascript: etc.)
+        function safeLink(url) {
+            return /^https?:\/\//i.test(String(url || '')) ? String(url) : null;
+        }
+
+        // ----- Dates butoirs (FR-3) -----
+        function isDeadlineExceeded(task) {
+            if (!task.deadline) return false;
+            const end = taskEndForDeps(task);
+            return !!end && end > task.deadline;
+        }
+
+        function deadlineBadgeHTML(risk) {
+            if (!risk.deadline) return '';
+            const exceeded = isDeadlineExceeded(risk);
+            return ' <span class="deadline-badge' + (exceeded ? ' exceeded' : '') +
+                '" title="Date butoir : ' + formatDateFR(risk.deadline) +
+                (exceeded ? ' — DÉPASSÉE' : '') + '">⚑' +
+                (exceeded ? ' butoir' : '') + '</span>';
+        }
+
+        // ----- Incohérences statut/avancement (FR-8) -----
+        function taskInconsistencies(task) {
+            const issues = [];
+            const prog = parseInt(task.progress, 10);
+            if (isTaskDone(task) && Number.isFinite(prog) && prog < 100) {
+                issues.push('statut Terminé mais avancement ' + prog + ' %');
+            }
+            if (!isTaskDone(task) && prog === 100) {
+                issues.push('avancement 100 % mais statut « ' + (task.statut || '?') + ' »');
+            }
+            return issues;
+        }
+
+        function inconsistencyBadgeHTML(risk) {
+            const issues = taskInconsistencies(risk);
+            return issues.length
+                ? ' <span class="inconsistency-badge" title="' +
+                  escapeHtml(issues.join(' · ')) + '">⚠</span>'
+                : '';
+        }
+
+        // ----- Notes & lien (FR-4) -----
+        function notesIconHTML(risk) {
+            const has = !!(risk.notes && String(risk.notes).trim());
+            return ' <span class="notes-icon' + (has ? ' has-notes' : '') +
+                '" data-risk-id="' + escapeHtml(risk.id) + '" title="' +
+                (has ? escapeHtml(risk.notes) : 'Ajouter une note') + '">📝</span>';
+        }
+
+        function linkIconHTML(risk) {
+            const url = safeLink(risk.link);
+            return url
+                ? ' <a class="link-icon" href="' + escapeHtml(url) +
+                  '" target="_blank" rel="noopener noreferrer" title="' +
+                  escapeHtml(url) + '">🔗</a>'
+                : '';
+        }
+
+        function initNotesEditing() {
+            document.querySelectorAll('.notes-icon').forEach(el => {
+                if (el.dataset.editingInitialized) return;
+                el.dataset.editingInitialized = 'true';
+                el.addEventListener('click', function (ev) {
+                    ev.stopPropagation();
+                    const task = risks.find(r => r.id === this.dataset.riskId);
+                    if (!task) return;
+                    const value = prompt('Note pour ' + task.id + ' :', task.notes || '');
+                    if (value === null) return;
+                    saveState();
+                    if (value.trim()) task.notes = value.trim();
+                    else delete task.notes;
+                    renderPlanning();
+                    updateGantt();
+                });
+            });
+        }
+
+        // ----- Anomalies de chargement + bandeau (FR-1/3/8/10) -----
+        var dataAnomalies = [];
+        var bannerDismissed = false;
+        var dataChangeSummary = [];
+
+        function pushAnomaly(message) {
+            dataAnomalies.push(message);
+        }
+
+        function dismissBanner() {
+            bannerDismissed = true;
+            renderValidationBanner();
+        }
+
+        function renderValidationBanner() {
+            const host = document.getElementById('plannr-banner');
+            if (!host) return;
+            if (bannerDismissed) { host.innerHTML = ''; return; }
+            const sections = [];
+            if (dataAnomalies.length) {
+                sections.push({ cls: 'banner-error',
+                    title: 'Anomalies corrigées au chargement', items: dataAnomalies });
+            }
+            const exceeded = risks.filter(isDeadlineExceeded);
+            if (exceeded.length) {
+                sections.push({ cls: 'banner-error', title: 'Dates butoirs dépassées',
+                    items: exceeded.map(tk => tk.id + ' — ' + tk.title +
+                        ' (butoir ' + formatDateFR(tk.deadline) +
+                        ', fin ' + formatDateFR(taskEndForDeps(tk)) + ')') });
+            }
+            const inconsistencies = risks.flatMap(tk =>
+                taskInconsistencies(tk).map(msg => tk.id + ' — ' + msg));
+            if (inconsistencies.length) {
+                sections.push({ cls: 'banner-warn', title: 'Incohérences',
+                    items: inconsistencies });
+            }
+            if (dataChangeSummary.length) {
+                sections.push({ cls: 'banner-info',
+                    title: 'Changements depuis le dernier chargement',
+                    items: dataChangeSummary });
+            }
+            if (!sections.length) { host.innerHTML = ''; return; }
+            // XSS : chaque valeur interpolée ci-dessous est échappée (NFR-2)
+            host.innerHTML = '<div class="plannr-banner-inner">' +
+                '<button class="banner-close" title="Masquer" onclick="dismissBanner()">×</button>' +
+                sections.map(s =>
+                    '<div class="banner-section ' + s.cls + '">' +
+                    '<div class="banner-title">' + escapeHtml(s.title) +
+                    ' (' + s.items.length + ')</div><ul>' +
+                    s.items.slice(0, 8).map(item =>
+                        '<li>' + escapeHtml(item) + '</li>').join('') +
+                    (s.items.length > 8
+                        ? '<li>… et ' + (s.items.length - 8) + ' autre(s)</li>' : '') +
+                    '</ul></div>').join('') +
+                '</div>';
+        }
+
+        // ----- Journal des changements entre chargements (FR-10) -----
+        function computeDataChangeJournal() {
+            dataChangeSummary = [];
+            try {
+                const previousRaw = appStorage.getItem('plannr-data-snapshot');
+                const current = {};
+                risks.forEach(tk => {
+                    current[tk.id] = { s: tk.startDate, e: tk.endDate || '', t: tk.title };
+                });
+                if (previousRaw) {
+                    const previous = JSON.parse(previousRaw);
+                    const added = Object.keys(current).filter(id => !(id in previous));
+                    const removed = Object.keys(previous).filter(id => !(id in current));
+                    let datesChanged = 0, titlesChanged = 0;
+                    Object.keys(current).forEach(id => {
+                        if (!(id in previous)) return;
+                        if (previous[id].s !== current[id].s ||
+                            previous[id].e !== current[id].e) datesChanged++;
+                        if (previous[id].t !== current[id].t) titlesChanged++;
+                    });
+                    if (added.length) dataChangeSummary.push('Ajoutées : ' + added.join(', '));
+                    if (removed.length) dataChangeSummary.push('Supprimées : ' + removed.join(', '));
+                    if (datesChanged) dataChangeSummary.push(datesChanged + ' tâche(s) aux dates modifiées');
+                    if (titlesChanged) dataChangeSummary.push(titlesChanged + ' titre(s) modifié(s)');
+                }
+                appStorage.setItem('plannr-data-snapshot', JSON.stringify(current));
+            } catch (err) { /* journal best-effort, jamais bloquant */ }
+        }
+
+        // ----- Charge par responsable (FR-6) -----
+        function splitAssignees(task) {
+            return String(task.assignedTo || '').split(/[\/,;&]+/)
+                .map(s => s.trim()).filter(Boolean);
+        }
+
+        function workingOverlapDays(a, b) {
+            const start = a.startDate > b.startDate ? a.startDate : b.startDate;
+            const endA = a.endDate || a.startDate, endB = b.endDate || b.startDate;
+            const end = endA < endB ? endA : endB;
+            return start <= end ? workingDaysBetween(start, end) : 0;
+        }
+
+        function renderWorkload() {
+            const host = document.getElementById('workload-content');
+            if (!host) return;
+            const byPerson = {};
+            risks.filter(tk => !tk.isMilestone).forEach(tk =>
+                splitAssignees(tk).forEach(person => {
+                    (byPerson[person] = byPerson[person] || []).push(tk);
+                }));
+            const names = Object.keys(byPerson).sort();
+            if (!names.length) {
+                host.innerHTML = '<p class="workload-empty">Aucun responsable renseigné.</p>';
+                return;
+            }
+            // O(p * t²) — t = tâches par personne, borné à quelques dizaines.
+            // XSS : noms, ids et titres échappés (données agent, NFR-2).
+            host.innerHTML = names.map(name => {
+                const list = byPerson[name];
+                const total = list.reduce((sum, tk) =>
+                    sum + workingDaysBetween(tk.startDate, tk.endDate || tk.startDate), 0);
+                const conflicts = [];
+                for (let i = 0; i < list.length; i++) {
+                    for (let j = i + 1; j < list.length; j++) {
+                        if (isTaskDone(list[i]) && isTaskDone(list[j])) continue;
+                        const overlap = workingOverlapDays(list[i], list[j]);
+                        if (overlap > 0) {
+                            conflicts.push(list[i].id + ' ∥ ' + list[j].id +
+                                ' (' + overlap + ' j ouvrés)');
+                        }
+                    }
+                }
+                return '<div class="workload-person' +
+                    (conflicts.length ? ' has-conflict' : '') + '">' +
+                    '<div class="workload-name">' + escapeHtml(name) +
+                    ' <span class="workload-total">' + total + ' j ouvrés · ' +
+                    list.length + ' tâche(s)</span></div>' +
+                    '<div class="workload-tasks">' +
+                    list.map(tk => escapeHtml(tk.id + ' ' + tk.title)).join(' · ') +
+                    '</div>' +
+                    (conflicts.length
+                        ? '<div class="workload-conflicts">⚠ Chevauchements : ' +
+                          conflicts.map(escapeHtml).join(' — ') + '</div>'
+                        : '') +
+                    '</div>';
+            }).join('');
+        }
+
+        // ----- Fenêtre temporelle du Gantt (FR-5) -----
+        var ganttZoomSpanDays = null;   // null = tout le projet
+        var ganttZoomAnchorMs = null;
+
+        function ganttZoomWindow(minDate, maxDate, dayMs) {
+            if (!ganttZoomSpanDays) {
+                return { min: minDate - 3 * dayMs, max: maxDate + 3 * dayMs };
+            }
+            if (ganttZoomAnchorMs === null) {
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                ganttZoomAnchorMs = now.getTime() -
+                    Math.round(ganttZoomSpanDays * 0.2) * dayMs;
+            }
+            return { min: ganttZoomAnchorMs,
+                     max: ganttZoomAnchorMs + ganttZoomSpanDays * dayMs };
+        }
+
+        function setGanttZoom(spanDays) {
+            ganttZoomSpanDays = spanDays || null;
+            if (ganttZoomSpanDays) {
+                appStorage.setItem('plannr-zoom-span', String(ganttZoomSpanDays));
+            } else {
+                appStorage.removeItem('plannr-zoom-span');
+                ganttZoomAnchorMs = null;
+            }
+            updateZoomButtons();
+            updateGantt();
+        }
+
+        function ganttGoToday() {
+            if (!ganttZoomSpanDays) return;
+            ganttZoomAnchorMs = null; // recalculé autour d'aujourd'hui au rendu
+            updateGantt();
+        }
+
+        function ganttPan(direction) {
+            if (!ganttZoomSpanDays || ganttZoomAnchorMs === null) return;
+            ganttZoomAnchorMs += direction *
+                Math.round(ganttZoomSpanDays / 2) * 86400000;
+            updateGantt();
+        }
+
+        function updateZoomButtons() {
+            document.querySelectorAll('.zoom-btn[data-span]').forEach(btn => {
+                const value = btn.dataset.span === 'all'
+                    ? null : parseInt(btn.dataset.span, 10);
+                btn.classList.toggle('active', value === ganttZoomSpanDays);
+            });
+            const nav = document.getElementById('zoom-nav');
+            if (nav) nav.style.display = ganttZoomSpanDays ? 'inline-flex' : 'none';
+        }
+
+        function initGanttZoom() {
+            const saved = parseInt(appStorage.getItem('plannr-zoom-span'), 10);
+            if (Number.isFinite(saved) && saved > 0) {
+                ganttZoomSpanDays = saved;
+                updateGantt();
+            }
+            updateZoomButtons();
+        }
+
+        // ----- Enregistrement direct sur disque (FR-9) -----
+        var fsDataFileHandle = null;
+
+        function buildDataJsContent() {
+            return '// plannr-data.js — Données du planning Plannr\n' +
+                '// Généré depuis plannr.html le ' + new Date().toISOString() + '\n' +
+                '// Schéma : schemas/plannr-data.schema.json (format canonique v2.2)\n' +
+                'window.PLANNR_DATA = ' +
+                JSON.stringify(buildCanonicalData(), null, 2) + ';\n';
+        }
+
+        async function saveDataToDisk() {
+            const content = buildDataJsContent();
+            if (!window.showSaveFilePicker) {
+                // Safari / Firefox : pas de File System Access — téléchargement
+                downloadTextFile(content, 'plannr-data.js', 'text/javascript');
+                showToast('Navigateur sans accès fichier : plannr-data.js téléchargé');
+                return;
+            }
+            try {
+                if (!fsDataFileHandle) {
+                    fsDataFileHandle = await window.showSaveFilePicker({
+                        suggestedName: 'plannr-data.js',
+                        types: [{ description: 'Données Plannr',
+                                  accept: { 'text/javascript': ['.js'] } }]
+                    });
+                }
+                const writable = await fsDataFileHandle.createWritable();
+                await writable.write(content);
+                await writable.close();
+                showToast('💾 plannr-data.js enregistré');
+            } catch (err) {
+                if (err && err.name === 'AbortError') return; // annulé par l'utilisateur
+                fsDataFileHandle = null;
+                downloadTextFile(content, 'plannr-data.js', 'text/javascript');
+                showToast('Écriture directe impossible : fichier téléchargé', 'error');
+            }
+        }
+
+        // ----- Clic sur une barre -> ligne du tableau (FR-12) -----
+        function highlightTaskRow(taskId) {
+            const selector = 'tr[data-risk-id="' +
+                (window.CSS && CSS.escape ? CSS.escape(taskId) : taskId) + '"]';
+            const row = document.querySelector(selector);
+            if (!row) return;
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.classList.add('row-flash');
+            setTimeout(() => row.classList.remove('row-flash'), 1800);
+        }
+
+        // Marqueurs de dates butoirs sur le Gantt (FR-3)
+        Chart.register({
+            id: 'deadlineMarkersPlugin',
+            afterDatasetsDraw: function (chart) {
+                const gd = chart.options.ganttData;
+                if (!gd) return;
+                const x = chart.scales.x, ctx = chart.ctx;
+                const meta = chart.getDatasetMeta(0);
+                ctx.save();
+                function drawMarker(px, yTop, yBottom, exceeded) {
+                    if (px < x.left || px > x.right) return;
+                    ctx.strokeStyle = '#D70015';
+                    ctx.lineWidth = exceeded ? 2 : 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(px, yTop);
+                    ctx.lineTo(px, yBottom);
+                    ctx.stroke();
+                    ctx.fillStyle = '#D70015';
+                    ctx.font = (exceeded ? 'bold ' : '') + '11px -apple-system, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText('⚑', px, yTop - 1);
+                }
+                gd.forEach((d, i) => {
+                    if (!d.task || !d.task.deadline) return;
+                    const el = meta.data[i];
+                    if (!el) return;
+                    // fin du jour butoir : finir LE jour butoir est autorisé
+                    const px = x.getPixelForValue(
+                        new Date(d.task.deadline).getTime() + 86400000);
+                    const half = (el.height || 35) / 2;
+                    drawMarker(px, el.y - half - 6, el.y + half + 4,
+                        isDeadlineExceeded(d.task));
+                });
+                (chart.options.milestonesData || []).forEach(m => {
+                    if (!m.task || !m.task.deadline) return;
+                    const py = chart.scales.y.getPixelForValue(m.yPosition);
+                    const px = x.getPixelForValue(
+                        new Date(m.task.deadline).getTime() + 86400000);
+                    drawMarker(px, py - 14, py + 14, isDeadlineExceeded(m.task));
+                });
+                ctx.restore();
+            }
+        });
 
         // --------------------------------------------------------------
         // Positionneur d'infobulle : décalée du curseur pour ne jamais

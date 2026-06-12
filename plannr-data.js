@@ -1,13 +1,13 @@
 // plannr-data.js — Donnees du planning Plannr
 // L'agent modifie UNIQUEMENT ce fichier.
 // Le HTML (plannr.html) le charge automatiquement.
-// Format canonique v2.1 : cle `phases` (l'ancienne cle `riskGroups` reste
-// acceptee en lecture). Nouveaux champs par tache :
-//   - progress  : avancement 0-100 (optionnel ; defaut 0, ou 100 si statut Termine)
-//   - dependsOn : liste d'IDs de taches prealables (cascade automatique)
-// Et au niveau racine : `baseline` (snapshot fige via le bouton Baseline).
+// SCHEMA COMPLET : schemas/plannr-data.schema.json (format canonique v2.2).
+// Champs par tache : progress (0-100), dependsOn ("1.2" ou "1.2+3" = lag en
+// jours ouvres), deadline (date butoir, alerte si depassee), notes (infobulle),
+// link (http(s)). Racine : baseline (bouton Baseline), calendar (samedi ouvre,
+// feries ajoutes/retires — METIER).
 window.PLANNR_DATA = {
-    "version": "2.1",
+    "version": "2.2",
     "appState": {
         "title": "Plannr - Planning de Projet",
         "subtitle": "Projet Exemple — 2026",
@@ -26,7 +26,9 @@ window.PLANNR_DATA = {
                 { "id": "1.1", "title": "Analyse des besoins",
                   "startDate": "2026-04-02", "endDate": "2026-04-21",
                   "duration": 13, "statut": "Terminé", "assignedTo": "Alice / Bob",
-                  "dependsOn": ["1.0"] },
+                  "dependsOn": ["1.0"],
+                  "notes": "Ateliers menes avec les 3 directions metier ; perimetre v1 valide en COPIL",
+                  "link": "https://example.com/cr-cadrage" },
                 { "id": "1.2", "title": "Validation du perimetre",
                   "startDate": "2026-04-22", "endDate": "2026-05-06",
                   "duration": 10, "statut": "Terminé", "assignedTo": "Alice",
@@ -46,7 +48,8 @@ window.PLANNR_DATA = {
                 { "id": "2.1", "title": "Developpement du module principal",
                   "startDate": "2026-05-18", "endDate": "2026-06-17",
                   "duration": 22, "statut": "En cours", "assignedTo": "Bob / Diana",
-                  "progress": 80, "dependsOn": ["1.2", "1.3"] },
+                  "progress": 80, "dependsOn": ["1.2", "1.3"],
+                  "notes": "Estimation large : depend de la livraison de l'API prestataire (attendue mi-juin)" },
                 { "id": "2.2", "title": "Integration et tests",
                   "startDate": "2026-06-01", "endDate": "2026-06-25",
                   "duration": 19, "statut": "En cours", "assignedTo": "Diana",
@@ -66,7 +69,7 @@ window.PLANNR_DATA = {
                 { "id": "3.1", "title": "Mise en production",
                   "startDate": "2026-07-13", "endDate": "2026-07-27",
                   "duration": 10, "statut": "A faire", "assignedTo": "Bob",
-                  "dependsOn": ["2.3"] },
+                  "dependsOn": ["2.3"], "deadline": "2026-07-31" },
                 { "id": "3.2", "title": "Formation des utilisateurs",
                   "startDate": "2026-07-28", "endDate": "2026-08-12",
                   "duration": 12, "statut": "A faire", "assignedTo": "Alice / Diana",
@@ -90,7 +93,8 @@ window.PLANNR_DATA = {
                 { "id": "4.3", "title": "Decision de poursuite",
                   "startDate": "2026-09-07", "endDate": "2026-09-07",
                   "duration": 0, "statut": "A faire", "assignedTo": "", "isMilestone": true,
-                  "dependsOn": ["4.2"] }
+                  "dependsOn": ["4.2"], "deadline": "2026-09-04",
+                  "notes": "Butoir contractuel COPIL du 4 septembre — actuellement DEPASSEE par la cascade" }
             ]
         }
     ]

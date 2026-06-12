@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "plannr/plannr-data.schema.json",
+  "title": "Plannr — format canonique PLANNR_DATA v2.2",
+  "description": "Contenu de window.PLANNR_DATA (fichier plannr-data.js). Cle canonique : phases (riskGroups acceptee en lecture pour compatibilite).",
+  "type": "object",
+  "required": ["version"],
+  "anyOf": [
+    { "required": ["phases"] },
+    { "required": ["riskGroups"] }
+  ],
+  "properties": {
+    "version": { "type": "string", "examples": ["2.2"] },
+    "timestamp": { "type": "string" },
+    "appState": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "language": { "enum": ["fr", "en", "es", "ar", "zh"] }
+      }
+    },
+    "phases": { "$ref": "#/definitions/phaseList" },
+    "riskGroups": { "$ref": "#/definitions/phaseList" },
+    "baseline": {
+      "type": "object",
+      "description": "Snapshot du planning de reference (bouton Baseline)",
+      "properties": {
+        "savedAt": { "type": "string" },
+        "tasks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "startDate": { "$ref": "#/definitions/isoDate" },
+              "endDate": { "$ref": "#/definitions/isoDate" }
+            }
+          }
+        }
+      }
+    },
+    "calendar": {
+      "type": "object",
+      "description": "Calendrier METIER : affecte durees, cascade, chemin critique et grisage",
+      "properties": {
+        "saturdayWorked": { "type": "boolean", "default": false },
+        "extraHolidays": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/isoDate" },
+          "description": "Jours chomes supplementaires (fermeture entreprise...)"
+        },
+        "skippedHolidays": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/isoDate" },
+          "description": "Feries francais a NE PAS chomer pour ce projet"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "isoDate": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "phaseList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "tasks"],
+        "properties": {
+          "id": { "type": "integer", "minimum": 1 },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+          "tasks": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/task" }
+          }
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "required": ["id", "title", "startDate"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$",
+          "description": "Format <phase>.<n>, unique dans tout le planning"
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "startDate": { "$ref": "#/definitions/isoDate" },
+        "endDate": {
+          "$ref": "#/definitions/isoDate",
+          "description": ">= startDate. Pour un jalon : egale a startDate"
+        },
+        "duration": {
+          "type": "integer", "minimum": 0,
+          "description": "Jours OUVRES (informatif : recalcule au chargement)"
+        },
+        "statut": {
+          "type": "string",
+          "examples": ["A faire", "En cours", "Terminé"]
+        },
+        "assignedTo": {
+          "type": "string",
+          "description": "Responsables separes par / , ; ou & (vue charge)"
+        },
+        "isMilestone": { "type": "boolean", "default": false },
+        "progress": {
+          "type": "integer", "minimum": 0, "maximum": 100,
+          "description": "Avancement %. Omis : 0, ou 100 si statut Terminé"
+        },
+        "dependsOn": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+(\\+\\d+)?$",
+            "description": "\"1.2\" ou \"1.2+3\" (lag de 3 jours OUVRES)"
+          },
+          "description": "La tache demarre au plus tot le jour ouvre suivant la fin de chaque predecesseur (+ lag eventuel). Cascade automatique."
+        },
+        "deadline": {
+          "$ref": "#/definitions/isoDate",
+          "description": "Date butoir : finir CE jour est autorise. Marqueur Gantt + alerte si depassee"
+        },
+        "notes": {
+          "type": "string", "maxLength": 2000,
+          "description": "Contexte/hypotheses — affiche dans l'infobulle Gantt"
+        },
+        "link": {
+          "type": "string", "pattern": "^https?://",
+          "description": "Reference externe (CR, ticket). http(s) uniquement"
+        }
+      }
+    }
+  }
+}

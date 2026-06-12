@@ -69,7 +69,7 @@ test('round-trip : export canonique v2.1 -> import sans perte', async ({ page })
         input.files = dt.files;
         importFromJSON(input);
         setTimeout(() => resolve(
-            canon.version === '2.1' && !!canon.phases && !('riskGroups' in canon) &&
+            canon.version === '2.2' && !!canon.phases && !('riskGroups' in canon) &&
             riskGroups.length === before.p && risks.length === before.t
         ), 500);
     }));
@@ -362,6 +362,158 @@ test('neutralisation grisée : toggles week-ends/fériés indépendants, métier
         h: document.getElementById('toggle-shade-holidays').checked
     }));
     expect(persisted).toEqual({ w: false, h: false });
+});
+
+test('v2.2 FR-1 : anomalies d\'import visibles dans le bandeau', async ({ page }) => {
+    await page.evaluate(() => new Promise(resolve => {
+        const bad = {
+            version: '2.2',
+            phases: [{ id: 9, name: 'Test', description: '', color: '#333333', tasks: [
+                { id: '9.1', title: 'A', startDate: '2026-10-01', endDate: '2026-10-05', statut: 'A faire' },
+                { id: '9.1', title: 'A doublon', startDate: '2026-10-02', endDate: '2026-10-06', statut: 'A faire' },
+                { id: '9.2', title: 'B', startDate: '2026-10-06', endDate: '2026-10-10', statut: 'A faire',
+                  dependsOn: ['7.7'], link: 'javascript:alert(1)' }
+            ]}]
+        };
+        const dt = new DataTransfer();
+        dt.items.add(new File([JSON.stringify(bad)], 'bad.json', { type: 'application/json' }));
+        const input = document.getElementById('import-file');
+        input.files = dt.files;
+        importFromJSON(input);
+        setTimeout(resolve, 500);
+    }));
+    const banner = await page.evaluate(() =>
+        document.getElementById('plannr-banner').textContent);
+    expect(banner).toContain('double');
+    expect(banner).toContain('inconnues');
+    expect(banner).toContain('lien non http');
+    // le lien javascript: a été purgé (NFR-2)
+    const linkPurged = await page.evaluate(() => !risks.find(r => r.id === '9.2').link);
+    expect(linkPurged).toBe(true);
+});
+
+test('v2.2 FR-3 : butoir dépassée — bandeau, badge, données démo', async ({ page }) => {
+    const d = await page.evaluate(() => ({
+        exceeded43: isDeadlineExceeded(risks.find(r => r.id === '4.3')),
+        ok31: !isDeadlineExceeded(risks.find(r => r.id === '3.1')),
+        badgeExceeded: !!document.querySelector('.deadline-badge.exceeded'),
+        banner: document.getElementById('plannr-banner').textContent
+    }));
+    expect(d.exceeded43).toBe(true);
+    expect(d.ok31).toBe(true);
+    expect(d.badgeExceeded).toBe(true);
+    expect(d.banner).toContain('butoir');
+});
+
+test('v2.2 FR-5 : fenêtre temporelle — zoom, pan, retour Tout, persistance', async ({ page }) => {
+    const r = await page.evaluate(async () => {
+        setGanttZoom(30);
+        await new Promise(res => setTimeout(res, 250));
+        const span30 = (ganttChart.scales.x.max - ganttChart.scales.x.min) / 86400000;
+        const minBefore = ganttChart.scales.x.min;
+        ganttPan(1);
+        await new Promise(res => setTimeout(res, 250));
+        const panDays = (ganttChart.scales.x.min - minBefore) / 86400000;
+        return { span30: Math.round(span30), panDays: Math.round(panDays) };
+    });
+    expect(r.span30).toBe(30);
+    expect(r.panDays).toBe(15);
+    // persistance : rechargement -> fenêtre 30 j restaurée
+    await page.reload();
+    await page.waitForSelector('#ganttChart');
+    await page.waitForTimeout(800);
+    const after = await page.evaluate(() => ({
+        span: Math.round((ganttChart.scales.x.max - ganttChart.scales.x.min) / 86400000),
+        activeBtn: document.querySelector('.zoom-btn.active')?.dataset.span
+    }));
+    expect(after.span).toBe(30);
+    expect(after.activeBtn).toBe('30');
+    await page.evaluate(() => setGanttZoom(null)); // reset pour les tests suivants
+});
+
+test('v2.2 FR-6 : charge par responsable avec détection de chevauchement', async ({ page }) => {
+    const wl = await page.evaluate(() =>
+        document.getElementById('workload-content').textContent);
+    expect(wl).toContain('Alice');
+    expect(wl).toContain('Diana');
+    expect(wl).toContain('∥'); // conflit 2.1 ∥ 2.2 (Diana) présent dans la démo
+    expect(wl).toContain('j ouvrés');
+});
+
+test('v2.2 FR-7 : lag de dépendance en jours ouvrés (id+N)', async ({ page }) => {
+    const r = await page.evaluate(() => {
+        const t23 = risks.find(rk => rk.id === '2.3');
+        const before = t23.startDate;
+        t23.dependsOn = ['2.2+5'];
+        applyDependencyCascade({ silent: true });
+        return { before, after: t23.startDate,
+                 expected: addWorkingDays('2026-06-25', 6),
+                 critical: _criticalIds.size > 1 };
+    });
+    expect(r.after).toBe(r.expected);
+    expect(r.after > r.before).toBe(true);
+});
+
+test('v2.2 FR-10 : journal des changements entre chargements', async ({ page }) => {
+    // Simuler un snapshot précédent différent puis recharger
+    await page.evaluate(() => {
+        const snap = JSON.parse(appStorage.getItem('plannr-data-snapshot'));
+        snap['1.1'].s = '2026-03-15';        // date différente
+        snap['x.9'] = { s: '2026-01-01', e: '2026-01-02', t: 'Tâche disparue' };
+        delete snap['4.3'];                   // 4.3 paraîtra "ajoutée"
+        appStorage.setItem('plannr-data-snapshot', JSON.stringify(snap));
+    });
+    await page.reload();
+    await page.waitForSelector('#ganttChart');
+    await page.waitForTimeout(800);
+    const banner = await page.evaluate(() =>
+        document.getElementById('plannr-banner').textContent);
+    expect(banner).toContain('Changements depuis le dernier chargement');
+    expect(banner).toContain('4.3');                    // ajoutée
+    expect(banner).toContain('x.9');                    // supprimée
+    expect(banner).toContain('dates modifiées');        // 1.1
+});
+
+test('v2.2 FR-11 : samedi ouvré — durées métier recalculées', async ({ page }) => {
+    const r = await page.evaluate(async () => {
+        const before = risks.find(rk => rk.id === '2.2').duration;
+        toggleSaturdayWorked(true);
+        await new Promise(res => setTimeout(res, 250));
+        const after = risks.find(rk => rk.id === '2.2').duration;
+        toggleSaturdayWorked(false);
+        await new Promise(res => setTimeout(res, 250));
+        const restored = risks.find(rk => rk.id === '2.2').duration;
+        return { before, after, restored };
+    });
+    expect(r.before).toBe(19);  // 01-25/06 hors samedis et dimanches
+    expect(r.after).toBe(22);   // + les 3 samedis de la période
+    expect(r.restored).toBe(19);
+});
+
+test('v2.2 FR-12 : clic sans déplacement sur une barre = flash de la ligne', async ({ page }) => {
+    await page.evaluate(() => {
+        document.getElementById('ganttChart').scrollIntoView({ block: 'center' });
+        updateGantt();
+    });
+    await page.waitForTimeout(1200);
+    const pt = await page.evaluate(() => {
+        const d = ganttChart.options.ganttData.find(g => g.task && g.task.id === '2.1');
+        const x = ganttChart.scales.x, y = ganttChart.scales.y;
+        const rect = ganttChart.canvas.getBoundingClientRect();
+        return { x: rect.left + (x.getPixelForValue(d.x[0]) + x.getPixelForValue(d.x[1])) / 2,
+                 y: rect.top + y.getPixelForValue(d.y) };
+    });
+    const before = await page.evaluate(() => risks.find(r => r.id === '2.1').startDate);
+    await page.mouse.move(pt.x, pt.y);
+    await page.mouse.down();
+    await page.mouse.up();
+    await page.waitForTimeout(400);
+    const r = await page.evaluate(() => ({
+        flashed: !!document.querySelector('tr.row-flash'),
+        start: risks.find(rk => rk.id === '2.1').startDate
+    }));
+    expect(r.flashed).toBe(true);
+    expect(r.start).toBe(before); // aucune date modifiée par un simple clic
 });
 
 test('avancement : édition du % met à jour la progression pondérée', async ({ page }) => {

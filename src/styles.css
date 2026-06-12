@@ -2153,3 +2153,72 @@
     font-size: 13px; color: #1d1d1f; cursor: pointer; user-select: none;
 }
 .shading-toggle input { accent-color: #0071e3; cursor: pointer; }
+
+/* ==================================================================
+   v2.2 — bandeau, badges, notes/lien, fenêtre temporelle, charge, flash
+   ================================================================== */
+.plannr-banner-inner {
+    position: relative; margin: 12px 0; padding: 12px 36px 12px 16px;
+    background: white; border: 1px solid #e5e5e7; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 13px;
+}
+.banner-close {
+    position: absolute; top: 8px; right: 10px; border: none; background: none;
+    font-size: 18px; color: #86868b; cursor: pointer; line-height: 1;
+}
+.banner-section { padding: 4px 0; }
+.banner-section ul { margin: 4px 0 4px 18px; padding: 0; }
+.banner-section li { margin: 1px 0; color: #3a3a3c; }
+.banner-title { font-weight: 600; }
+.banner-error .banner-title { color: #D70015; }
+.banner-warn .banner-title { color: #B25000; }
+.banner-info .banner-title { color: #0058B0; }
+
+.deadline-badge {
+    display: inline-block; margin-left: 4px; padding: 1px 6px;
+    border-radius: 6px; font-size: 11px; font-weight: 600;
+    background: #f2f2f7; color: #6e6e73; white-space: nowrap;
+}
+.deadline-badge.exceeded { background: #FFEBEA; color: #D70015; }
+.inconsistency-badge {
+    display: inline-block; margin-left: 4px; color: #B25000;
+    font-size: 12px; cursor: help;
+}
+.notes-icon {
+    margin-left: 4px; cursor: pointer; opacity: 0.25; font-size: 12px;
+}
+.notes-icon.has-notes { opacity: 1; }
+.notes-icon:hover { opacity: 1; }
+.link-icon { margin-left: 2px; text-decoration: none; font-size: 12px; }
+
+.zoom-btn {
+    border: none; background: transparent; padding: 4px 10px;
+    border-radius: 6px; font-size: 12.5px; font-weight: 500;
+    color: #666666; cursor: pointer; transition: 0.2s;
+}
+.zoom-btn.active { background: white; color: #1d1d1f;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.zoom-nav-btn { background: #e5e5e7; }
+.zoom-nav-btn:hover { background: #d8d8dc; }
+
+.workload-person { padding: 8px 0; border-bottom: 1px solid #f2f2f7; }
+.workload-person:last-child { border-bottom: none; }
+.workload-name { font-weight: 600; font-size: 13.5px; color: #1d1d1f; }
+.workload-total { font-weight: 400; color: #86868b; font-size: 12.5px; }
+.workload-tasks { color: #6e6e73; font-size: 12.5px; margin-top: 2px; }
+.workload-conflicts {
+    margin-top: 4px; padding: 4px 8px; border-radius: 6px;
+    background: #FFF4E5; color: #B25000; font-size: 12.5px;
+}
+.workload-empty { color: #86868b; font-size: 13px; }
+
+tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
+@keyframes plannr-row-flash {
+    0% { background: #CDE6FF; }
+    60% { background: #E8F3FF; }
+    100% { background: transparent; }
+}
+
+@media print {
+    #plannr-banner, #zoom-nav { display: none !important; }
+}

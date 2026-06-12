@@ -1028,7 +1028,7 @@
         // et l'import — le round-trip est garanti par construction.
         function buildCanonicalData() {
             return {
-                version: "2.1",
+                version: "2.2",
                 timestamp: new Date().toISOString(),
                 appState: {
                     title: document.getElementById('main-title').textContent,
@@ -1040,7 +1040,19 @@
                 // reload) accepte aussi l'ancienne clé `riskGroups`.
                 phases: riskGroups,
                 // Baseline incluse si figée (undefined = clé omise au stringify)
-                baseline: baselineData || undefined
+                baseline: baselineData || undefined,
+                // Calendrier métier (v2.2) : omis si tout est aux défauts
+                calendar: (function () {
+                    const source = (window.PLANNR_DATA && window.PLANNR_DATA.calendar) || {};
+                    const cal = {
+                        saturdayWorked: calendarConfig.saturdayWorked,
+                        extraHolidays: Array.from(calendarConfig.extraHolidays),
+                        skippedHolidays: Array.from(calendarConfig.skippedHolidays)
+                    };
+                    const meaningful = cal.saturdayWorked || cal.extraHolidays.length ||
+                        cal.skippedHolidays.length || source.saturdayWorked !== undefined;
+                    return meaningful ? cal : undefined;
+                })()
             };
         }
 
@@ -1067,11 +1079,7 @@
         // rechargement (ou via le bouton de rechargement des données) —
         // ferme la boucle d'édition (localStorage -> fichier).
         function exportDataJsFile() {
-            const content = '// plannr-data.js — Données du planning Plannr\n' +
-                '// Généré depuis plannr.html le ' + new Date().toISOString() + '\n' +
-                '// Reposer ce fichier à côté de plannr.html (même dossier).\n' +
-                'window.PLANNR_DATA = ' + JSON.stringify(buildCanonicalData(), null, 2) + ';\n';
-            downloadTextFile(content, 'plannr-data.js', 'text/javascript');
+            downloadTextFile(buildDataJsContent(), 'plannr-data.js', 'text/javascript');
             if (typeof showToast === 'function') showToast('plannr-data.js généré');
         }
 
@@ -1125,6 +1133,12 @@
                             });
                         }
                     });
+
+                    // 3bis. v2.2 : mêmes garanties qu'au chargement
+                    sanitizeData();
+                    applyDependencyCascade({ silent: true });
+                    recomputeCriticalPath();
+                    updateDashboard(); // bandeau + charge rafraîchis sur les nouvelles données
 
                     // 4. Sauvegarder l'état pour undo/redo
                     saveState();
@@ -2729,7 +2743,7 @@
 
                         tr.innerHTML = `
                             <td class="risk-title-cell">
-                                <span class="editable-risk-title" data-risk-id="${risk.id}">${risk.id}. ${risk.title}</span>
+                                <span class="editable-risk-title" data-risk-id="${risk.id}">${risk.id}. ${escapeHtml(risk.title)}</span>${inconsistencyBadgeHTML(risk)}${deadlineBadgeHTML(risk)}${notesIconHTML(risk)}${linkIconHTML(risk)}
                             </td>
                             <td class="date-cell" style="white-space: nowrap;">
                                 ${!risk.isMilestone ? `<span class="milestone-x" data-risk-id="${risk.id}" onclick="toggleMilestone('${risk.id}', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span>` : `<span class="milestone-badge" onclick="toggleMilestone('${risk.id}', event)" title="Clic pour retransformer en tâche" style="cursor:pointer; margin-right:4px;">◆</span>`}<span class="date-display" onclick="this.nextElementSibling.showPicker()">${formatDateFR(risk.startDate)}</span><input type="date" class="editable-date" data-risk-id="${risk.id}" data-date-type="startDate" value="${risk.startDate || ''}" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
@@ -2747,7 +2761,7 @@
                                 </select>
                             </td>
                             <td class="responsable-cell">
-                                <span class="editable-responsable" data-risk-id="${risk.id}">${risk.assignedTo || risk.responsable || t('clickToAdd')}</span>
+                                <span class="editable-responsable" data-risk-id="${risk.id}">${escapeHtml(risk.assignedTo || risk.responsable || '') || t('clickToAdd')}</span>
                             </td>
                             ${renderDependsCellHTML(risk)}
                             <td style="text-align: center; padding: 4px;">
@@ -2833,6 +2847,7 @@
             initDateEditing(); // Édition des dates avec calcul auto durée
             initProgressEditing(); // Édition du % d'avancement (v2.1)
             initDependsEditing(); // Édition des dépendances (v2.1)
+            initNotesEditing(); // Édition des notes (v2.2)
         }
 
         // ========================================
@@ -4921,8 +4936,7 @@
                     layout: { padding: { left: (ganttViewMode === 'consolide') ? 180 : 60, right: 100, top: 30 } },
                     scales: {
                         x: {
-                            min: minDate - 3 * dayMs,
-                            max: maxDate + 3 * dayMs,
+                            ...ganttZoomWindow(minDate, maxDate, dayMs),
                             ticks: {
                                 callback: function(value) {
                                     const date = new Date(value);
@@ -5004,24 +5018,30 @@
 
                                     if (task.isMilestone || isMilestone) {
                                         // Jalon : afficher seulement la date
-                                        return [
+                                        const lines = [
                                             `◆ ${task.id}: ${task.title}`,
                                             `Date: ${startDate}`,
                                             `Statut: ${task.statut}`
                                         ];
+                                        if (task.deadline) lines.push(`⚑ Butoir: ${formatDateFR(task.deadline)}` + (isDeadlineExceeded(task) ? ' — DÉPASSÉE' : ''));
+                                        if (task.notes) (String(task.notes).match(/.{1,58}(\s|$)/g) || []).slice(0, 4).forEach((seg, idx) => lines.push((idx === 0 ? '📝 ' : '    ') + seg.trim()));
+                                        return lines;
                                     } else {
                                         // Tâche normale : afficher début, fin et durée
                                         const end = ganttData[dataIndex].x[1];
                                         const endDate = new Date(end).toLocaleDateString('fr-FR');
                                         const duration = workingDaysBetween(task.startDate, task.endDate);
 
-                                        return [
+                                        const lines = [
                                             `${task.id}: ${task.title}`,
                                             `Du: ${startDate}`,
                                             `Au: ${endDate}`,
                                             `Durée: ${duration} j ouvrés`,
                                             `Statut: ${task.statut}`
                                         ];
+                                        if (task.deadline) lines.push(`⚑ Butoir: ${formatDateFR(task.deadline)}` + (isDeadlineExceeded(task) ? ' — DÉPASSÉE' : ''));
+                                        if (task.notes) (String(task.notes).match(/.{1,58}(\s|$)/g) || []).slice(0, 4).forEach((seg, idx) => lines.push((idx === 0 ? '📝 ' : '    ') + seg.trim()));
+                                        return lines;
                                     }
                                 }
                             }
@@ -5429,6 +5449,21 @@
                 if (!draggedMilestone && draggedTaskIndex === null) return;
 
                 if (draggedMilestone && draggedMilestoneData) {
+                    // v2.2 (FR-12) : simple clic sur la capsule -> ligne du tableau
+                    const rectClickM = canvas.getBoundingClientRect();
+                    if (Math.abs((e.clientX - rectClickM.left) - dragStartX) < 4) {
+                        const clickedId = draggedMilestone.id;
+                        isDragging = false;
+                        draggedMilestone = null;
+                        draggedMilestoneData = null;
+                        draggedTaskIndex = null;
+                        snapLines = [];
+                        canvas.style.cursor = 'grab';
+                        updateGantt();
+                        highlightTaskRow(clickedId);
+                        return;
+                    }
+
                     // Fin du drag d'un jalon (tous modes)
                     saveState();
 
@@ -5486,6 +5521,19 @@
                     if (!ganttData[draggedTaskIndex]) return; // Sécurité supplémentaire
                     const task = ganttData[draggedTaskIndex].task;
                     if (!task) return;
+
+                    // v2.2 (FR-12) : simple CLIC (pas de déplacement) ->
+                    // naviguer vers la ligne du tableau, pas de faux commit
+                    const rectClick = canvas.getBoundingClientRect();
+                    if (Math.abs((e.clientX - rectClick.left) - dragStartX) < 4) {
+                        isDragging = false;
+                        draggedTaskIndex = null;
+                        snapLines = [];
+                        canvas.style.cursor = 'grab';
+                        updateGantt(); // restaure la position exacte de la barre
+                        highlightTaskRow(task.id);
+                        return;
+                    }
 
                     const newStart = new Date(ganttData[draggedTaskIndex].x[0]);
                     const isMilestone = task.isMilestone || ganttData[draggedTaskIndex].isMilestone;
@@ -5644,6 +5692,10 @@
             } else {
                 progressionEl.style.color = '#666666'; // Gris
             }
+
+            // v2.2 : vues dérivées rafraîchies avec chaque refresh du dashboard
+            renderWorkload();
+            renderValidationBanner();
         }
 
         // ========================================
@@ -5746,29 +5798,36 @@
 
         // Nettoyer les données (doublons, cohérence, dates invalides)
         function sanitizeData() {
+            dataAnomalies.length = 0; // FR-1 : collecte pour le bandeau
             const seenIds = new Set();
             riskGroups.forEach(group => {
                 group.tasks = group.tasks.filter(task => {
                     // 1. Vérifier doublons ID
                     if (seenIds.has(task.id)) {
                         console.warn(`Doublon supprimé: ${task.id}`);
+                        pushAnomaly('Tâche ' + task.id + ' en double — occurrence supprimée');
                         return false;
                     }
                     seenIds.add(task.id);
 
                     // 2. Vérifier dates
-                    if (!task.startDate) return false; // Pas de date de début = poubelle
+                    if (!task.startDate) {
+                        pushAnomaly('Tâche ' + (task.id || '?') + ' sans date de début — supprimée');
+                        return false;
+                    }
                     
                     const start = new Date(task.startDate).getTime();
                     const end = task.endDate ? new Date(task.endDate).getTime() : start;
 
                     if (isNaN(start) || (task.endDate && isNaN(end))) {
                         console.warn(`Dates invalides pour ${task.id}`);
+                        pushAnomaly('Tâche ' + task.id + ' : dates invalides — supprimée');
                         return false;
                     }
 
                     if (end < start) {
                         console.warn(`Fin avant début pour ${task.id}, correction automatique`);
+                        pushAnomaly('Tâche ' + task.id + ' : fin avant début — fin recalée au début');
                         task.endDate = task.startDate; // Correction
                     }
 
@@ -5792,13 +5851,31 @@
             const validIds = new Set(risks.map(r => r.id));
             risks.forEach(r => {
                 if (Array.isArray(r.dependsOn)) {
-                    r.dependsOn = r.dependsOn.filter(id => validIds.has(id));
+                    const before = r.dependsOn.length;
+                    // v2.2 : valider sur l'ID seul (les entrées peuvent porter
+                    // un lag "id+N")
+                    r.dependsOn = r.dependsOn.filter(entry =>
+                        validIds.has(String(entry).split('+')[0].trim()));
+                    if (r.dependsOn.length < before) {
+                        pushAnomaly('Tâche ' + r.id + ' : ' + (before - r.dependsOn.length) +
+                            ' dépendance(s) vers des tâches inconnues — ignorée(s)');
+                    }
                     if (r.dependsOn.length === 0) delete r.dependsOn;
+                }
+                // v2.2 : champs optionnels normalisés
+                if (r.deadline && isNaN(new Date(r.deadline).getTime())) {
+                    pushAnomaly('Tâche ' + r.id + ' : date butoir invalide — ignorée');
+                    delete r.deadline;
+                }
+                if (r.link && !/^https?:\/\//i.test(String(r.link))) {
+                    pushAnomaly('Tâche ' + r.id + ' : lien non http(s) — ignoré');
+                    delete r.link;
                 }
             });
         }
 
         // Initialisation
+        initCalendarConfig(); // v2.2 : calendrier MÉTIER avant tout calcul de durées
         sanitizeData(); // Nettoyage préventif
         loadBaseline(); // Baseline v2.1 (PLANNR_DATA.baseline ou stockage local)
         initShadingPrefs(); // Barres de neutralisation : préférences d'affichage
@@ -5817,6 +5894,9 @@
         initSectionTitleEditing(); // Activer l'édition inline sur les sous-titres de sections
         updateGantt();
         updateDashboard();
+        computeDataChangeJournal(); // v2.2 : diff vs chargement précédent (FR-10)
+        initGanttZoom(); // v2.2 : fenêtre temporelle persistée (FR-5)
+        renderValidationBanner(); // re-rendu : inclut le journal calculé ci-dessus
 
         // Sauvegarder l'état initial pour le système undo/redo
         saveState();
