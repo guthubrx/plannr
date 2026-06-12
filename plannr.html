@@ -2576,6 +2576,54 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     body.presentation-mode #language-selector { display: none !important; }
     body.presentation-mode #color-palette-selector { display: none !important; }
     body.presentation-mode .remediation-row { display: none !important; }
+
+/* ==================================================================
+   v2.1 — avancement, dépendances, retards, impression
+   ================================================================== */
+.progress-cell { text-align: center; }
+.editable-progress {
+    width: 54px; padding: 3px 4px; border: 1px solid #d2d2d7;
+    border-radius: 6px; font-size: 13px; text-align: right; background: white;
+}
+.progress-mini {
+    height: 4px; background: #e5e5e7; border-radius: 2px;
+    margin-top: 4px; overflow: hidden;
+}
+.progress-mini-fill {
+    height: 100%; background: #34C759; border-radius: 2px; transition: width .2s;
+}
+.depends-cell { font-size: 12.5px; color: #3a3a3c; }
+.editable-depends {
+    cursor: pointer; display: inline-block; min-width: 32px;
+    padding: 2px 6px; border-radius: 6px;
+}
+.editable-depends:hover { background: #f2f2f7; }
+.depends-placeholder { color: #c7c7cc; }
+.depends-input {
+    width: 100%; min-width: 80px; padding: 3px 6px;
+    border: 1px solid #0071e3; border-radius: 6px; font-size: 12.5px;
+}
+.overdue-badge {
+    display: inline-block; margin-left: 4px; padding: 1px 6px;
+    border-radius: 6px; background: #FFEBEA; color: #D70015;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+
+@media print {
+    @page { size: A3 landscape; margin: 10mm; }
+    body { background: white !important; }
+    .app-controls, .studio-toolbar, .sticky-toggle-container,
+    .group-separator, .risk-separator-row, .delete-btn, .pres-toggle,
+    #color-palette-selector, .toast-container, .studio-ribbon,
+    .editable-progress { display: none !important; }
+    .progress-mini { margin-top: 0; }
+    .collapsible-content.collapsed {
+        display: block !important; max-height: none !important;
+        overflow: visible !important;
+    }
+    .dashboard-overview, .collapsible-section { break-inside: avoid; }
+    .container { max-width: none !important; box-shadow: none !important; }
+}
     </style>
 </head>
 <body class="">
@@ -2598,6 +2646,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     <span>🔄</span> Recharger
                 </button>
 
+                <!-- Bouton Baseline : fige le planning actuel comme référence (v2.1) -->
+                <button onclick="setBaseline()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;" title="Figer le planning actuel comme baseline — la dérive s'affichera en gris sous les barres du Gantt">
+                    <span>📌</span> <span data-i18n="baselineBtn">Baseline</span>
+                </button>
+
                 <!-- Bouton Import -->
                 <button onclick="document.getElementById('import-file').click()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;">
                     <span>📥</span> Import
@@ -2611,6 +2664,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     <option value="html">🌐 HTML (Web)</option>
                     <option value="json">💾 JSON (Données)</option>
                     <option value="datajs">🗂️ plannr-data.js (rechargeable)</option>
+                    <option value="ics">📅 ICS (jalons calendrier)</option>
                 </select>
                 <select id="language-selector" onchange="setLanguage(this.value)" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
                     <option value="fr" selected="selected">🇫🇷 Français</option>
@@ -2684,6 +2738,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     <div class="dashboard-card-content">
                         <div class="dashboard-card-value" id="dashboard-progression" style="color: rgb(102, 102, 102);">0%</div>
                         <div class="dashboard-card-label" data-i18n="dashboardProgression">Progression</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-card-value" id="dashboard-overdue">0</div>
+                        <div class="dashboard-card-label" data-i18n="dashboardOverdue">En retard</div>
                     </div>
                 </div>
             </div>
@@ -3521,6 +3587,667 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </footer>
 
     <script>
+        // ====================================================================
+        // PLANNR FEATURES — module additif (concaténé AVANT app.js au build)
+        // Jours ouvrés/fériés FR, ligne aujourd'hui, retards, % avancement,
+        // baseline, dépendances + cascade + chemin critique, export ICS.
+        //
+        // Règle d'architecture : UNIQUEMENT des déclarations de fonctions
+        // (hoistées, donc visibles par app.js) et des enregistrements de
+        // plugins Chart.js (leurs callbacks ne s'exécutent qu'au rendu).
+        // Aucune exécution top-level ne touche à l'état applicatif :
+        // app.js s'initialise après, et appelle les hooks de ce module.
+        // ====================================================================
+
+        // --------------------------------------------------------------
+        // i18n additionnel — fusionné dans `translations` par app.js (init)
+        // --------------------------------------------------------------
+        var PLANNR_EXTRA_I18N = {
+            fr: {
+                colDuration: "Durée (j ouvrés)",
+                colProgress: "Avanc.",
+                colDependsOn: "Dépend de",
+                dashboardOverdue: "En retard",
+                todayLabel: "Aujourd'hui",
+                overdueBadge: "retard",
+                overdueTooltip: "Échéance dépassée et tâche non terminée",
+                baselineBtn: "Baseline",
+                baselineSet: "Baseline figée — la dérive s'affiche sous les barres",
+                baselineReplaceConfirm: "Une baseline existe déjà. La remplacer par le planning actuel ?",
+                depsHint: "IDs des tâches préalables, séparés par des virgules (ex: 1.1, 2.3)",
+                depsInvalid: "IDs de dépendance inconnus ou auto-référents ignorés : {ids}",
+                depsCycle: "Cycle de dépendances détecté — cascade interrompue",
+                tasksShifted: "{n} tâche(s) décalée(s) par les dépendances",
+                icsExported: "{n} jalon(s) exporté(s) au format calendrier",
+                icsNoMilestone: "Aucun jalon à exporter",
+                criticalPathLegend: "─ ─ chemin critique"
+            },
+            en: {
+                colDuration: "Duration (working d)",
+                colProgress: "Progress",
+                colDependsOn: "Depends on",
+                dashboardOverdue: "Overdue",
+                todayLabel: "Today",
+                overdueBadge: "overdue",
+                overdueTooltip: "Deadline passed and task not completed",
+                baselineBtn: "Baseline",
+                baselineSet: "Baseline frozen — drift shows under the bars",
+                baselineReplaceConfirm: "A baseline already exists. Replace it with the current plan?",
+                depsHint: "IDs of prerequisite tasks, comma-separated (e.g. 1.1, 2.3)",
+                depsInvalid: "Unknown or self-referencing dependency IDs ignored: {ids}",
+                depsCycle: "Dependency cycle detected — cascade aborted",
+                tasksShifted: "{n} task(s) shifted by dependencies",
+                icsExported: "{n} milestone(s) exported to calendar format",
+                icsNoMilestone: "No milestone to export",
+                criticalPathLegend: "─ ─ critical path"
+            },
+            es: {
+                colDuration: "Duración (d lab.)",
+                colProgress: "Avance",
+                colDependsOn: "Depende de",
+                dashboardOverdue: "Atrasadas",
+                todayLabel: "Hoy",
+                overdueBadge: "atraso",
+                overdueTooltip: "Fecha límite superada y tarea no terminada",
+                baselineBtn: "Baseline",
+                baselineSet: "Baseline fijada — la deriva se muestra bajo las barras",
+                baselineReplaceConfirm: "Ya existe una baseline. ¿Reemplazarla por el plan actual?",
+                depsHint: "IDs de tareas previas, separados por comas (ej. 1.1, 2.3)",
+                depsInvalid: "IDs de dependencia desconocidos o auto-referentes ignorados: {ids}",
+                depsCycle: "Ciclo de dependencias detectado — cascada interrumpida",
+                tasksShifted: "{n} tarea(s) desplazada(s) por dependencias",
+                icsExported: "{n} hito(s) exportado(s) a formato calendario",
+                icsNoMilestone: "Ningún hito que exportar",
+                criticalPathLegend: "─ ─ camino crítico"
+            },
+            ar: {
+                colDuration: "المدة (أيام عمل)",
+                colProgress: "التقدم",
+                colDependsOn: "يعتمد على",
+                dashboardOverdue: "متأخرة",
+                todayLabel: "اليوم",
+                overdueBadge: "متأخر",
+                overdueTooltip: "تجاوز الموعد النهائي والمهمة غير مكتملة",
+                baselineBtn: "الخط المرجعي",
+                baselineSet: "تم تثبيت الخط المرجعي",
+                baselineReplaceConfirm: "يوجد خط مرجعي بالفعل. استبداله بالخطة الحالية؟",
+                depsHint: "معرفات المهام السابقة مفصولة بفواصل (مثال: 1.1, 2.3)",
+                depsInvalid: "تم تجاهل معرفات غير معروفة: {ids}",
+                depsCycle: "تم اكتشاف حلقة تبعيات",
+                tasksShifted: "تم إزاحة {n} مهمة بسبب التبعيات",
+                icsExported: "تم تصدير {n} معلم إلى التقويم",
+                icsNoMilestone: "لا يوجد معلم للتصدير",
+                criticalPathLegend: "─ ─ المسار الحرج"
+            }
+        };
+
+        // --------------------------------------------------------------
+        // Jours ouvrés & fériés français
+        // --------------------------------------------------------------
+        // Dimanche de Pâques (algorithme de Meeus/Butcher, valide gregorien)
+        function easterSunday(year) {
+            const a = year % 19, b = Math.floor(year / 100), c = year % 100,
+                  d = Math.floor(b / 4), e = b % 4,
+                  f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+                  h = (19 * a + b - d - g + 15) % 30,
+                  i = Math.floor(c / 4), k = c % 4,
+                  l = (32 + 2 * e + 2 * i - h - k) % 7,
+                  m = Math.floor((a + 11 * h + 22 * l) / 451),
+                  month = Math.floor((h + l - 7 * m + 114) / 31),
+                  day = ((h + l - 7 * m + 114) % 31) + 1;
+            return new Date(Date.UTC(year, month - 1, day));
+        }
+
+        var _frHolidaysCache = {};
+        // Fériés français (métropole) : 8 fixes + lundi de Pâques, Ascension,
+        // lundi de Pentecôte. Retourne un Set de chaînes "YYYY-MM-DD".
+        function frenchHolidays(year) {
+            if (_frHolidaysCache[year]) return _frHolidaysCache[year];
+            const set = new Set(
+                ['01-01', '05-01', '05-08', '07-14', '08-15', '11-01', '11-11', '12-25']
+                    .map(s => year + '-' + s));
+            const easter = easterSunday(year);
+            [1, 39, 50].forEach(offset => {
+                const d = new Date(easter.getTime() + offset * 86400000);
+                set.add(d.toISOString().slice(0, 10));
+            });
+            _frHolidaysCache[year] = set;
+            return set;
+        }
+
+        // date : objet Date ancré à midi UTC (évite les dérives de fuseau)
+        function isWorkingDay(date) {
+            const day = date.getUTCDay();
+            if (day === 0 || day === 6) return false;
+            return !frenchHolidays(date.getUTCFullYear()).has(date.toISOString().slice(0, 10));
+        }
+
+        // Jours ouvrés entre deux dates ISO, bornes INCLUSES. O(n) sur l'intervalle.
+        function workingDaysBetween(startStr, endStr) {
+            if (!startStr || !endStr) return 0;
+            let cur = new Date(startStr + 'T12:00:00Z');
+            const end = new Date(endStr + 'T12:00:00Z');
+            if (isNaN(cur) || isNaN(end) || end < cur) return 0;
+            let n = 0, guard = 0;
+            while (cur <= end && guard++ < 36600) { // borne ~100 ans
+                if (isWorkingDay(cur)) n++;
+                cur = new Date(cur.getTime() + 86400000);
+            }
+            return n;
+        }
+
+        function addCalendarDays(dateStr, days) {
+            const d = new Date(dateStr + 'T12:00:00Z');
+            return new Date(d.getTime() + days * 86400000).toISOString().slice(0, 10);
+        }
+
+        function nextWorkingDayISO(dateStr) {
+            let d = new Date(dateStr + 'T12:00:00Z');
+            let guard = 0;
+            while (!isWorkingDay(d) && guard++ < 30) d = new Date(d.getTime() + 86400000);
+            return d.toISOString().slice(0, 10);
+        }
+
+        // --------------------------------------------------------------
+        // Statut, retard, avancement
+        // --------------------------------------------------------------
+        function isTaskDone(task) {
+            return task.statut === 'statusDone' || task.statut === 'statusTreated' ||
+                   task.statut === 'Terminé';
+        }
+
+        function todayISO() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') +
+                   '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        function isTaskOverdue(task) {
+            if (isTaskDone(task)) return false;
+            const ref = task.isMilestone ? task.startDate : (task.endDate || task.startDate);
+            return !!ref && ref < todayISO();
+        }
+
+        // Avancement effectif 0-100 : champ `progress` si présent, sinon
+        // déduit du statut (terminé = 100, sinon 0 — pas d'invention).
+        function effectiveProgress(task) {
+            if (isTaskDone(task)) return 100;
+            const p = parseInt(task.progress, 10);
+            return Number.isFinite(p) ? Math.min(100, Math.max(0, p)) : 0;
+        }
+
+        // --------------------------------------------------------------
+        // Dépendances : cascade + chemin critique
+        // --------------------------------------------------------------
+        function parseDependsOn(task) {
+            return Array.isArray(task.dependsOn) ? task.dependsOn.filter(Boolean) : [];
+        }
+
+        function tasksById() {
+            const map = {};
+            risks.forEach(t => { map[t.id] = t; });
+            return map;
+        }
+
+        function taskEndForDeps(task) {
+            return (task.isMilestone || !task.endDate) ? task.startDate : task.endDate;
+        }
+
+        // Décale les successeurs : un successeur démarre au plus tôt le jour
+        // OUVRÉ suivant la fin de son dernier prédécesseur. Le décalage
+        // conserve l'étendue calendaire (start et end glissent du même delta).
+        // Complexité : O(V+E) (DFS mémoïsé), anti-cycle par marquage.
+        function applyDependencyCascade(options) {
+            const opts = options || {};
+            const byId = tasksById();
+            const memo = new Set();
+            const visiting = new Set();
+            let shifted = 0;
+            let cycle = false;
+
+            function resolve(task) {
+                if (memo.has(task.id)) return;
+                if (visiting.has(task.id)) { cycle = true; return; }
+                visiting.add(task.id);
+                let minStart = null;
+                parseDependsOn(task).forEach(pid => {
+                    const pred = byId[pid];
+                    if (!pred) return;
+                    resolve(pred);
+                    const predEnd = taskEndForDeps(pred);
+                    if (!predEnd) return;
+                    const candidate = nextWorkingDayISO(addCalendarDays(predEnd, 1));
+                    if (minStart === null || candidate > minStart) minStart = candidate;
+                });
+                visiting.delete(task.id);
+                memo.add(task.id);
+                if (minStart && task.startDate && task.startDate < minStart) {
+                    const deltaDays = Math.round(
+                        (new Date(minStart + 'T12:00:00Z') - new Date(task.startDate + 'T12:00:00Z')) / 86400000);
+                    task.startDate = minStart;
+                    if (task.isMilestone) {
+                        // un jalon est ponctuel : end suit start
+                        if (task.endDate) task.endDate = task.startDate;
+                    } else if (task.endDate) {
+                        task.endDate = addCalendarDays(task.endDate, deltaDays);
+                    }
+                    task.duration = workingDaysBetween(task.startDate, task.endDate || task.startDate);
+                    shifted++;
+                }
+            }
+
+            risks.forEach(resolve);
+            if (cycle && !opts.silent && typeof showToast === 'function') {
+                showToast(t('depsCycle'), 'error');
+            }
+            if (shifted > 0) {
+                riskGroups.forEach(updatePhaseDates);
+                if (!opts.silent && typeof showToast === 'function') {
+                    showToast(t('tasksShifted').replace('{n}', shifted));
+                }
+            }
+            return shifted;
+        }
+
+        // Chemin critique : plus long chemin (durée ouvrée cumulée) dans le
+        // graphe des dépendances. Vide si aucune dépendance ou chaîne de 1.
+        var _criticalIds = new Set();
+        function computeCriticalPath() {
+            if (!risks.some(tk => parseDependsOn(tk).length > 0)) return new Set();
+            const byId = tasksById();
+            const memo = {};
+            const visiting = new Set();
+
+            function longest(task) {
+                if (memo[task.id]) return memo[task.id];
+                if (visiting.has(task.id)) return { len: 0, prev: null }; // cycle neutralisé
+                visiting.add(task.id);
+                const dur = Math.max(1, workingDaysBetween(task.startDate, taskEndForDeps(task) || task.startDate));
+                let best = { len: dur, prev: null };
+                parseDependsOn(task).forEach(pid => {
+                    const pred = byId[pid];
+                    if (!pred) return;
+                    const r = longest(pred);
+                    if (r.len + dur > best.len) best = { len: r.len + dur, prev: pid };
+                });
+                visiting.delete(task.id);
+                memo[task.id] = best;
+                return best;
+            }
+
+            let endId = null, max = -1;
+            risks.forEach(tk => {
+                const r = longest(tk);
+                if (r.len > max) { max = r.len; endId = tk.id; }
+            });
+            const set = new Set();
+            let cur = endId;
+            while (cur) { set.add(cur); cur = memo[cur] ? memo[cur].prev : null; }
+            return set.size > 1 ? set : new Set();
+        }
+
+        function recomputeCriticalPath() {
+            _criticalIds = computeCriticalPath();
+        }
+
+        // --------------------------------------------------------------
+        // Baseline (planning initial figé, dérive en barres fantômes)
+        // --------------------------------------------------------------
+        var baselineData = null; // { savedAt, tasks: { id: {startDate, endDate} } }
+
+        function loadBaseline() {
+            if (window.PLANNR_DATA && window.PLANNR_DATA.baseline &&
+                window.PLANNR_DATA.baseline.tasks) {
+                baselineData = window.PLANNR_DATA.baseline;
+                return;
+            }
+            try {
+                const raw = appStorage.getItem('plannr-baseline');
+                if (raw) baselineData = JSON.parse(raw);
+            } catch (e) { /* baseline corrompue : on repart sans */ }
+        }
+
+        function setBaseline() {
+            if (baselineData && !confirm(t('baselineReplaceConfirm'))) return;
+            const snap = { savedAt: new Date().toISOString(), tasks: {} };
+            risks.forEach(tk => {
+                snap.tasks[tk.id] = { startDate: tk.startDate, endDate: tk.endDate || tk.startDate };
+            });
+            baselineData = snap;
+            appStorage.setItem('plannr-baseline', JSON.stringify(snap));
+            showToast(t('baselineSet'));
+            updateGantt();
+        }
+
+        // --------------------------------------------------------------
+        // Export ICS (jalons -> événements calendrier)
+        // --------------------------------------------------------------
+        function icsEscape(s) {
+            return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;')
+                            .replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+        }
+
+        function exportToICS() {
+            const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+            const title = (document.getElementById('main-title') || {}).textContent || 'Plannr';
+            const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0',
+                           'PRODID:-//Plannr//Jalons//FR', 'CALSCALE:GREGORIAN'];
+            let count = 0;
+            risks.filter(tk => tk.isMilestone && tk.startDate).forEach(tk => {
+                const d = tk.startDate.replace(/-/g, '');
+                count++;
+                lines.push(
+                    'BEGIN:VEVENT',
+                    'UID:plannr-' + tk.id + '-' + d + '@plannr.local',
+                    'DTSTAMP:' + stamp,
+                    'DTSTART;VALUE=DATE:' + d,
+                    'SUMMARY:' + icsEscape('◆ ' + tk.id + ' — ' + tk.title),
+                    'DESCRIPTION:' + icsEscape(title),
+                    'END:VEVENT');
+            });
+            lines.push('END:VCALENDAR');
+            if (!count) { showToast(t('icsNoMilestone'), 'error'); return; }
+            downloadTextFile(lines.join('\r\n') + '\r\n', 'plannr_jalons.ics', 'text/calendar');
+            showToast(t('icsExported').replace('{n}', count));
+        }
+
+        // --------------------------------------------------------------
+        // Cellules tableau (avancement, dépendances, badge retard)
+        // --------------------------------------------------------------
+        function renderProgressCellHTML(risk) {
+            if (risk.isMilestone) return '<td class="progress-cell">—</td>';
+            const p = effectiveProgress(risk);
+            return '<td class="progress-cell">' +
+                '<input type="number" class="editable-progress" data-risk-id="' + risk.id +
+                '" min="0" max="100" step="5" value="' + p + '">' +
+                '<div class="progress-mini"><div class="progress-mini-fill" style="width:' + p + '%"></div></div>' +
+                '</td>';
+        }
+
+        function renderDependsCellHTML(risk) {
+            const deps = parseDependsOn(risk).join(', ');
+            return '<td class="depends-cell"><span class="editable-depends" data-risk-id="' +
+                risk.id + '" title="' + t('depsHint') + '">' +
+                (deps || '<span class="depends-placeholder">＋</span>') + '</span></td>';
+        }
+
+        function overdueBadgeHTML(risk) {
+            return isTaskOverdue(risk)
+                ? ' <span class="overdue-badge" title="' + t('overdueTooltip') + '">⚠ ' + t('overdueBadge') + '</span>'
+                : '';
+        }
+
+        function initProgressEditing() {
+            document.querySelectorAll('.editable-progress').forEach(input => {
+                if (input.dataset.editingInitialized) return;
+                input.dataset.editingInitialized = 'true';
+                input.addEventListener('change', function () {
+                    const task = risks.find(r => r.id === this.dataset.riskId);
+                    if (!task) return;
+                    saveState();
+                    let v = parseInt(this.value, 10);
+                    if (!Number.isFinite(v)) v = 0;
+                    v = Math.min(100, Math.max(0, v));
+                    task.progress = v;
+                    this.value = v;
+                    const fill = this.parentElement.querySelector('.progress-mini-fill');
+                    if (fill) fill.style.width = v + '%';
+                    updateGantt();
+                    updateDashboard();
+                });
+            });
+        }
+
+        function initDependsEditing() {
+            document.querySelectorAll('.editable-depends').forEach(span => {
+                if (span.dataset.editingInitialized) return;
+                span.dataset.editingInitialized = 'true';
+                span.addEventListener('click', function () {
+                    if (this.querySelector('input')) return;
+                    const task = risks.find(r => r.id === this.dataset.riskId);
+                    if (!task) return;
+                    const current = parseDependsOn(task).join(', ');
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = current;
+                    input.className = 'depends-input';
+                    input.placeholder = '1.1, 2.3';
+                    this.textContent = '';
+                    this.appendChild(input);
+                    input.focus();
+                    let committed = false;
+                    const commit = () => {
+                        if (committed) return;
+                        committed = true;
+                        const byId = tasksById();
+                        const ids = input.value.split(',').map(s => s.trim()).filter(Boolean);
+                        const valid = [], bad = [];
+                        ids.forEach(id => {
+                            if (!byId[id] || id === task.id) bad.push(id);
+                            else valid.push(id);
+                        });
+                        saveState();
+                        task.dependsOn = valid;
+                        if (bad.length) showToast(t('depsInvalid').replace('{ids}', bad.join(', ')), 'error');
+                        applyDependencyCascade({});
+                        recomputeCriticalPath();
+                        renderPlanning();
+                        updateGantt();
+                        updateDashboard();
+                    };
+                    input.addEventListener('blur', commit);
+                    input.addEventListener('keydown', e => {
+                        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+                        if (e.key === 'Escape') { input.value = current; input.blur(); }
+                    });
+                });
+            });
+        }
+
+        // --------------------------------------------------------------
+        // Plugins Chart.js (tous gardés par chart.options.ganttData :
+        // ils n'agissent QUE sur le Gantt, jamais sur les autres charts)
+        // --------------------------------------------------------------
+
+        // Grise les jours non ouvrés (week-ends + fériés). Garde perf : saute
+        // le shading au-delà de 2 ans d'étendue.
+        Chart.register({
+            id: 'workingDaysShadingPlugin',
+            beforeDatasetsDraw: function (chart) {
+                const gd = chart.options.ganttData;
+                if (!gd) return;
+                const x = chart.scales.x, y = chart.scales.y;
+                if (!x || !y) return;
+                if ((x.max - x.min) / 86400000 > 730) return;
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.fillStyle = 'rgba(60, 60, 67, 0.055)';
+                let dms = Math.floor(x.min / 86400000) * 86400000;
+                for (; dms <= x.max; dms += 86400000) {
+                    const probe = new Date(dms + 43200000);
+                    if (!isWorkingDay(probe)) {
+                        const x0 = Math.max(x.getPixelForValue(dms), x.left);
+                        const x1 = Math.min(x.getPixelForValue(dms + 86400000), x.right);
+                        if (x1 > x0) ctx.fillRect(x0, y.top, x1 - x0, y.bottom - y.top);
+                    }
+                }
+                ctx.restore();
+            }
+        });
+
+        // Barres fantômes de la baseline (sous les barres actuelles)
+        Chart.register({
+            id: 'baselinePlugin',
+            beforeDatasetsDraw: function (chart) {
+                const gd = chart.options.ganttData;
+                if (!gd || !baselineData || !baselineData.tasks) return;
+                const x = chart.scales.x;
+                const meta = chart.getDatasetMeta(0);
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.fillStyle = 'rgba(142, 142, 147, 0.5)';
+                gd.forEach((d, i) => {
+                    if (d.isMilestone) return;
+                    const base = baselineData.tasks[d.task.id];
+                    if (!base || !base.startDate) return;
+                    const el = meta.data[i];
+                    if (!el) return;
+                    const x0 = x.getPixelForValue(new Date(base.startDate).getTime());
+                    const x1 = x.getPixelForValue(new Date(base.endDate || base.startDate).getTime());
+                    const yTop = el.y + el.height / 2 + 2;
+                    ctx.fillRect(Math.min(x0, x1), yTop, Math.max(2, Math.abs(x1 - x0)), 4);
+                });
+                ctx.restore();
+            }
+        });
+
+        // Remplissage d'avancement dans les barres + texte %
+        Chart.register({
+            id: 'progressFillPlugin',
+            afterDatasetsDraw: function (chart) {
+                const gd = chart.options.ganttData;
+                if (!gd) return;
+                const meta = chart.getDatasetMeta(0);
+                const ctx = chart.ctx;
+                ctx.save();
+                gd.forEach((d, i) => {
+                    if (d.isMilestone) return;
+                    const el = meta.data[i];
+                    if (!el) return;
+                    const p = effectiveProgress(d.task);
+                    const x0 = el.base, x1 = el.x, h = el.height, yTop = el.y - h / 2;
+                    if (p > 0) {
+                        const border = chart.data.datasets[0].borderColor;
+                        ctx.fillStyle = (Array.isArray(border) ? border[i] : border) || '#5E81AC';
+                        ctx.globalAlpha = 0.5;
+                        ctx.fillRect(x0, yTop, (x1 - x0) * p / 100, h);
+                        ctx.globalAlpha = 1;
+                    }
+                    if (x1 - x0 > 46) {
+                        ctx.fillStyle = '#3a3a3c';
+                        ctx.font = '10px -apple-system, "Segoe UI", sans-serif';
+                        ctx.textAlign = 'right';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(p + '%', x1 - 4, el.y);
+                    }
+                });
+                ctx.restore();
+            }
+        });
+
+        // Flèches de dépendances (coude prédécesseur -> successeur)
+        Chart.register({
+            id: 'dependencyArrowsPlugin',
+            afterDatasetsDraw: function (chart) {
+                const gd = chart.options.ganttData;
+                if (!gd) return;
+                const x = chart.scales.x, y = chart.scales.y, ctx = chart.ctx;
+                const meta = chart.getDatasetMeta(0);
+                const pos = {};
+                gd.forEach((d, i) => {
+                    const el = meta.data[i];
+                    if (!el || !d.task) return;
+                    const yPx = el.y + ((d.isMilestone && d.compactMode) ? 28 : 0);
+                    pos[d.task.id] = { start: el.base, end: d.isMilestone ? el.base : el.x, y: yPx };
+                });
+                (chart.options.milestonesData || []).forEach(m => {
+                    pos[m.task.id] = {
+                        start: x.getPixelForValue(m.date),
+                        end: x.getPixelForValue(m.date),
+                        y: y.getPixelForValue(m.yPosition)
+                    };
+                });
+                const allTasks = gd.map(d => d.task)
+                    .concat((chart.options.milestonesData || []).map(m => m.task));
+                ctx.save();
+                ctx.strokeStyle = 'rgba(99, 99, 102, 0.75)';
+                ctx.fillStyle = 'rgba(99, 99, 102, 0.9)';
+                ctx.lineWidth = 1.3;
+                allTasks.forEach(task => {
+                    if (!task) return;
+                    parseDependsOn(task).forEach(pid => {
+                        const from = pos[pid], to = pos[task.id];
+                        if (!from || !to) return;
+                        const x0 = from.end, y0 = from.y, x1 = to.start, y1 = to.y;
+                        ctx.beginPath();
+                        ctx.moveTo(x0, y0);
+                        ctx.lineTo(x0 + 6, y0);
+                        ctx.lineTo(x0 + 6, y1);
+                        ctx.lineTo(x1 - 3, y1);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x1 - 6, y1 - 3.5);
+                        ctx.lineTo(x1 - 6, y1 + 3.5);
+                        ctx.closePath();
+                        ctx.fill();
+                    });
+                });
+                ctx.restore();
+            }
+        });
+
+        // Ligne « aujourd'hui », contour des retards, chemin critique
+        Chart.register({
+            id: 'todayOverduePlugin',
+            afterDatasetsDraw: function (chart) {
+                const gd = chart.options.ganttData;
+                if (!gd) return;
+                const x = chart.scales.x, y = chart.scales.y, ctx = chart.ctx;
+                const meta = chart.getDatasetMeta(0);
+                ctx.save();
+                // Contour rouge plein : tâches en retard
+                gd.forEach((d, i) => {
+                    if (d.isMilestone || !isTaskOverdue(d.task)) return;
+                    const el = meta.data[i];
+                    if (!el) return;
+                    ctx.strokeStyle = '#FF3B30';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(el.base, el.y - el.height / 2, el.x - el.base, el.height);
+                });
+                // Contour pointillé : chemin critique
+                if (_criticalIds.size) {
+                    ctx.setLineDash([5, 3]);
+                    ctx.strokeStyle = '#B71C1C';
+                    ctx.lineWidth = 1.5;
+                    gd.forEach((d, i) => {
+                        if (d.isMilestone || !_criticalIds.has(d.task.id)) return;
+                        const el = meta.data[i];
+                        if (!el) return;
+                        ctx.strokeRect(el.base - 1.5, el.y - el.height / 2 - 1.5,
+                                       (el.x - el.base) + 3, el.height + 3);
+                    });
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = '#B71C1C';
+                    ctx.font = '10px -apple-system, "Segoe UI", sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(t('criticalPathLegend'), x.right, y.top - 4);
+                }
+                // Ligne verticale « aujourd'hui »
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                const ts = now.getTime();
+                if (ts >= x.min && ts <= x.max) {
+                    const px = x.getPixelForValue(ts);
+                    ctx.strokeStyle = '#FF3B30';
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([6, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(px, y.top);
+                    ctx.lineTo(px, y.bottom);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = '#FF3B30';
+                    ctx.font = 'bold 10px -apple-system, "Segoe UI", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(t('todayLabel'), px, y.top - 4);
+                }
+                ctx.restore();
+            }
+        });
+
         // Detection mode iframe/embedded
         (function() {
             var params = new URLSearchParams(window.location.search);
@@ -3530,6 +4257,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             if (embedded) document.documentElement.classList.add('embedded');
             if (inIframe) document.documentElement.classList.add('in-iframe');
         })();
+
+        // ========================================
+        // Stockage namespacé par document (v2.1)
+        // ========================================
+        // Plusieurs copies plannr_[sujet].html sur le même origin ne doivent
+        // PAS partager titres/préférences entre elles (ni avec Riskr, qui
+        // utilisait les mêmes clés génériques). Lecture : fallback sur la
+        // clé legacy pour migrer en douceur les valeurs existantes.
+        const LS_PREFIX = 'plannr:' + location.pathname + ':';
+        const appStorage = {
+            getItem(key) {
+                const v = localStorage.getItem(LS_PREFIX + key);
+                return v !== null ? v : localStorage.getItem(key);
+            },
+            setItem(key, value) { localStorage.setItem(LS_PREFIX + key, value); },
+            removeItem(key) { localStorage.removeItem(LS_PREFIX + key); }
+        };
 
         // ========================================
         // Système de Toast Notifications
@@ -3666,7 +4410,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 element.dataset.editingInitialized = 'true';
 
                 // Charger la valeur sauvegardée depuis le navigateur (localStorage)
-                const savedValue = localStorage.getItem(storageKey);
+                const savedValue = appStorage.getItem(storageKey);
                 if (savedValue) {
                     element.textContent = savedValue;
                 }
@@ -3694,7 +4438,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     const originalValue = element.dataset.originalValue || '';
 
                     if (newValue) {
-                        localStorage.setItem(storageKey, newValue);
+                        appStorage.setItem(storageKey, newValue);
 
                         // N'afficher le toast que si la valeur a changé
                         if (newValue !== originalValue) {
@@ -3711,7 +4455,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     }
                     // Echap pour annuler l'édition
                     if (e.key === 'Escape') {
-                        element.textContent = localStorage.getItem(storageKey) || element.textContent;
+                        element.textContent = appStorage.getItem(storageKey) || element.textContent;
                         element.blur();
                     }
                 });
@@ -3753,18 +4497,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 // Désactiver sticky
                 toggleBtn.classList.remove('active');
                 stickySection.classList.add('sticky-disabled');
-                localStorage.setItem('sticky-enabled', 'false');
+                appStorage.setItem('sticky-enabled', 'false');
             } else {
                 // Activer sticky
                 toggleBtn.classList.add('active');
                 stickySection.classList.remove('sticky-disabled');
-                localStorage.setItem('sticky-enabled', 'true');
+                appStorage.setItem('sticky-enabled', 'true');
             }
         }
 
         // Restaurer l'état du sticky au chargement (LOGIQUE INVERSÉE)
         document.addEventListener('DOMContentLoaded', function() {
-            const stickyEnabled = localStorage.getItem('sticky-enabled');
+            const stickyEnabled = appStorage.getItem('sticky-enabled');
             const stickySection = document.getElementById('sticky-section');
             const toggleBtn = document.getElementById('sticky-toggle-btn');
 
@@ -3794,14 +4538,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
             // Sauvegarder l'état dans localStorage pour mémoriser la préférence
             const isCollapsed = content.classList.contains('collapsed');
-            localStorage.setItem(`collapse-${contentId}`, isCollapsed);
+            appStorage.setItem(`collapse-${contentId}`, isCollapsed);
         }
 
         // Restaurer l'état des sections au chargement de la page
         document.addEventListener('DOMContentLoaded', function() {
             // Restaurer l'état des matrices
             const matricesContent = document.getElementById('matrices-content');
-            const isCollapsedMatrices = localStorage.getItem('collapse-matrices-content') === 'true';
+            const isCollapsedMatrices = appStorage.getItem('collapse-matrices-content') === 'true';
 
             if (isCollapsedMatrices && matricesContent) {
                 const header = matricesContent.previousElementSibling;
@@ -3811,7 +4555,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
             // Restaurer l'état de la section sticky complète
             const stickySectionContent = document.getElementById('sticky-section-content');
-            const isCollapsedSticky = localStorage.getItem('collapse-sticky-section-content') === 'true';
+            const isCollapsedSticky = appStorage.getItem('collapse-sticky-section-content') === 'true';
 
             if (isCollapsedSticky && stickySectionContent) {
                 const header = stickySectionContent.previousElementSibling;
@@ -3835,7 +4579,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 const storageKey = `group-name-${groupId}`;
 
                 // Charger la valeur sauvegardée
-                const savedValue = localStorage.getItem(storageKey);
+                const savedValue = appStorage.getItem(storageKey);
                 if (savedValue) {
                     element.textContent = savedValue;
                     // Mettre à jour aussi dans l'objet riskGroups
@@ -3870,7 +4614,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     const originalValue = element.dataset.originalValue || '';
 
                     if (newValue) {
-                        localStorage.setItem(storageKey, newValue);
+                        appStorage.setItem(storageKey, newValue);
                         // Mettre à jour dans l'objet riskGroups
                         const group = riskGroups.find(g => g.id == groupId);
                         if (group) {
@@ -3894,7 +4638,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     }
                     // Annuler avec Escape
                     if (e.key === 'Escape') {
-                        element.textContent = localStorage.getItem(storageKey) || element.textContent;
+                        element.textContent = appStorage.getItem(storageKey) || element.textContent;
                         element.blur();
                     }
                 });
@@ -3912,7 +4656,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 const storageKey = `group-desc-${groupId}`;
 
                 // Charger la valeur sauvegardée
-                const savedValue = localStorage.getItem(storageKey);
+                const savedValue = appStorage.getItem(storageKey);
                 if (savedValue) {
                     element.textContent = savedValue;
                     const group = riskGroups.find(g => g.id == groupId);
@@ -3945,7 +4689,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     const originalValue = element.dataset.originalValue || '';
 
                     if (newValue) {
-                        localStorage.setItem(storageKey, newValue);
+                        appStorage.setItem(storageKey, newValue);
                         const group = riskGroups.find(g => g.id == groupId);
                         if (group) {
                             group.description = newValue;
@@ -3965,7 +4709,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         element.blur();
                     }
                     if (e.key === 'Escape') {
-                        element.textContent = localStorage.getItem(storageKey) || element.textContent;
+                        element.textContent = appStorage.getItem(storageKey) || element.textContent;
                         element.blur();
                     }
                 });
@@ -3983,7 +4727,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 const storageKey = `risk-title-${riskId}`;
 
                 // Charger la valeur sauvegardée
-                const savedValue = localStorage.getItem(storageKey);
+                const savedValue = appStorage.getItem(storageKey);
                 if (savedValue) {
                     element.textContent = savedValue;
                     const risk = risks.find(r => r.id === riskId);
@@ -4030,7 +4774,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     const originalValue = element.dataset.originalValue || '';
 
                     if (newValue) {
-                        localStorage.setItem(storageKey, newValue);
+                        appStorage.setItem(storageKey, newValue);
                         const risk = risks.find(r => r.id === riskId);
                         if (risk) {
                             risk.title = newValue.replace(`${riskId}. `, '');
@@ -4051,7 +4795,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         element.blur();
                     }
                     if (e.key === 'Escape') {
-                        element.textContent = localStorage.getItem(storageKey) || element.textContent;
+                        element.textContent = appStorage.getItem(storageKey) || element.textContent;
                         element.blur();
                     }
                 });
@@ -4072,7 +4816,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 const storageKey = `risk-remediation-${riskId}`;
 
                 // Charger la valeur sauvegardée
-                const savedValue = localStorage.getItem(storageKey);
+                const savedValue = appStorage.getItem(storageKey);
                 if (savedValue) {
                     element.textContent = savedValue;
                     const risk = risks.find(r => r.id === riskId);
@@ -4120,7 +4864,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     const originalValue = element.dataset.originalValue || '';
 
                     if (newValue && newValue !== t('clickToAddRemediation')) {
-                        localStorage.setItem(storageKey, newValue);
+                        appStorage.setItem(storageKey, newValue);
                         const risk = risks.find(r => r.id === riskId);
                         if (risk) {
                             // Convertir le texte en tableau de mesures (séparé par •)
@@ -4141,7 +4885,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         element.blur();
                     }
                     if (e.key === 'Escape') {
-                        element.textContent = localStorage.getItem(storageKey) || element.textContent;
+                        element.textContent = appStorage.getItem(storageKey) || element.textContent;
                         element.blur();
                     }
                 });
@@ -4162,7 +4906,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
                 // Charger la valeur sauvegardée depuis localStorage
                 const storageKey = `risk-status-${riskId}`;
-                const savedStatus = localStorage.getItem(storageKey);
+                const savedStatus = appStorage.getItem(storageKey);
                 if (savedStatus) {
                     dropdown.value = savedStatus;
                     const risk = risks.find(r => r.id === riskId);
@@ -4176,7 +4920,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     const newStatus = e.target.value;
 
                     // Sauvegarder dans localStorage
-                    localStorage.setItem(storageKey, newStatus);
+                    appStorage.setItem(storageKey, newStatus);
 
                     // Mettre à jour l'objet risque
                     const risk = risks.find(r => r.id === riskId);
@@ -4206,7 +4950,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 const storageKey = `risk-responsable-${riskId}`;
 
                 // Charger la valeur sauvegardée
-                const savedValue = localStorage.getItem(storageKey);
+                const savedValue = appStorage.getItem(storageKey);
                 if (savedValue) {
                     element.textContent = savedValue;
                     const risk = risks.find(r => r.id === riskId);
@@ -4255,13 +4999,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     // Si vide, afficher le placeholder
                     if (!newValue || newValue === t('clickToAdd')) {
                         element.textContent = t('clickToAdd');
-                        localStorage.removeItem(storageKey);
+                        appStorage.removeItem(storageKey);
                         const risk = risks.find(r => r.id === riskId);
                         if (risk) {
                             risk.responsable = '';
                         }
                     } else {
-                        localStorage.setItem(storageKey, newValue);
+                        appStorage.setItem(storageKey, newValue);
                         const risk = risks.find(r => r.id === riskId);
                         if (risk) {
                             risk.responsable = newValue;
@@ -4281,7 +5025,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         element.blur();
                     }
                     if (e.key === 'Escape') {
-                        element.textContent = localStorage.getItem(storageKey) || t('clickToAdd');
+                        element.textContent = appStorage.getItem(storageKey) || t('clickToAdd');
                         element.blur();
                     }
                 });
@@ -4304,7 +5048,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 const storageKey = `section-title-${riskIndex}-${sectionType}`;
 
                 // Charger la valeur sauvegardée
-                const savedValue = localStorage.getItem(storageKey);
+                const savedValue = appStorage.getItem(storageKey);
                 if (savedValue) {
                     element.textContent = savedValue;
                 }
@@ -4333,7 +5077,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     const originalValue = element.dataset.originalValue || '';
 
                     if (newValue) {
-                        localStorage.setItem(storageKey, newValue);
+                        appStorage.setItem(storageKey, newValue);
 
                         // N'afficher le toast que si la valeur a changé
                         if (newValue !== originalValue) {
@@ -4350,7 +5094,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     }
                     // Annuler avec Escape
                     if (e.key === 'Escape') {
-                        element.textContent = localStorage.getItem(storageKey) || element.textContent;
+                        element.textContent = appStorage.getItem(storageKey) || element.textContent;
                         element.blur();
                     }
                 });
@@ -4389,9 +5133,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         displaySpan.textContent = formatDateFR(newValue);
                     }
 
-                    // Recalculer la durée
+                    // Recalculer la durée (jours ouvrés)
                     if (task.startDate && task.endDate) {
-                        task.duration = calculateDuration(task.startDate, task.endDate);
+                        task.duration = workingDaysBetween(task.startDate, task.endDate);
 
                         // Mettre à jour l'affichage de la durée
                         const index = risks.findIndex(r => r.id === riskId);
@@ -4408,8 +5152,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         updatePhaseDates(phase);
                     }
 
+                    // Cascade des dépendances + chemin critique (v2.1)
+                    const shifted = applyDependencyCascade({});
+                    recomputeCriticalPath();
+                    if (shifted > 0) renderPlanning();
+
                     // Mettre à jour le Gantt
                     updateGantt();
+                    updateDashboard();
 
                 });
             });
@@ -4421,8 +5171,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         function exportToHTML() {
             // Récupérer les valeurs modifiées depuis localStorage
-            const savedTitle = localStorage.getItem('analysis-main-title');
-            const savedSubtitle = localStorage.getItem('analysis-main-subtitle');
+            const savedTitle = appStorage.getItem('analysis-main-title');
+            const savedSubtitle = appStorage.getItem('analysis-main-subtitle');
 
             // Récupérer le contenu HTML complet de la page
             let htmlContent = document.documentElement.outerHTML;
@@ -4510,6 +5260,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 case 'datajs':
                     exportDataJsFile(); // Sauvegarde plannr-data.js rechargeable
                     break;
+                case 'ics':
+                    exportToICS(); // Jalons -> événements calendrier (v2.1)
+                    break;
             }
 
             // Réinitialiser le sélecteur
@@ -4524,15 +5277,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         // et l'import — le round-trip est garanti par construction.
         function buildCanonicalData() {
             return {
-                version: "2.0",
+                version: "2.1",
                 timestamp: new Date().toISOString(),
                 appState: {
                     title: document.getElementById('main-title').textContent,
                     subtitle: document.getElementById('main-subtitle').textContent,
                     language: currentLanguage
                 },
-                // Structure hiérarchique complète : riskGroups (phases) avec tasks
-                riskGroups: riskGroups
+                // Structure hiérarchique complète : phases avec tasks.
+                // Clé canonique v2.1 : `phases` — la lecture (loader, import,
+                // reload) accepte aussi l'ancienne clé `riskGroups`.
+                phases: riskGroups,
+                // Baseline incluse si figée (undefined = clé omise au stringify)
+                baseline: baselineData || undefined
             };
         }
 
@@ -4580,20 +5337,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 try {
                     const data = JSON.parse(e.target.result);
                     
-                    // Validation basique
-                    if (!data.riskGroups || !Array.isArray(data.riskGroups)) {
-                        throw new Error("Format JSON invalide : 'riskGroups' manquant ou incorrect");
+                    // Validation basique — accepte la clé canonique v2.1
+                    // `phases` ET la clé legacy `riskGroups`
+                    const importedPhases = data.phases || data.riskGroups;
+                    if (!importedPhases || !Array.isArray(importedPhases)) {
+                        throw new Error("Format JSON invalide : 'phases' (ou 'riskGroups') manquant ou incorrect");
                     }
 
                     // 1. Restaurer l'état de l'application
                     if (data.appState) {
                         if (data.appState.title) {
                             document.getElementById('main-title').textContent = data.appState.title;
-                            localStorage.setItem('analysis-main-title', data.appState.title);
+                            appStorage.setItem('analysis-main-title', data.appState.title);
                         }
                         if (data.appState.subtitle) {
                             document.getElementById('main-subtitle').textContent = data.appState.subtitle;
-                            localStorage.setItem('analysis-main-subtitle', data.appState.subtitle);
+                            appStorage.setItem('analysis-main-subtitle', data.appState.subtitle);
                         }
                         if (data.appState.language) {
                             setLanguage(data.appState.language);
@@ -4603,7 +5362,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     // 2. Restaurer les groupes
                     // On vide le tableau existant et on remplit avec les nouvelles données
                     riskGroups.length = 0;
-                    riskGroups.push(...data.riskGroups);
+                    riskGroups.push(...importedPhases);
 
                     // 3. Reconstruire le tableau global 'risks' à partir des groupes
                     // C'est CRUCIAL pour que risks et riskGroups soient synchronisés (mêmes références d'objets)
@@ -5129,7 +5888,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             }
         };
 
-        let currentLanguage = localStorage.getItem('riskr-language') || 'fr';
+        let currentLanguage = appStorage.getItem('riskr-language') || 'fr';
+
+        // Fusion des chaînes v2.1 (définies dans features.js, hoistées)
+        Object.keys(PLANNR_EXTRA_I18N).forEach(lang => {
+            if (translations[lang]) Object.assign(translations[lang], PLANNR_EXTRA_I18N[lang]);
+        });
 
         function t(key) {
             return translations[currentLanguage][key] || translations.fr[key] || key;
@@ -5243,14 +6007,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             s.src = 'plannr-data.js?t=' + Date.now();
             s.onload = function() {
                 var extData = window.PLANNR_DATA;
-                if (!extData || !extData.riskGroups) {
+                var extPhases = extData && (extData.phases || extData.riskGroups);
+                if (!extPhases) {
                     alert('Données invalides dans plannr-data.js');
                     return;
                 }
                 // Mettre à jour les variables globales
                 riskGroups.length = 0;
                 risks.length = 0;
-                extData.riskGroups.forEach(function(g) {
+                extPhases.forEach(function(g) {
                     riskGroups.push(g);
                     if (g.tasks) g.tasks.forEach(function(t) { risks.push(t); });
                 });
@@ -5285,9 +6050,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         // ========================================
         let tasks, phases;
 
-        if (window.PLANNR_DATA && window.PLANNR_DATA.riskGroups) {
+        const _extPhases = window.PLANNR_DATA &&
+            (window.PLANNR_DATA.phases || window.PLANNR_DATA.riskGroups);
+        if (_extPhases) {
             const extData = window.PLANNR_DATA;
-            phases = extData.riskGroups;
+            phases = _extPhases;
             tasks = [];
             phases.forEach(group => {
                 if (group.tasks && Array.isArray(group.tasks)) {
@@ -5298,11 +6065,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 document.addEventListener('DOMContentLoaded', () => {
                     if (extData.appState.title) {
                         const el = document.getElementById('main-title');
-                        if (el) { el.textContent = extData.appState.title; localStorage.setItem('analysis-main-title', extData.appState.title); }
+                        if (el) { el.textContent = extData.appState.title; appStorage.setItem('analysis-main-title', extData.appState.title); }
                     }
                     if (extData.appState.subtitle) {
                         const el = document.getElementById('main-subtitle');
-                        if (el) { el.textContent = extData.appState.subtitle; localStorage.setItem('analysis-main-subtitle', extData.appState.subtitle); }
+                        if (el) { el.textContent = extData.appState.subtitle; appStorage.setItem('analysis-main-subtitle', extData.appState.subtitle); }
                     }
                     if (extData.appState.language && typeof setLanguage === 'function') {
                         setLanguage(extData.appState.language);
@@ -5463,7 +6230,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             });
 
             // Charger la palette sauvegardée
-            const savedPalette = localStorage.getItem('plannr-color-palette');
+            const savedPalette = appStorage.getItem('plannr-color-palette');
             if (savedPalette !== null) {
                 currentPalette = colorPalettes[savedPalette].colors;
                 applyPalette(currentPalette);
@@ -5511,7 +6278,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             if (!palette) return;
 
             currentPalette = palette.colors;
-            localStorage.setItem('plannr-color-palette', paletteIndex);
+            appStorage.setItem('plannr-color-palette', paletteIndex);
             applyPalette(currentPalette);
             updateDropdownLabel(palette.name, currentPalette);
 
@@ -5527,7 +6294,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 id: group.id,
                 riskIds: group.tasks.map(r => r.id)
             }));
-            localStorage.setItem('risk-groups-mapping', JSON.stringify(mapping));
+            appStorage.setItem('risk-groups-mapping', JSON.stringify(mapping));
         }
 
         // ========================================
@@ -5945,7 +6712,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         // Restaurer le mapping des groupes depuis localStorage (appelé UNE SEULE FOIS à l'initialisation)
         function restoreGroupMappingFromStorage() {
-            const savedMapping = localStorage.getItem('risk-groups-mapping');
+            const savedMapping = appStorage.getItem('risk-groups-mapping');
             if (savedMapping) {
                 try {
                     const mapping = JSON.parse(savedMapping);
@@ -6097,13 +6864,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 table.className = 'risks-table';
                 table.innerHTML = `
                     <colgroup>
-                        <col style="width: 30%">
-                        <col style="width: 13%">
-                        <col style="width: 13%">
-                        <col style="width: 10%">
-                        <col style="width: 15%">
-                        <col style="width: 15%">
-                        <col style="width: 5%">
+                        <col style="width: 25%">
+                        <col style="width: 11%">
+                        <col style="width: 12%">
+                        <col style="width: 7%">
+                        <col style="width: 8%">
+                        <col style="width: 12%">
+                        <col style="width: 12%">
+                        <col style="width: 9%">
+                        <col style="width: 4%">
                     </colgroup>
                     <thead>
                         <tr>
@@ -6111,8 +6880,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                             <th>${t('colStartDate')}</th>
                             <th>${t('colEndDate')}</th>
                             <th>${t('colDuration')}</th>
+                            <th>${t('colProgress')}</th>
                             <th>${t('colStatus')}</th>
                             <th>${t('colResp')}</th>
+                            <th>${t('colDependsOn')}</th>
                             <th style="width: 40px;"></th>
                         </tr>
                     </thead>
@@ -6127,7 +6898,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     const separatorTr = document.createElement('tr');
                     separatorTr.className = 'risk-separator-row';
                     separatorTr.innerHTML = `
-                        <td colspan="8">
+                        <td colspan="9">
                             <div class="risk-separator">
                                 <div class="risk-separator-label add-task-btn" data-group-id="${group.id}" data-risk-position="0" data-is-milestone="false">
                                     <span class="risk-separator-icon">+</span>
@@ -6156,7 +6927,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         const separatorTr = document.createElement('tr');
                         separatorTr.className = 'risk-separator-row';
                         separatorTr.innerHTML = `
-                            <td colspan="8">
+                            <td colspan="9">
                                 <div class="risk-separator">
                                     <div class="risk-separator-label add-task-btn" data-group-id="${group.id}" data-risk-position="${localIndex}" data-is-milestone="false">
                                         <span class="risk-separator-icon">+</span>
@@ -6189,10 +6960,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         // Ajouter classe pour alternance de couleurs
                         tr.className = localIndex % 2 === 0 ? 'risk-even' : 'risk-odd';
 
-                        // Calculer la durée si pas déjà définie
-                        if (!risk.duration || risk.duration === 0) {
-                            risk.duration = calculateDuration(risk.startDate, risk.endDate);
-                        }
+                        // Durée en JOURS OUVRÉS (week-ends + fériés FR exclus),
+                        // recalculée systématiquement depuis les dates
+                        risk.duration = risk.isMilestone ? 0 :
+                            workingDaysBetween(risk.startDate, risk.endDate || risk.startDate);
 
                         tr.innerHTML = `
                             <td class="risk-title-cell">
@@ -6202,11 +6973,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                                 ${!risk.isMilestone ? `<span class="milestone-x" data-risk-id="${risk.id}" onclick="toggleMilestone('${risk.id}', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span>` : `<span class="milestone-badge" onclick="toggleMilestone('${risk.id}', event)" title="Clic pour retransformer en tâche" style="cursor:pointer; margin-right:4px;">◆</span>`}<span class="date-display" onclick="this.nextElementSibling.showPicker()">${formatDateFR(risk.startDate)}</span><input type="date" class="editable-date" data-risk-id="${risk.id}" data-date-type="startDate" value="${risk.startDate || ''}" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
                             </td>
                             <td class="date-cell">
-                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">${formatDateFR(risk.endDate)}</span><input type="date" class="editable-date" data-risk-id="${risk.id}" data-date-type="endDate" value="${risk.endDate || ''}" ${risk.isMilestone ? 'disabled' : ''} style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">${formatDateFR(risk.endDate)}</span>${overdueBadgeHTML(risk)}<input type="date" class="editable-date" data-risk-id="${risk.id}" data-date-type="endDate" value="${risk.endDate || ''}" ${risk.isMilestone ? 'disabled' : ''} style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
                             </td>
                             <td class="duration-cell" id="duration-${index}">
                                 ${risk.duration || 0}
                             </td>
+                            ${renderProgressCellHTML(risk)}
                             <td class="status-cell">
                                 <select id="status-${index}" data-risk-id="${risk.id}" class="status-dropdown">
                                     ${generateStatusOptions(risk.statut)}
@@ -6215,6 +6987,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                             <td class="responsable-cell">
                                 <span class="editable-responsable" data-risk-id="${risk.id}">${risk.assignedTo || risk.responsable || t('clickToAdd')}</span>
                             </td>
+                            ${renderDependsCellHTML(risk)}
                             <td style="text-align: center; padding: 4px;">
                                 <button class="delete-btn delete-risk-btn" onclick="deleteRisk('${risk.id}')" title="Supprimer cette tâche">🗑️</button>
                             </td>
@@ -6227,7 +7000,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     const finalSeparatorTr = document.createElement('tr');
                     finalSeparatorTr.className = 'risk-separator-row';
                     finalSeparatorTr.innerHTML = `
-                        <td colspan="8">
+                        <td colspan="9">
                             <div class="risk-separator">
                                 <div class="risk-separator-label add-task-btn" data-group-id="${group.id}" data-risk-position="${group.tasks.length}" data-is-milestone="false">
                                     <span class="risk-separator-icon">+</span>
@@ -6261,7 +7034,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 groupDiv.appendChild(contentDiv);
 
                 // Restaurer l'état du collapse depuis localStorage
-                const isCollapsed = localStorage.getItem(`collapse-group-content-${group.id}`) === 'true';
+                const isCollapsed = appStorage.getItem(`collapse-group-content-${group.id}`) === 'true';
                 if (isCollapsed) {
                     headerDiv.classList.add('collapsed');
                     contentDiv.classList.add('collapsed');
@@ -6296,6 +7069,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             initResponsableEditing();
             initSectionTitleEditing();
             initDateEditing(); // Édition des dates avec calcul auto durée
+            initProgressEditing(); // Édition du % d'avancement (v2.1)
+            initDependsEditing(); // Édition des dépendances (v2.1)
         }
 
         // ========================================
@@ -6788,7 +7563,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
             // Restaurer l'état du collapse après génération du tableau
             const groupSummaryContent = document.getElementById('group-summary-table-content');
-            const isCollapsed = localStorage.getItem('collapse-group-summary-table-content') === 'true';
+            const isCollapsed = appStorage.getItem('collapse-group-summary-table-content') === 'true';
 
             if (isCollapsed && groupSummaryContent) {
                 const header = groupSummaryContent.previousElementSibling;
@@ -6893,7 +7668,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             ganttViewMode = mode;
             
             // Sauvegarder la préférence
-            localStorage.setItem('plannr-gantt-view', mode);
+            appStorage.setItem('plannr-gantt-view', mode);
 
             // Mettre à jour les boutons
             const btnCompact = document.getElementById('view-btn-compact');
@@ -6929,7 +7704,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         // Initialiser la vue au chargement
         function initGanttView() {
-            const savedView = localStorage.getItem('plannr-gantt-view');
+            const savedView = appStorage.getItem('plannr-gantt-view');
             if (savedView && ['compact', 'cascade', 'consolide'].includes(savedView)) {
                 setGanttView(savedView);
             } else {
@@ -8445,13 +9220,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                                         // Tâche normale : afficher début, fin et durée
                                         const end = ganttData[dataIndex].x[1];
                                         const endDate = new Date(end).toLocaleDateString('fr-FR');
-                                        const duration = calculateDuration(task.startDate, task.endDate);
+                                        const duration = workingDaysBetween(task.startDate, task.endDate);
 
                                         return [
                                             `${task.id}: ${task.title}`,
                                             `Du: ${startDate}`,
                                             `Au: ${endDate}`,
-                                            `Durée: ${duration} jours`,
+                                            `Durée: ${duration} j ouvrés`,
                                             `Statut: ${task.statut}`
                                         ];
                                     }
@@ -8957,14 +9732,29 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             }).length;
             completedEl.textContent = completedTasks;
 
-            // 4. Durée totale du projet (Somme des durées des tâches uniques)
-            const totalDuration = allTasks.reduce((sum, task) => sum + (parseInt(task.duration) || 0), 0);
+            // 4. Durée totale du projet (somme des durées OUVRÉES, jalons exclus)
+            const totalDuration = allTasks.reduce((sum, task) => sum +
+                (task.isMilestone ? 0 : workingDaysBetween(task.startDate, task.endDate || task.startDate)), 0);
             durationEl.textContent = `${totalDuration} j`;
 
-            // 5. Progression (Tâches terminées / total)
-            const completionRate = allTasks.length > 0
-                ? Math.round((completedTasks / allTasks.length) * 100)
-                : 0;
+            // 5. Tâches en retard (échéance dépassée, non terminées)
+            const overdueEl = document.getElementById('dashboard-overdue');
+            if (overdueEl) {
+                const overdueCount = allTasks.filter(isTaskOverdue).length;
+                overdueEl.textContent = overdueCount;
+                overdueEl.style.color = overdueCount > 0 ? '#FF3B30' : '#1A6A3E';
+            }
+
+            // 6. Progression PONDÉRÉE par la durée ouvrée (jalons exclus) —
+            // une tâche de 30 j pèse 30x plus qu'une tâche de 1 j
+            const weightedTasks = allTasks.filter(task => !task.isMilestone);
+            let wSum = 0, wTotal = 0;
+            weightedTasks.forEach(task => {
+                const w = Math.max(1, workingDaysBetween(task.startDate, task.endDate || task.startDate));
+                wTotal += w;
+                wSum += w * effectiveProgress(task);
+            });
+            const completionRate = wTotal > 0 ? Math.round(wSum / wTotal) : 0;
             progressionEl.textContent = `${completionRate}%`;
 
             // Colorer selon le taux de complétion
@@ -9044,7 +9834,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         function setLanguage(lang) {
             currentLanguage = lang;
-            localStorage.setItem('riskr-language', lang);
+            appStorage.setItem('riskr-language', lang);
 
             // Mettre à jour le sélecteur
             document.getElementById('language-selector').value = lang;
@@ -9068,7 +9858,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         function initLanguage() {
-            const savedLang = localStorage.getItem('riskr-language') || 'fr';
+            const savedLang = appStorage.getItem('riskr-language') || 'fr';
             currentLanguage = savedLang;
             document.getElementById('language-selector').value = savedLang;
         }
@@ -9103,6 +9893,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         task.endDate = task.startDate; // Correction
                     }
 
+                    // Normalisation des champs v2.1
+                    if (task.dependsOn && !Array.isArray(task.dependsOn)) delete task.dependsOn;
+                    if (task.progress !== undefined) {
+                        const p = parseInt(task.progress, 10);
+                        if (Number.isFinite(p)) task.progress = Math.min(100, Math.max(0, p));
+                        else delete task.progress;
+                    }
+
                     return true;
                 });
             });
@@ -9114,6 +9912,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         // Initialisation
         sanitizeData(); // Nettoyage préventif
+        loadBaseline(); // Baseline v2.1 (PLANNR_DATA.baseline ou stockage local)
+        applyDependencyCascade({ silent: true }); // Contraintes de dépendances
+        recomputeCriticalPath(); // Chemin critique (Gantt)
         initLanguage(); // Initialiser la langue sauvegardée
         initGanttView(); // Restaurer la vue Gantt sauvegardée
         restoreGroupMappingFromStorage(); // Restaurer le mapping depuis localStorage (une seule fois)
