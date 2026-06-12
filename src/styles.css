@@ -352,6 +352,11 @@
         .table-scroll-wrapper {
             width: calc(100% - 20px);
             margin-left: 20px;
+            /* Le dernier séparateur « + Tâche / ◆ Jalon » est positionné en
+               absolu et déborde ~16px SOUS la dernière ligne ; le parent
+               .collapsible-content est en overflow:hidden (animation de
+               repli) — sans ce padding, les libellés sont coupés. */
+            padding-bottom: 18px;
         }
 
         /* Nouveau tableau des risques */

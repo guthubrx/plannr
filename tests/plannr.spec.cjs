@@ -182,6 +182,62 @@ test('drag Gantt : déplacer une tâche déclenche la cascade des successeurs', 
     expect(after.noViolation).toBe(true);               // 0 violation
 });
 
+test('Alt+drag : recul rigide du sous-arbre (descendance suit vers la gauche)', async ({ page }) => {
+    // Comportement v2.1.2 : Alt+glisser une tâche vers la GAUCHE entraîne
+    // toute sa descendance du même delta (un glisser normal vers la gauche
+    // laisse volontairement les successeurs en place).
+    await page.evaluate(() => {
+        document.getElementById('ganttChart').scrollIntoView({ block: 'center' });
+        updateGantt();
+    });
+    await page.waitForTimeout(300);
+
+    const before = await page.evaluate(() => ({
+        start22: risks.find(r => r.id === '2.2').startDate,
+        start23: risks.find(r => r.id === '2.3').startDate,
+        start31: risks.find(r => r.id === '3.1').startDate
+    }));
+
+    const pt = await page.evaluate(() => {
+        const d = ganttChart.options.ganttData.find(g => g.task && g.task.id === '2.2');
+        const xAxis = ganttChart.scales.x;
+        const yAxis = ganttChart.scales.y;
+        const rect = ganttChart.canvas.getBoundingClientRect();
+        const x0 = xAxis.getPixelForValue(d.x[0]);
+        const x1 = xAxis.getPixelForValue(d.x[1]);
+        return {
+            x: rect.left + (x0 + x1) / 2,
+            y: rect.top + yAxis.getPixelForValue(d.y),
+            pxPerDay: (x1 - x0) / Math.max(1, (d.x[1] - d.x[0]) / 86400000)
+        };
+    });
+
+    // Alt (sous-arbre rigide) + Shift (désactive le snap), ~8 jours à gauche
+    await page.keyboard.down('Shift');
+    await page.keyboard.down('Alt');
+    await page.mouse.move(pt.x, pt.y);
+    await page.mouse.down();
+    await page.mouse.move(pt.x - pt.pxPerDay * 8, pt.y, { steps: 8 });
+    await page.mouse.up();
+    await page.keyboard.up('Alt');
+    await page.keyboard.up('Shift');
+
+    const after = await page.evaluate(() => ({
+        start22: risks.find(r => r.id === '2.2').startDate,
+        start23: risks.find(r => r.id === '2.3').startDate,
+        start31: risks.find(r => r.id === '3.1').startDate,
+        noViolation: risks.every(t => parseDependsOn(t).every(pid => {
+            const p = risks.find(r => r.id === pid);
+            return !p || t.startDate > taskEndForDeps(p);
+        }))
+    }));
+
+    expect(after.start22 < before.start22).toBe(true); // la tâche a reculé
+    expect(after.start23 < before.start23).toBe(true); // sa descendance directe aussi
+    expect(after.start31 < before.start31).toBe(true); // et la descendance transitive
+    expect(after.noViolation).toBe(true);              // 0 violation résiduelle
+});
+
 test('avancement : édition du % met à jour la progression pondérée', async ({ page }) => {
     const before = await page.evaluate(() =>
         document.getElementById('dashboard-progression').textContent);

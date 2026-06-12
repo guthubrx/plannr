@@ -5386,6 +5386,9 @@
                     // Fin du drag d'un jalon (tous modes)
                     saveState();
 
+                    // Date d'origine (pour Alt+glisser : delta du sous-arbre)
+                    const prevMilestoneStart = draggedMilestone.startDate;
+
                     // Mettre à jour la date du jalon
                     const newStart = new Date(draggedMilestoneData.date);
                     draggedMilestone.startDate = newStart.toISOString().split('T')[0];
@@ -5406,17 +5409,32 @@
                     snapLines = [];
                     canvas.style.cursor = 'grab';
 
+                    // Alt+glisser (v2.1.2) : déplacement RIGIDE du sous-arbre
+                    let subtreeShifted = 0;
+                    const dragDeltaDays = prevMilestoneStart ? Math.round(
+                        (new Date(draggedMilestone.startDate + 'T12:00:00Z') -
+                         new Date(prevMilestoneStart + 'T12:00:00Z')) / 86400000) : 0;
+                    if (e.altKey && dragDeltaDays !== 0) {
+                        subtreeShifted = shiftDescendants(draggedMilestone, dragDeltaDays);
+                    }
+
                     // Cascade des dépendances + chemin critique (v2.1)
                     const shiftedByDeps = applyDependencyCascade({});
                     recomputeCriticalPath();
 
                     // Re-rendre tout
                     sanitizeData();
-                    if (shiftedByDeps > 0) updateGantt(); else ganttChart.update('none');
+                    if (shiftedByDeps > 0 || subtreeShifted > 0) updateGantt();
+                    else ganttChart.update('none');
                     renderPlanning();
                     updateDashboard();
 
                     showToast('✅ Jalon déplacé');
+                    if (subtreeShifted > 0) {
+                        showToast(t('subtreeShifted').replace('{n}', subtreeShifted));
+                    } else if (dragDeltaDays < 0 && collectDescendants(draggedMilestone.id).size > 0) {
+                        showToast(t('altDragHint'));
+                    }
                 } else {
                     // Fin du drag d'une tâche normale
                     if (!ganttData[draggedTaskIndex]) return; // Sécurité supplémentaire
@@ -5428,6 +5446,9 @@
 
                     // Sauvegarder l'état avant modification
                     saveState();
+
+                    // Date d'origine (pour Alt+glisser : delta du sous-arbre)
+                    const prevStartDate = task.startDate;
 
                     // Mettre à jour la tâche/jalon
                     task.startDate = newStart.toISOString().split('T')[0];
@@ -5454,18 +5475,35 @@
                     snapLines = [];
                     canvas.style.cursor = 'grab';
 
+                    // Alt+glisser (v2.1.2) : déplacement RIGIDE du sous-arbre —
+                    // toute la descendance suit du même delta, dans les 2 sens
+                    let subtreeShifted = 0;
+                    const dragDeltaDays = prevStartDate ? Math.round(
+                        (new Date(task.startDate + 'T12:00:00Z') -
+                         new Date(prevStartDate + 'T12:00:00Z')) / 86400000) : 0;
+                    if (e.altKey && dragDeltaDays !== 0) {
+                        subtreeShifted = shiftDescendants(task, dragDeltaDays);
+                    }
+
                     // Cascade des dépendances + chemin critique (v2.1)
                     const shiftedByDeps = applyDependencyCascade({});
                     recomputeCriticalPath();
 
                     // Re-rendre tout
                     sanitizeData();
-                    if (shiftedByDeps > 0) updateGantt(); else ganttChart.update('none');
+                    if (shiftedByDeps > 0 || subtreeShifted > 0) updateGantt();
+                    else ganttChart.update('none');
                     renderPlanning();
                     updateDashboard();
 
                     const itemType = isMilestone ? 'Jalon' : 'Tâche';
                     showToast(`✅ ${itemType} déplacé(e)`);
+                    if (subtreeShifted > 0) {
+                        showToast(t('subtreeShifted').replace('{n}', subtreeShifted));
+                    } else if (dragDeltaDays < 0 && collectDescendants(task.id).size > 0) {
+                        // Découvrabilité : recul d'une tâche qui a des successeurs
+                        showToast(t('altDragHint'));
+                    }
                 }
             });
 

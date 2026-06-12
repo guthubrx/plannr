@@ -835,6 +835,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .table-scroll-wrapper {
             width: calc(100% - 20px);
             margin-left: 20px;
+            /* Le dernier séparateur « + Tâche / ◆ Jalon » est positionné en
+               absolu et déborde ~16px SOUS la dernière ligne ; le parent
+               .collapsible-content est en overflow:hidden (animation de
+               repli) — sans ce padding, les libellés sont coupés. */
+            padding-bottom: 18px;
         }
 
         /* Nouveau tableau des risques */
@@ -3620,6 +3625,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 tasksShifted: "{n} tâche(s) décalée(s) par les dépendances",
                 icsExported: "{n} jalon(s) exporté(s) au format calendrier",
                 icsNoMilestone: "Aucun jalon à exporter",
+                subtreeShifted: "Descendance déplacée : {n} tâche(s)",
+                altDragHint: "💡 Alt+glisser pour déplacer aussi toute la descendance",
                 criticalPathLegend: "─ ─ chemin critique"
             },
             en: {
@@ -3639,6 +3646,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 tasksShifted: "{n} task(s) shifted by dependencies",
                 icsExported: "{n} milestone(s) exported to calendar format",
                 icsNoMilestone: "No milestone to export",
+                subtreeShifted: "Subtree moved: {n} task(s)",
+                altDragHint: "💡 Alt+drag to also move the whole subtree",
                 criticalPathLegend: "─ ─ critical path"
             },
             es: {
@@ -3658,6 +3667,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 tasksShifted: "{n} tarea(s) desplazada(s) por dependencias",
                 icsExported: "{n} hito(s) exportado(s) a formato calendario",
                 icsNoMilestone: "Ningún hito que exportar",
+                subtreeShifted: "Descendencia desplazada: {n} tarea(s)",
+                altDragHint: "💡 Alt+arrastrar para mover también toda la descendencia",
                 criticalPathLegend: "─ ─ camino crítico"
             },
             ar: {
@@ -3677,6 +3688,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 tasksShifted: "تم إزاحة {n} مهمة بسبب التبعيات",
                 icsExported: "تم تصدير {n} معلم إلى التقويم",
                 icsNoMilestone: "لا يوجد معلم للتصدير",
+                subtreeShifted: "تم نقل {n} مهمة تابعة",
+                altDragHint: "💡 Alt+سحب لنقل كل المهام التابعة أيضًا",
                 criticalPathLegend: "─ ─ المسار الحرج"
             }
         };
@@ -3888,6 +3901,47 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         function recomputeCriticalPath() {
             _criticalIds = computeCriticalPath();
+        }
+
+        // Successeurs transitifs d'une tâche (descendance complète).
+        // Complexité : O(V*E) borné — collections de quelques dizaines de tâches.
+        function collectDescendants(rootId) {
+            const out = new Set();
+            const queue = [rootId];
+            while (queue.length) {
+                const id = queue.shift();
+                risks.forEach(t => {
+                    if (!out.has(t.id) && parseDependsOn(t).includes(id)) {
+                        out.add(t.id);
+                        queue.push(t.id);
+                    }
+                });
+            }
+            return out;
+        }
+
+        // Déplacement RIGIDE du sous-arbre (Alt+glisser) : toute la descendance
+        // suit du même delta calendaire, vers la gauche comme vers la droite.
+        // La cascade (applyDependencyCascade) repasse derrière pour réparer
+        // toute violation résiduelle vis-à-vis d'autres branches.
+        function shiftDescendants(rootTask, deltaDays) {
+            if (!deltaDays) return 0;
+            const ids = collectDescendants(rootTask.id);
+            let count = 0;
+            ids.forEach(id => {
+                const t = risks.find(r => r.id === id);
+                if (!t || !t.startDate) return;
+                t.startDate = addCalendarDays(t.startDate, deltaDays);
+                if (t.isMilestone) {
+                    if (t.endDate) t.endDate = t.startDate;
+                } else if (t.endDate) {
+                    t.endDate = addCalendarDays(t.endDate, deltaDays);
+                }
+                t.duration = workingDaysBetween(t.startDate, t.endDate || t.startDate);
+                count++;
+            });
+            if (count) riskGroups.forEach(updatePhaseDates);
+            return count;
         }
 
         // --------------------------------------------------------------
@@ -9635,6 +9689,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     // Fin du drag d'un jalon (tous modes)
                     saveState();
 
+                    // Date d'origine (pour Alt+glisser : delta du sous-arbre)
+                    const prevMilestoneStart = draggedMilestone.startDate;
+
                     // Mettre à jour la date du jalon
                     const newStart = new Date(draggedMilestoneData.date);
                     draggedMilestone.startDate = newStart.toISOString().split('T')[0];
@@ -9655,17 +9712,32 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     snapLines = [];
                     canvas.style.cursor = 'grab';
 
+                    // Alt+glisser (v2.1.2) : déplacement RIGIDE du sous-arbre
+                    let subtreeShifted = 0;
+                    const dragDeltaDays = prevMilestoneStart ? Math.round(
+                        (new Date(draggedMilestone.startDate + 'T12:00:00Z') -
+                         new Date(prevMilestoneStart + 'T12:00:00Z')) / 86400000) : 0;
+                    if (e.altKey && dragDeltaDays !== 0) {
+                        subtreeShifted = shiftDescendants(draggedMilestone, dragDeltaDays);
+                    }
+
                     // Cascade des dépendances + chemin critique (v2.1)
                     const shiftedByDeps = applyDependencyCascade({});
                     recomputeCriticalPath();
 
                     // Re-rendre tout
                     sanitizeData();
-                    if (shiftedByDeps > 0) updateGantt(); else ganttChart.update('none');
+                    if (shiftedByDeps > 0 || subtreeShifted > 0) updateGantt();
+                    else ganttChart.update('none');
                     renderPlanning();
                     updateDashboard();
 
                     showToast('✅ Jalon déplacé');
+                    if (subtreeShifted > 0) {
+                        showToast(t('subtreeShifted').replace('{n}', subtreeShifted));
+                    } else if (dragDeltaDays < 0 && collectDescendants(draggedMilestone.id).size > 0) {
+                        showToast(t('altDragHint'));
+                    }
                 } else {
                     // Fin du drag d'une tâche normale
                     if (!ganttData[draggedTaskIndex]) return; // Sécurité supplémentaire
@@ -9677,6 +9749,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
                     // Sauvegarder l'état avant modification
                     saveState();
+
+                    // Date d'origine (pour Alt+glisser : delta du sous-arbre)
+                    const prevStartDate = task.startDate;
 
                     // Mettre à jour la tâche/jalon
                     task.startDate = newStart.toISOString().split('T')[0];
@@ -9703,18 +9778,35 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     snapLines = [];
                     canvas.style.cursor = 'grab';
 
+                    // Alt+glisser (v2.1.2) : déplacement RIGIDE du sous-arbre —
+                    // toute la descendance suit du même delta, dans les 2 sens
+                    let subtreeShifted = 0;
+                    const dragDeltaDays = prevStartDate ? Math.round(
+                        (new Date(task.startDate + 'T12:00:00Z') -
+                         new Date(prevStartDate + 'T12:00:00Z')) / 86400000) : 0;
+                    if (e.altKey && dragDeltaDays !== 0) {
+                        subtreeShifted = shiftDescendants(task, dragDeltaDays);
+                    }
+
                     // Cascade des dépendances + chemin critique (v2.1)
                     const shiftedByDeps = applyDependencyCascade({});
                     recomputeCriticalPath();
 
                     // Re-rendre tout
                     sanitizeData();
-                    if (shiftedByDeps > 0) updateGantt(); else ganttChart.update('none');
+                    if (shiftedByDeps > 0 || subtreeShifted > 0) updateGantt();
+                    else ganttChart.update('none');
                     renderPlanning();
                     updateDashboard();
 
                     const itemType = isMilestone ? 'Jalon' : 'Tâche';
                     showToast(`✅ ${itemType} déplacé(e)`);
+                    if (subtreeShifted > 0) {
+                        showToast(t('subtreeShifted').replace('{n}', subtreeShifted));
+                    } else if (dragDeltaDays < 0 && collectDescendants(task.id).size > 0) {
+                        // Découvrabilité : recul d'une tâche qui a des successeurs
+                        showToast(t('altDragHint'));
+                    }
                 }
             });
 

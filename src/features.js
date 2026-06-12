@@ -32,6 +32,8 @@
                 tasksShifted: "{n} tâche(s) décalée(s) par les dépendances",
                 icsExported: "{n} jalon(s) exporté(s) au format calendrier",
                 icsNoMilestone: "Aucun jalon à exporter",
+                subtreeShifted: "Descendance déplacée : {n} tâche(s)",
+                altDragHint: "💡 Alt+glisser pour déplacer aussi toute la descendance",
                 criticalPathLegend: "─ ─ chemin critique"
             },
             en: {
@@ -51,6 +53,8 @@
                 tasksShifted: "{n} task(s) shifted by dependencies",
                 icsExported: "{n} milestone(s) exported to calendar format",
                 icsNoMilestone: "No milestone to export",
+                subtreeShifted: "Subtree moved: {n} task(s)",
+                altDragHint: "💡 Alt+drag to also move the whole subtree",
                 criticalPathLegend: "─ ─ critical path"
             },
             es: {
@@ -70,6 +74,8 @@
                 tasksShifted: "{n} tarea(s) desplazada(s) por dependencias",
                 icsExported: "{n} hito(s) exportado(s) a formato calendario",
                 icsNoMilestone: "Ningún hito que exportar",
+                subtreeShifted: "Descendencia desplazada: {n} tarea(s)",
+                altDragHint: "💡 Alt+arrastrar para mover también toda la descendencia",
                 criticalPathLegend: "─ ─ camino crítico"
             },
             ar: {
@@ -89,6 +95,8 @@
                 tasksShifted: "تم إزاحة {n} مهمة بسبب التبعيات",
                 icsExported: "تم تصدير {n} معلم إلى التقويم",
                 icsNoMilestone: "لا يوجد معلم للتصدير",
+                subtreeShifted: "تم نقل {n} مهمة تابعة",
+                altDragHint: "💡 Alt+سحب لنقل كل المهام التابعة أيضًا",
                 criticalPathLegend: "─ ─ المسار الحرج"
             }
         };
@@ -300,6 +308,47 @@
 
         function recomputeCriticalPath() {
             _criticalIds = computeCriticalPath();
+        }
+
+        // Successeurs transitifs d'une tâche (descendance complète).
+        // Complexité : O(V*E) borné — collections de quelques dizaines de tâches.
+        function collectDescendants(rootId) {
+            const out = new Set();
+            const queue = [rootId];
+            while (queue.length) {
+                const id = queue.shift();
+                risks.forEach(t => {
+                    if (!out.has(t.id) && parseDependsOn(t).includes(id)) {
+                        out.add(t.id);
+                        queue.push(t.id);
+                    }
+                });
+            }
+            return out;
+        }
+
+        // Déplacement RIGIDE du sous-arbre (Alt+glisser) : toute la descendance
+        // suit du même delta calendaire, vers la gauche comme vers la droite.
+        // La cascade (applyDependencyCascade) repasse derrière pour réparer
+        // toute violation résiduelle vis-à-vis d'autres branches.
+        function shiftDescendants(rootTask, deltaDays) {
+            if (!deltaDays) return 0;
+            const ids = collectDescendants(rootTask.id);
+            let count = 0;
+            ids.forEach(id => {
+                const t = risks.find(r => r.id === id);
+                if (!t || !t.startDate) return;
+                t.startDate = addCalendarDays(t.startDate, deltaDays);
+                if (t.isMilestone) {
+                    if (t.endDate) t.endDate = t.startDate;
+                } else if (t.endDate) {
+                    t.endDate = addCalendarDays(t.endDate, deltaDays);
+                }
+                t.duration = workingDaysBetween(t.startDate, t.endDate || t.startDate);
+                count++;
+            });
+            if (count) riskGroups.forEach(updatePhaseDates);
+            return count;
         }
 
         // --------------------------------------------------------------
