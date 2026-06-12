@@ -4874,19 +4874,26 @@ tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
         var linkDrag = null; // { sourceId, invalidTargets:Set }
 
         // Géométrie écran des barres du Gantt courant. O(n).
+        // IMPORTANT : positions FINALES via les échelles (comme les autres
+        // hit-tests de l'app), pas via meta.data — pendant l'animation
+        // d'entrée (~1 s), les éléments sont en transit et les zones de
+        // clic seraient fausses (pastille sous un point inattendu).
         function _ganttBarGeometry(chart) {
             if (!chart || !chart.options.ganttData) return [];
             const gd = chart.options.ganttData;
-            const meta = chart.getDatasetMeta(0);
+            const xAxis = chart.scales.x, yAxis = chart.scales.y;
+            if (!xAxis || !yAxis) return [];
+            const barH = (ganttViewMode === 'compact' || ganttViewMode === 'consolide') ? 40 : 35;
             const out = [];
-            gd.forEach((d, i) => {
-                const el = meta.data[i];
-                if (!el || !d.task) return;
-                let y = el.y;
+            gd.forEach(d => {
+                if (!d.task) return;
+                const px0 = xAxis.getPixelForValue(d.x[0]);
+                const px1 = xAxis.getPixelForValue(d.x[1]);
+                let y = yAxis.getPixelForValue(d.y);
                 if (d.isMilestone && d.compactMode && ganttViewMode === 'compact') y += 28;
                 out.push({ id: d.task.id, task: d.task,
-                           x0: Math.min(el.base, el.x), x1: Math.max(el.base, el.x),
-                           y: y, h: el.height || 35, isMilestone: !!d.isMilestone });
+                           x0: Math.min(px0, px1), x1: Math.max(px0, px1),
+                           y: y, h: barH, isMilestone: !!d.isMilestone });
             });
             return out;
         }
