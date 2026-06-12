@@ -2629,6 +2629,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .dashboard-overview, .collapsible-section { break-inside: avoid; }
     .container { max-width: none !important; box-shadow: none !important; }
 }
+
+/* Toggles des barres grises de neutralisation (v2.1.3) */
+.shading-toggle {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 13px; color: #1d1d1f; cursor: pointer; user-select: none;
+}
+.shading-toggle input { accent-color: #0071e3; cursor: pointer; }
     </style>
 </head>
 <body class="">
@@ -2778,6 +2785,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     <button onclick="setGanttView('consolide')" id="view-btn-consolide" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Consolidé</button>
                     <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Compact</button>
                 </div>
+            </div>
+
+            <!-- Séparateur -->
+            <div style="width: 1px; height: 16px; background: #d2d2d7; margin: 0 12px;"></div>
+
+            <!-- Barres grises de neutralisation (week-ends / fériés) — affichage seul,
+                 les durées en jours ouvrés restent calculées indépendamment -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="sticky-toggle-label">Neutralisation grisée :</span>
+                <label class="shading-toggle">
+                    <input type="checkbox" id="toggle-shade-weekends" checked onchange="toggleWeekendShading(this.checked)"> Week-ends
+                </label>
+                <label class="shading-toggle">
+                    <input type="checkbox" id="toggle-shade-holidays" checked onchange="toggleHolidayShading(this.checked)"> Jours fériés
+                </label>
             </div>
         </div>
 
@@ -3729,10 +3751,47 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         // date : objet Date ancré à midi UTC (évite les dérives de fuseau)
-        function isWorkingDay(date) {
+        function isWeekendDay(date) {
             const day = date.getUTCDay();
-            if (day === 0 || day === 6) return false;
-            return !frenchHolidays(date.getUTCFullYear()).has(date.toISOString().slice(0, 10));
+            return day === 0 || day === 6;
+        }
+
+        function isFrenchHoliday(date) {
+            return frenchHolidays(date.getUTCFullYear()).has(date.toISOString().slice(0, 10));
+        }
+
+        // Référence MÉTIER (durées, cascade) : ne dépend PAS des préférences
+        // d'affichage des barres de neutralisation.
+        function isWorkingDay(date) {
+            return !isWeekendDay(date) && !isFrenchHoliday(date);
+        }
+
+        // ------------------------------------------------------------------
+        // Barres grises de neutralisation : préférences d'AFFICHAGE uniquement
+        // (les calculs en jours ouvrés ignorent toujours week-ends + fériés)
+        // ------------------------------------------------------------------
+        var showWeekendShading = true;
+        var showHolidayShading = true;
+
+        function initShadingPrefs() {
+            showWeekendShading = appStorage.getItem('plannr-shade-weekends') !== 'false';
+            showHolidayShading = appStorage.getItem('plannr-shade-holidays') !== 'false';
+            const cw = document.getElementById('toggle-shade-weekends');
+            const ch = document.getElementById('toggle-shade-holidays');
+            if (cw) cw.checked = showWeekendShading;
+            if (ch) ch.checked = showHolidayShading;
+        }
+
+        function toggleWeekendShading(checked) {
+            showWeekendShading = !!checked;
+            appStorage.setItem('plannr-shade-weekends', String(showWeekendShading));
+            if (typeof ganttChart !== 'undefined' && ganttChart) ganttChart.update('none');
+        }
+
+        function toggleHolidayShading(checked) {
+            showHolidayShading = !!checked;
+            appStorage.setItem('plannr-shade-holidays', String(showHolidayShading));
+            if (typeof ganttChart !== 'undefined' && ganttChart) ganttChart.update('none');
         }
 
         // Jours ouvrés entre deux dates ISO, bornes INCLUSES. O(n) sur l'intervalle.
@@ -4140,7 +4199,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 let dms = Math.floor(x.min / 86400000) * 86400000;
                 for (; dms <= x.max; dms += 86400000) {
                     const probe = new Date(dms + 43200000);
-                    if (!isWorkingDay(probe)) {
+                    // Affichage gouverné par les préférences utilisateur ;
+                    // un jour à la fois férié ET week-end est grisé si l'une
+                    // des deux neutralisations est active
+                    const shade = (showWeekendShading && isWeekendDay(probe)) ||
+                                  (showHolidayShading && isFrenchHoliday(probe));
+                    if (shade) {
                         const x0 = Math.max(x.getPixelForValue(dms), x.left);
                         const x1 = Math.min(x.getPixelForValue(dms + 86400000), x.right);
                         if (x1 > x0) ctx.fillRect(x0, y.top, x1 - x0, y.bottom - y.top);
@@ -10125,6 +10189,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         // Initialisation
         sanitizeData(); // Nettoyage préventif
         loadBaseline(); // Baseline v2.1 (PLANNR_DATA.baseline ou stockage local)
+        initShadingPrefs(); // Barres de neutralisation : préférences d'affichage
         applyDependencyCascade({ silent: true }); // Contraintes de dépendances
         recomputeCriticalPath(); // Chemin critique (Gantt)
         initLanguage(); // Initialiser la langue sauvegardée

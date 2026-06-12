@@ -136,10 +136,47 @@
         }
 
         // date : objet Date ancré à midi UTC (évite les dérives de fuseau)
-        function isWorkingDay(date) {
+        function isWeekendDay(date) {
             const day = date.getUTCDay();
-            if (day === 0 || day === 6) return false;
-            return !frenchHolidays(date.getUTCFullYear()).has(date.toISOString().slice(0, 10));
+            return day === 0 || day === 6;
+        }
+
+        function isFrenchHoliday(date) {
+            return frenchHolidays(date.getUTCFullYear()).has(date.toISOString().slice(0, 10));
+        }
+
+        // Référence MÉTIER (durées, cascade) : ne dépend PAS des préférences
+        // d'affichage des barres de neutralisation.
+        function isWorkingDay(date) {
+            return !isWeekendDay(date) && !isFrenchHoliday(date);
+        }
+
+        // ------------------------------------------------------------------
+        // Barres grises de neutralisation : préférences d'AFFICHAGE uniquement
+        // (les calculs en jours ouvrés ignorent toujours week-ends + fériés)
+        // ------------------------------------------------------------------
+        var showWeekendShading = true;
+        var showHolidayShading = true;
+
+        function initShadingPrefs() {
+            showWeekendShading = appStorage.getItem('plannr-shade-weekends') !== 'false';
+            showHolidayShading = appStorage.getItem('plannr-shade-holidays') !== 'false';
+            const cw = document.getElementById('toggle-shade-weekends');
+            const ch = document.getElementById('toggle-shade-holidays');
+            if (cw) cw.checked = showWeekendShading;
+            if (ch) ch.checked = showHolidayShading;
+        }
+
+        function toggleWeekendShading(checked) {
+            showWeekendShading = !!checked;
+            appStorage.setItem('plannr-shade-weekends', String(showWeekendShading));
+            if (typeof ganttChart !== 'undefined' && ganttChart) ganttChart.update('none');
+        }
+
+        function toggleHolidayShading(checked) {
+            showHolidayShading = !!checked;
+            appStorage.setItem('plannr-shade-holidays', String(showHolidayShading));
+            if (typeof ganttChart !== 'undefined' && ganttChart) ganttChart.update('none');
         }
 
         // Jours ouvrés entre deux dates ISO, bornes INCLUSES. O(n) sur l'intervalle.
@@ -547,7 +584,12 @@
                 let dms = Math.floor(x.min / 86400000) * 86400000;
                 for (; dms <= x.max; dms += 86400000) {
                     const probe = new Date(dms + 43200000);
-                    if (!isWorkingDay(probe)) {
+                    // Affichage gouverné par les préférences utilisateur ;
+                    // un jour à la fois férié ET week-end est grisé si l'une
+                    // des deux neutralisations est active
+                    const shade = (showWeekendShading && isWeekendDay(probe)) ||
+                                  (showHolidayShading && isFrenchHoliday(probe));
+                    if (shade) {
                         const x0 = Math.max(x.getPixelForValue(dms), x.left);
                         const x1 = Math.min(x.getPixelForValue(dms + 86400000), x.right);
                         if (x1 > x0) ctx.fillRect(x0, y.top, x1 - x0, y.bottom - y.top);

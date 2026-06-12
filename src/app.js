@@ -5801,6 +5801,7 @@
         // Initialisation
         sanitizeData(); // Nettoyage préventif
         loadBaseline(); // Baseline v2.1 (PLANNR_DATA.baseline ou stockage local)
+        initShadingPrefs(); // Barres de neutralisation : préférences d'affichage
         applyDependencyCascade({ silent: true }); // Contraintes de dépendances
         recomputeCriticalPath(); // Chemin critique (Gantt)
         initLanguage(); // Initialiser la langue sauvegardée

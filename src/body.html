@@ -146,6 +146,21 @@
                     <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Compact</button>
                 </div>
             </div>
+
+            <!-- Séparateur -->
+            <div style="width: 1px; height: 16px; background: #d2d2d7; margin: 0 12px;"></div>
+
+            <!-- Barres grises de neutralisation (week-ends / fériés) — affichage seul,
+                 les durées en jours ouvrés restent calculées indépendamment -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="sticky-toggle-label">Neutralisation grisée :</span>
+                <label class="shading-toggle">
+                    <input type="checkbox" id="toggle-shade-weekends" checked onchange="toggleWeekendShading(this.checked)"> Week-ends
+                </label>
+                <label class="shading-toggle">
+                    <input type="checkbox" id="toggle-shade-holidays" checked onchange="toggleHolidayShading(this.checked)"> Jours fériés
+                </label>
+            </div>
         </div>
 
         <!-- Diagramme de Gantt sticky en haut -->

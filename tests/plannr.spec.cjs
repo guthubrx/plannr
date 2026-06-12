@@ -319,6 +319,51 @@ test('mode consolidé : pas de bouton + sur les barres, drag fonctionnel', async
     expect(moved).toEqual(['2.1']);
 });
 
+test('neutralisation grisée : toggles week-ends/fériés indépendants, métier intact', async ({ page }) => {
+    await page.evaluate(() => {
+        document.getElementById('ganttChart').scrollIntoView({ block: 'center' });
+        updateGantt();
+    });
+    await page.waitForTimeout(1300);
+
+    const sample = (ds) => page.evaluate((dateStr) => {
+        const x = ganttChart.scales.x, y = ganttChart.scales.y;
+        const ctx = ganttChart.canvas.getContext('2d');
+        const t0 = new Date(dateStr).getTime();
+        const px = Math.round((x.getPixelForValue(t0) + x.getPixelForValue(t0 + 86400000)) / 2);
+        const yP = Math.round((y.top + y.bottom) * 0.93);
+        return ctx.getImageData(px, yP, 1, 1).data[3] > 0; // alpha = bande présente
+    }, ds);
+    const duration22 = () => page.evaluate(() => risks.find(r => r.id === '2.2').duration);
+
+    // état initial : samedi ET 14 juillet grisés
+    expect(await sample('2026-06-13')).toBe(true);
+    expect(await sample('2026-07-14')).toBe(true);
+    const durBefore = await duration22();
+
+    // décocher week-ends : le samedi disparaît, le férié reste
+    await page.evaluate(() => document.getElementById('toggle-shade-weekends').click());
+    await page.waitForTimeout(250);
+    expect(await sample('2026-06-13')).toBe(false);
+    expect(await sample('2026-07-14')).toBe(true);
+    expect(await duration22()).toBe(durBefore); // durées MÉTIER inchangées
+
+    // décocher fériés : plus aucune bande
+    await page.evaluate(() => document.getElementById('toggle-shade-holidays').click());
+    await page.waitForTimeout(250);
+    expect(await sample('2026-07-14')).toBe(false);
+
+    // persistance après rechargement
+    await page.reload();
+    await page.waitForSelector('#ganttChart');
+    await page.waitForTimeout(600);
+    const persisted = await page.evaluate(() => ({
+        w: document.getElementById('toggle-shade-weekends').checked,
+        h: document.getElementById('toggle-shade-holidays').checked
+    }));
+    expect(persisted).toEqual({ w: false, h: false });
+});
+
 test('avancement : édition du % met à jour la progression pondérée', async ({ page }) => {
     const before = await page.evaluate(() =>
         document.getElementById('dashboard-progression').textContent);
