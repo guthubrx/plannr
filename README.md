@@ -10,6 +10,29 @@
 
 ## ✨ Fonctionnalités
 
+### Chaîne agent → visualisation (v2.2)
+- **Bandeau de validation** : anomalies corrigées au chargement (doublons,
+  dates invalides, dépendances inconnues, liens non-http), butoirs dépassées,
+  incohérences statut/avancement, et **journal des changements** depuis le
+  chargement précédent
+- **Schéma machine** : `schemas/plannr-data.schema.json` décrit le format
+  complet — l'agent peut valider avant de livrer
+- **Dates butoirs** (`deadline`) : marqueur ⚑ sur le Gantt, badge tableau,
+  alerte quand une cascade fait dépasser une butoir
+- **Notes & lien** par tâche (`notes`, `link` http(s)) : contexte de l'agent
+  dans l'infobulle, icônes 📝/🔗 dans le tableau, note éditable au clic
+- **Lag de dépendance** : `"1.2+3"` = démarre 3 jours ouvrés après le jour
+  ouvré suivant la fin de 1.2
+- **Charge par responsable** : section dédiée avec totaux en jours ouvrés et
+  détection des chevauchements de tâches non terminées
+- **Fenêtre temporelle** : Tout / 3 mois / 1 mois / 2 sem + ◀ ▶ + Aujourd'hui
+- **Calendrier paramétrable** (`calendar`) : samedi ouvré, fériés ajoutés ou
+  retirés — affecte les durées et la cascade (métier)
+- **Enregistrer 💾** : écrit `plannr-data.js` directement sur disque
+  (Chrome/Edge), fallback téléchargement ailleurs
+- **Clic sur une barre** : navigation vers la ligne du tableau (surbrillance)
+- Tout HTML issu des données est échappé (données agent = non fiables)
+
 ### Planification (v2.1)
 - **Dépendances entre tâches** (`dependsOn`) : édition dans le tableau, flèches
   sur le Gantt, **décalage automatique en cascade** des successeurs (un

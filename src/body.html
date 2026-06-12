@@ -23,6 +23,11 @@
                     <span>📌</span> <span data-i18n="baselineBtn">Baseline</span>
                 </button>
 
+                <!-- Enregistrement direct de plannr-data.js (FR-9) -->
+                <button onclick="saveDataToDisk()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;" title="Écrit plannr-data.js directement sur le disque (Chrome/Edge) ou le télécharge">
+                    <span>💾</span> Enregistrer
+                </button>
+
                 <!-- Bouton Import -->
                 <button onclick="document.getElementById('import-file').click()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;">
                     <span>📥</span> Import
@@ -53,6 +58,9 @@
                 <button class="pres-toggle" id="pres-toggle" onclick="togglePresentation()" title="Mode présentation — masquer les contrôles">🖥️ Présentation</button>
             </div>
         </div>
+
+        <!-- Bandeau de validation v2.2 : anomalies, butoirs, incohérences, journal -->
+        <div id="plannr-banner"></div>
 
         <!-- Dashboard de vue d'ensemble -->
         <div class="dashboard-overview">
@@ -161,6 +169,33 @@
                     <input type="checkbox" id="toggle-shade-holidays" checked onchange="toggleHolidayShading(this.checked)"> Jours fériés
                 </label>
             </div>
+
+            <!-- Séparateur -->
+            <div style="width: 1px; height: 16px; background: #d2d2d7; margin: 0 12px;"></div>
+
+            <!-- Calendrier MÉTIER : samedi travaillé (durées, cascade, grisage) -->
+            <label class="shading-toggle" title="Compte les samedis comme jours ouvrés — affecte les durées et la cascade">
+                <input type="checkbox" id="toggle-saturday-worked" onchange="toggleSaturdayWorked(this.checked)"> Samedi ouvré
+            </label>
+
+            <!-- Séparateur -->
+            <div style="width: 1px; height: 16px; background: #d2d2d7; margin: 0 12px;"></div>
+
+            <!-- Fenêtre temporelle du Gantt (FR-5) -->
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="sticky-toggle-label">Fenêtre :</span>
+                <div class="view-toggle-wrapper" style="background: #e5e5e7; padding: 2px; border-radius: 8px; display: flex;">
+                    <button class="zoom-btn" data-span="all" onclick="setGanttZoom(null)">Tout</button>
+                    <button class="zoom-btn" data-span="90" onclick="setGanttZoom(90)">3 mois</button>
+                    <button class="zoom-btn" data-span="30" onclick="setGanttZoom(30)">1 mois</button>
+                    <button class="zoom-btn" data-span="14" onclick="setGanttZoom(14)">2 sem</button>
+                </div>
+                <span id="zoom-nav" style="display: none; align-items: center; gap: 4px;">
+                    <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(-1)" title="Reculer d'une demi-fenêtre">◀</button>
+                    <button class="zoom-btn zoom-nav-btn" onclick="ganttGoToday()">Aujourd'hui</button>
+                    <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(1)" title="Avancer d'une demi-fenêtre">▶</button>
+                </span>
+            </div>
         </div>
 
         <!-- Diagramme de Gantt sticky en haut -->
@@ -190,6 +225,20 @@
         </div>
 
         <!-- Conteneur principal pour la liste des tâches (Planning) -->
+        <!-- Charge par responsable (FR-6) -->
+        <div class="risk-group collapsible-section" id="workload-section">
+            <h2 class="collapsible-header" onclick="toggleCollapse('workload-content-inner')">
+                <span class="collapse-icon">▼</span>
+                <div style="flex: 1;">
+                    <div class="risk-group-title">👥 Charge par responsable</div>
+                    <div class="risk-group-description">Totaux en jours ouvrés et chevauchements de tâches non terminées</div>
+                </div>
+            </h2>
+            <div id="workload-content-inner" class="collapsible-content">
+                <div id="workload-content" style="padding: 12px 16px;"></div>
+            </div>
+        </div>
+
         <div id="planning-container"><div class="group-separator" data-insert-position="0">
                     <div class="group-separator-label">
                         <span class="group-separator-icon">+</span>
