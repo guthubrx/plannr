@@ -516,6 +516,118 @@ test('v2.2 FR-12 : clic sans déplacement sur une barre = flash de la ligne', as
     expect(r.start).toBe(before); // aucune date modifiée par un simple clic
 });
 
+test('v2.3 : sélecteur de dépendances — anti-cycle, lag, commit, Échap', async ({ page }) => {
+    await page.click('.editable-depends[data-risk-id="2.3"]');
+    await page.waitForSelector('.depends-popover');
+    const state = await page.evaluate(() => {
+        const pop = document.querySelector('.depends-popover');
+        return {
+            checked22: pop.querySelector('input[data-id="2.2"]').checked,
+            no31checkbox: !pop.querySelector('input[data-id="3.1"]'), // descendante -> grisée
+            disabledHasCycle: Array.from(pop.querySelectorAll('.dp-disabled'))
+                .some(r => r.textContent.includes('cycle')),
+            selfDisabled: Array.from(pop.querySelectorAll('.dp-disabled'))
+                .some(r => r.textContent.includes('2.3'))
+        };
+    });
+    expect(state.checked22).toBe(true);
+    expect(state.no31checkbox).toBe(true);
+    expect(state.disabledHasCycle).toBe(true);
+    expect(state.selfDisabled).toBe(true);
+
+    // décocher 2.2, cocher 1.1 avec lag 2, valider
+    await page.evaluate(() => {
+        const pop = document.querySelector('.depends-popover');
+        pop.querySelector('input[data-id="2.2"]').click();
+        pop.querySelector('input[data-id="1.1"]').click();
+        pop.querySelector('input[data-id="1.1"]').closest('.dp-row')
+            .querySelector('.dp-lag-input').value = '2';
+    });
+    await page.click('.depends-popover .dp-ok');
+    await page.waitForTimeout(400);
+    const committed = await page.evaluate(() => ({
+        deps: risks.find(r => r.id === '2.3').dependsOn,
+        cell: document.querySelector('.editable-depends[data-risk-id="2.3"]')
+            .textContent.trim()
+    }));
+    expect(committed.deps).toEqual(['1.1+2']);
+    expect(committed.cell).toContain('1.1+2');
+
+    // Échap = annulation pure
+    await page.click('.editable-depends[data-risk-id="2.2"]');
+    await page.waitForSelector('.depends-popover');
+    await page.evaluate(() => {
+        document.querySelector('.depends-popover input[data-id="1.0"]').click();
+    });
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(250);
+    const cancelled = await page.evaluate(() => ({
+        deps22: risks.find(r => r.id === '2.2').dependsOn || null,
+        gone: !document.querySelector('.depends-popover')
+    }));
+    expect(cancelled.deps22).toBe(null);
+    expect(cancelled.gone).toBe(true);
+});
+
+test('v2.3 : pastille de connexion — drag crée la dépendance, cascade immédiate', async ({ page }) => {
+    await page.evaluate(() => {
+        document.getElementById('ganttChart').scrollIntoView({ block: 'center' });
+        updateGantt();
+    });
+    await page.waitForTimeout(1200);
+    const pts = await page.evaluate(() => {
+        const rect = ganttChart.canvas.getBoundingClientRect();
+        const geo = _ganttBarGeometry(ganttChart);
+        const src = geo.find(b => b.id === '2.1');
+        const dst = geo.find(b => b.id === '2.2');
+        return { dot: { x: rect.left + src.x1 + 14, y: rect.top + src.y },
+                 target: { x: rect.left + (dst.x0 + dst.x1) / 2, y: rect.top + dst.y } };
+    });
+    await page.mouse.move(pts.dot.x, pts.dot.y);
+    await page.mouse.down();
+    await page.mouse.move(pts.target.x, pts.target.y, { steps: 8 });
+    await page.mouse.up();
+    await page.waitForTimeout(500);
+    const r = await page.evaluate(() => ({
+        deps22: risks.find(t => t.id === '2.2').dependsOn,
+        start22: risks.find(t => t.id === '2.2').startDate,
+        expected: addWorkingDays(risks.find(t => t.id === '2.1').endDate, 1),
+        noViolation: risks.every(t => parseDependsOn(t).every(pid => {
+            const p = risks.find(rk => rk.id === pid);
+            return !p || t.startDate > taskEndForDeps(p);
+        }))
+    }));
+    expect(r.deps22).toContain('2.1');
+    expect(r.start22).toBe(r.expected);
+    expect(r.noViolation).toBe(true);
+});
+
+test('v2.3 : liaison refusée si elle créerait un cycle', async ({ page }) => {
+    await page.evaluate(() => {
+        document.getElementById('ganttChart').scrollIntoView({ block: 'center' });
+        updateGantt();
+    });
+    await page.waitForTimeout(1200);
+    // 2.2 est un ancêtre de 2.3 (2.3 dependsOn 2.2) : tirer 2.3 -> 2.2 = cycle
+    const pts = await page.evaluate(() => {
+        const rect = ganttChart.canvas.getBoundingClientRect();
+        const geo = _ganttBarGeometry(ganttChart);
+        const src = geo.find(b => b.id === '2.3');
+        const dst = geo.find(b => b.id === '2.2');
+        return { dot: { x: rect.left + src.x1 + 14, y: rect.top + src.y },
+                 target: { x: rect.left + (dst.x0 + dst.x1) / 2, y: rect.top + dst.y },
+                 depsBefore: JSON.stringify(risks.find(t => t.id === '2.2').dependsOn || null) };
+    });
+    await page.mouse.move(pts.dot.x, pts.dot.y);
+    await page.mouse.down();
+    await page.mouse.move(pts.target.x, pts.target.y, { steps: 8 });
+    await page.mouse.up();
+    await page.waitForTimeout(400);
+    const after = await page.evaluate(() =>
+        JSON.stringify(risks.find(t => t.id === '2.2').dependsOn || null));
+    expect(after).toBe(pts.depsBefore); // données inchangées
+});
+
 test('avancement : édition du % met à jour la progression pondérée', async ({ page }) => {
     const before = await page.evaluate(() =>
         document.getElementById('dashboard-progression').textContent);

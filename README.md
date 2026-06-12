@@ -23,6 +23,13 @@
   dans l'infobulle, icônes 📝/🔗 dans le tableau, note éditable au clic
 - **Lag de dépendance** : `"1.2+3"` = démarre 3 jours ouvrés après le jour
   ouvré suivant la fin de 1.2
+- **Sélecteur de dépendances** (v2.3) : popover à cases à cocher dans le
+  tableau — anti-cycle préventif (les descendantes sont grisées), lag par
+  ligne, Échap pour annuler
+- **Pastille de connexion** (v2.3) : au survol d'une barre, un ⊕ apparaît à
+  côté du bord droit (zone disjointe du resize) — tirer une flèche élastique
+  jusqu'à une autre barre crée la dépendance (cibles invalides en rouge,
+  cycles refusés), cascade immédiate
 - **Charge par responsable** : section dédiée avec totaux en jours ouvrés et
   détection des chevauchements de tâches non terminées
 - **Fenêtre temporelle** : Tout / 3 mois / 1 mois / 2 sem + ◀ ▶ + Aujourd'hui

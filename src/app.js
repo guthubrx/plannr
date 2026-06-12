@@ -4215,8 +4215,8 @@
                 const yAxis = chart.scales.y;
                 const canvas = chart.canvas;
 
-                // Ne pas afficher pendant le drag ou le resize
-                if (isDragging || isResizing) {
+                // Ne pas afficher pendant le drag, le resize ou une liaison
+                if (isDragging || isResizing || linkDrag) {
                     hideSeparatorButtons();
                     return;
                 }
@@ -5073,6 +5073,15 @@
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
 
+                // v2.3 : pastille de connexion — testée AVANT le resize
+                // (zones disjointes : pastille à bord+12..+24, resize à ±10)
+                const linkSource = findLinkDotAt(clickX, clickY);
+                if (linkSource) {
+                    startLinkDrag(linkSource);
+                    canvas.style.cursor = 'crosshair';
+                    return;
+                }
+
                 const xAxis = ganttChart.scales.x;
                 const yAxis = ganttChart.scales.y;
                 const labels = ganttChart.data.labels;
@@ -5255,6 +5264,12 @@
             });
 
             addGanttListener('mousemove', function(e) {
+                // v2.3 : drag de liaison en cours — la flèche élastique est
+                // redessinée par le tracker global (ganttChart.draw)
+                if (linkDrag) {
+                    canvas.style.cursor = 'crosshair';
+                    return;
+                }
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
@@ -5398,6 +5413,13 @@
             });
 
             addGanttListener('mouseup', function(e) {
+                // v2.3 : fin d'un drag de liaison de dépendance
+                if (linkDrag) {
+                    const rectLink = canvas.getBoundingClientRect();
+                    finishLinkDrag(e.clientX - rectLink.left, e.clientY - rectLink.top);
+                    canvas.style.cursor = 'grab';
+                    return;
+                }
                 // Gestion de la fin du redimensionnement
                 if (isResizing) {
                     const task = ganttData[resizeTaskIndex].task;
@@ -5602,6 +5624,7 @@
             });
 
             addGanttListener('mouseleave', function() {
+                if (linkDrag) { linkDrag = null; } // v2.3 : liaison annulée
                 if (isDragging) {
                     isDragging = false;
                     draggedTaskIndex = null;

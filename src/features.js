@@ -26,7 +26,7 @@
                 baselineBtn: "Baseline",
                 baselineSet: "Baseline figée — la dérive s'affiche sous les barres",
                 baselineReplaceConfirm: "Une baseline existe déjà. La remplacer par le planning actuel ?",
-                depsHint: "IDs des tâches préalables, séparés par des virgules (ex: 1.1, 2.3)",
+                depsHint: "Cliquer pour choisir les dépendances",
                 depsInvalid: "IDs de dépendance inconnus ou auto-référents ignorés : {ids}",
                 depsCycle: "Cycle de dépendances détecté — cascade interrompue",
                 tasksShifted: "{n} tâche(s) décalée(s) par les dépendances",
@@ -47,7 +47,7 @@
                 baselineBtn: "Baseline",
                 baselineSet: "Baseline frozen — drift shows under the bars",
                 baselineReplaceConfirm: "A baseline already exists. Replace it with the current plan?",
-                depsHint: "IDs of prerequisite tasks, comma-separated (e.g. 1.1, 2.3)",
+                depsHint: "Click to pick dependencies",
                 depsInvalid: "Unknown or self-referencing dependency IDs ignored: {ids}",
                 depsCycle: "Dependency cycle detected — cascade aborted",
                 tasksShifted: "{n} task(s) shifted by dependencies",
@@ -68,7 +68,7 @@
                 baselineBtn: "Baseline",
                 baselineSet: "Baseline fijada — la deriva se muestra bajo las barras",
                 baselineReplaceConfirm: "Ya existe una baseline. ¿Reemplazarla por el plan actual?",
-                depsHint: "IDs de tareas previas, separados por comas (ej. 1.1, 2.3)",
+                depsHint: "Clic para elegir dependencias",
                 depsInvalid: "IDs de dependencia desconocidos o auto-referentes ignorados: {ids}",
                 depsCycle: "Ciclo de dependencias detectado — cascada interrumpida",
                 tasksShifted: "{n} tarea(s) desplazada(s) por dependencias",
@@ -89,7 +89,7 @@
                 baselineBtn: "الخط المرجعي",
                 baselineSet: "تم تثبيت الخط المرجعي",
                 baselineReplaceConfirm: "يوجد خط مرجعي بالفعل. استبداله بالخطة الحالية؟",
-                depsHint: "معرفات المهام السابقة مفصولة بفواصل (مثال: 1.1, 2.3)",
+                depsHint: "انقر لاختيار التبعيات",
                 depsInvalid: "تم تجاهل معرفات غير معروفة: {ids}",
                 depsCycle: "تم اكتشاف حلقة تبعيات",
                 tasksShifted: "تم إزاحة {n} مهمة بسبب التبعيات",
@@ -530,7 +530,8 @@
         }
 
         function renderDependsCellHTML(risk) {
-            const deps = parseDependsOn(risk).join(', ');
+            // entrées brutes : le lag "+N" doit rester visible
+            const deps = (Array.isArray(risk.dependsOn) ? risk.dependsOn : []).join(', ');
             return '<td class="depends-cell"><span class="editable-depends" data-risk-id="' +
                 risk.id + '" title="' + t('depsHint') + '">' +
                 (deps || '<span class="depends-placeholder">＋</span>') + '</span></td>';
@@ -567,46 +568,132 @@
             document.querySelectorAll('.editable-depends').forEach(span => {
                 if (span.dataset.editingInitialized) return;
                 span.dataset.editingInitialized = 'true';
-                span.addEventListener('click', function () {
-                    if (this.querySelector('input')) return;
+                span.addEventListener('click', function (ev) {
+                    ev.stopPropagation();
                     const task = risks.find(r => r.id === this.dataset.riskId);
                     if (!task) return;
-                    const current = parseDependsOn(task).join(', ');
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.value = current;
-                    input.className = 'depends-input';
-                    input.placeholder = '1.1, 2.3';
-                    this.textContent = '';
-                    this.appendChild(input);
-                    input.focus();
-                    let committed = false;
-                    const commit = () => {
-                        if (committed) return;
-                        committed = true;
-                        const byId = tasksById();
-                        const ids = input.value.split(',').map(s => s.trim()).filter(Boolean);
-                        const valid = [], bad = [];
-                        ids.forEach(id => {
-                            if (!byId[id] || id === task.id) bad.push(id);
-                            else valid.push(id);
-                        });
-                        saveState();
-                        task.dependsOn = valid;
-                        if (bad.length) showToast(t('depsInvalid').replace('{ids}', bad.join(', ')), 'error');
-                        applyDependencyCascade({});
-                        recomputeCriticalPath();
-                        renderPlanning();
-                        updateGantt();
-                        updateDashboard();
-                    };
-                    input.addEventListener('blur', commit);
-                    input.addEventListener('keydown', e => {
-                        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-                        if (e.key === 'Escape') { input.value = current; input.blur(); }
-                    });
+                    openDependsPopover(task, this);
                 });
             });
+        }
+
+        // ----- Sélecteur de dépendances (v2.3 / picker popover) -----
+        // Anti-cycle PRÉVENTIF : les descendantes de la tâche (et elle-même)
+        // sont grisées — impossible de saisir une bêtise.
+        var _depsPopover = null;
+
+        function closeDependsPopover(commit) {
+            if (!_depsPopover) return;
+            const state = _depsPopover;
+            _depsPopover = null;
+            document.removeEventListener('mousedown', state.outsideHandler, true);
+            document.removeEventListener('keydown', state.keyHandler, true);
+            if (commit) _commitDependsPopover(state);
+            state.el.remove();
+        }
+
+        function _commitDependsPopover(state) {
+            const entries = [];
+            state.el.querySelectorAll('.dp-row input[type="checkbox"]:checked')
+                .forEach(cb => {
+                    const lagInput = cb.closest('.dp-row').querySelector('.dp-lag-input');
+                    const lag = Math.max(0, parseInt(lagInput && lagInput.value, 10) || 0);
+                    entries.push(lag > 0 ? cb.dataset.id + '+' + lag : cb.dataset.id);
+                });
+            if (JSON.stringify(entries) === JSON.stringify(state.task.dependsOn || [])) {
+                return; // rien n'a changé
+            }
+            saveState();
+            if (entries.length) state.task.dependsOn = entries;
+            else delete state.task.dependsOn;
+            applyDependencyCascade({});
+            recomputeCriticalPath();
+            renderPlanning();
+            updateGantt();
+            updateDashboard();
+        }
+
+        function openDependsPopover(task, anchorEl) {
+            closeDependsPopover(false);
+            const cycleIds = collectDescendants(task.id);
+            const current = new Map(parseDependsOnFull(task).map(d => [d.id, d.lag]));
+
+            const pop = document.createElement('div');
+            pop.className = 'depends-popover';
+            // XSS : chaque valeur issue des données est échappée via
+            // escapeHtml avant insertion (NFR-2)
+            let html = '<div class="dp-title">Dépendances de ' + escapeHtml(task.id) +
+                ' — ' + escapeHtml(task.title) + '</div>' +
+                '<div class="dp-hint">La tâche démarre après la fin de chaque tâche ' +
+                'cochée (+ délai éventuel en jours ouvrés)</div><div class="dp-list">';
+            riskGroups.forEach(group => {
+                html += '<div class="dp-phase">' + escapeHtml(group.name) + '</div>';
+                group.tasks.forEach(other => {
+                    const isSelf = other.id === task.id;
+                    const isCycle = cycleIds.has(other.id);
+                    if (isSelf || isCycle) {
+                        html += '<div class="dp-row dp-disabled" title="' +
+                            (isSelf ? 'La tâche elle-même'
+                                    : 'Créerait un cycle de dépendances') + '">' +
+                            '<span class="dp-check">▩</span> ' +
+                            escapeHtml(other.id + ' — ' + other.title) +
+                            ' <span class="dp-why">(' +
+                            (isSelf ? 'elle-même' : 'cycle') + ')</span></div>';
+                    } else {
+                        const checked = current.has(other.id);
+                        const lag = current.get(other.id) || 0;
+                        html += '<label class="dp-row">' +
+                            '<input type="checkbox" data-id="' + escapeHtml(other.id) +
+                            '"' + (checked ? ' checked' : '') + '>' +
+                            '<span class="dp-label">' +
+                            escapeHtml(other.id + ' — ' + other.title) + '</span>' +
+                            '<span class="dp-lag">+<input type="number" ' +
+                            'class="dp-lag-input" min="0" max="365" value="' + lag +
+                            '"' + (checked ? '' : ' disabled') + '> j</span>' +
+                            '</label>';
+                    }
+                });
+            });
+            html += '</div><div class="dp-footer"><button class="dp-ok">OK</button>' +
+                '<span class="dp-esc">Échap pour annuler</span></div>';
+            pop.innerHTML = html;
+            document.body.appendChild(pop);
+
+            // Position : sous la cellule, recalée dans la fenêtre
+            const r = anchorEl.getBoundingClientRect();
+            pop.style.top = (r.bottom + window.scrollY + 6) + 'px';
+            pop.style.left = Math.max(12, Math.min(r.left + window.scrollX,
+                window.scrollX + document.documentElement.clientWidth -
+                pop.offsetWidth - 12)) + 'px';
+
+            pop.addEventListener('change', evd => {
+                if (evd.target.type === 'checkbox') {
+                    const lagInput = evd.target.closest('.dp-row')
+                        .querySelector('.dp-lag-input');
+                    if (lagInput) lagInput.disabled = !evd.target.checked;
+                }
+            });
+
+            const state = { el: pop, task };
+            state.outsideHandler = evd => {
+                if (!pop.contains(evd.target)) closeDependsPopover(true);
+            };
+            state.keyHandler = evd => {
+                if (evd.key === 'Escape') {
+                    evd.stopPropagation();
+                    closeDependsPopover(false);
+                }
+            };
+            pop.querySelector('.dp-ok').addEventListener('click',
+                () => closeDependsPopover(true));
+            // Clavier : immédiat (aucune raison de différer — évite une
+            // fenêtre de course où un Échap précoce serait perdu).
+            document.addEventListener('keydown', state.keyHandler, true);
+            // Clic-extérieur : différé d'un tick pour ignorer le clic d'ouverture
+            setTimeout(() => {
+                document.addEventListener('mousedown', state.outsideHandler, true);
+            }, 0);
+            _depsPopover = state;
         }
 
         // ==================================================================
@@ -996,6 +1083,206 @@
                         new Date(m.task.deadline).getTime() + 86400000);
                     drawMarker(px, py - 14, py + 14, isDeadlineExceeded(m.task));
                 });
+                ctx.restore();
+            }
+        });
+
+        // ------------------------------------------------------------------
+        // Pastille de connexion (v2.3) : créer une dépendance au drag.
+        // La pastille apparaît À CÔTÉ du bord droit (bord+12..+24 px), zone
+        // DISJOINTE de la poignée de resize (bord ±10 px) — aucun conflit.
+        // Tirer depuis la pastille trace une flèche élastique ; lâcher sur
+        // une barre cible crée cible.dependsOn += source (cascade immédiate).
+        // ------------------------------------------------------------------
+        var LINK_DOT_OFFSET = 14;
+        var LINK_DOT_RADIUS = 7;
+        var linkDrag = null; // { sourceId, invalidTargets:Set }
+
+        // Géométrie écran des barres du Gantt courant. O(n).
+        function _ganttBarGeometry(chart) {
+            if (!chart || !chart.options.ganttData) return [];
+            const gd = chart.options.ganttData;
+            const meta = chart.getDatasetMeta(0);
+            const out = [];
+            gd.forEach((d, i) => {
+                const el = meta.data[i];
+                if (!el || !d.task) return;
+                let y = el.y;
+                if (d.isMilestone && d.compactMode && ganttViewMode === 'compact') y += 28;
+                out.push({ id: d.task.id, task: d.task,
+                           x0: Math.min(el.base, el.x), x1: Math.max(el.base, el.x),
+                           y: y, h: el.height || 35, isMilestone: !!d.isMilestone });
+            });
+            return out;
+        }
+
+        function findLinkDotAt(mouseX, mouseY) {
+            if (typeof ganttChart === 'undefined' || !ganttChart) return null;
+            const bars = _ganttBarGeometry(ganttChart);
+            const r2 = (LINK_DOT_RADIUS + 3) * (LINK_DOT_RADIUS + 3);
+            for (const b of bars) {
+                if (b.isMilestone) continue;
+                const dx = mouseX - (b.x1 + LINK_DOT_OFFSET);
+                const dy = mouseY - b.y;
+                if (dx * dx + dy * dy <= r2) return b.task;
+            }
+            return null;
+        }
+
+        // Ancêtres transitifs (tâches dont taskId dépend). O(V+E).
+        function collectAncestors(taskId) {
+            const byId = tasksById();
+            const out = new Set();
+            const queue = [taskId];
+            while (queue.length) {
+                const id = queue.shift();
+                const tk = byId[id];
+                if (!tk) continue;
+                parseDependsOn(tk).forEach(pid => {
+                    if (!out.has(pid)) { out.add(pid); queue.push(pid); }
+                });
+            }
+            return out;
+        }
+
+        function startLinkDrag(sourceTask) {
+            // cible.dependsOn += source crée un cycle ssi la cible est un
+            // ANCÊTRE de la source (ou la source elle-même)
+            const invalid = collectAncestors(sourceTask.id);
+            invalid.add(sourceTask.id);
+            linkDrag = { sourceId: sourceTask.id, invalidTargets: invalid };
+        }
+
+        function findLinkTargetAt(mouseX, mouseY) {
+            if (typeof ganttChart === 'undefined' || !ganttChart) return null;
+            const bars = _ganttBarGeometry(ganttChart);
+            for (const b of bars) {
+                const half = b.h / 2 + 4;
+                if (mouseX >= b.x0 - 4 && mouseX <= b.x1 + 4 &&
+                    mouseY >= b.y - half && mouseY <= b.y + half) return b.task;
+            }
+            // capsules de jalons (mode cascade)
+            const ms = ganttChart.options.milestonesData;
+            if (ms && ms.length) {
+                const x = ganttChart.scales.x, y = ganttChart.scales.y;
+                for (const m of ms) {
+                    const px = x.getPixelForValue(m.date);
+                    const py = y.getPixelForValue(m.yPosition);
+                    if (Math.abs(mouseX - px) <= 25 && Math.abs(mouseY - py) <= 12) {
+                        return m.task;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function finishLinkDrag(mouseX, mouseY) {
+            const drag = linkDrag;
+            linkDrag = null;
+            if (!drag) return;
+            const target = findLinkTargetAt(mouseX, mouseY);
+            const redraw = () => { if (ganttChart) ganttChart.draw(); };
+            if (!target || target.id === drag.sourceId) { redraw(); return; }
+            if (drag.invalidTargets.has(target.id)) {
+                showToast('Liaison refusée : créerait un cycle de dépendances', 'error');
+                redraw();
+                return;
+            }
+            if (parseDependsOn(target).includes(drag.sourceId)) {
+                showToast('Dépendance déjà existante');
+                redraw();
+                return;
+            }
+            saveState();
+            target.dependsOn = (target.dependsOn || []).concat([drag.sourceId]);
+            applyDependencyCascade({});
+            recomputeCriticalPath();
+            renderPlanning();
+            updateGantt();
+            updateDashboard();
+            showToast('Dépendance créée : ' + drag.sourceId + ' → ' + target.id);
+        }
+
+        // Pastille au survol + flèche élastique pendant le drag de liaison
+        Chart.register({
+            id: 'linkConnectorPlugin',
+            afterDatasetsDraw: function (chart) {
+                if (!chart.options.ganttData) return;
+                const rect = chart.canvas.getBoundingClientRect();
+                const mX = (typeof ganttMouseX !== 'undefined' ? ganttMouseX : -1) - rect.left;
+                const mY = (typeof ganttMouseY !== 'undefined' ? ganttMouseY : -1) - rect.top;
+                const ctx = chart.ctx;
+                const bars = _ganttBarGeometry(chart);
+
+                ctx.save();
+                if (linkDrag) {
+                    const src = bars.find(b => b.id === linkDrag.sourceId);
+                    if (src) {
+                        const sx = src.x1 + LINK_DOT_OFFSET, sy = src.y;
+                        const target = findLinkTargetAt(mX, mY);
+                        const valid = target && target.id !== linkDrag.sourceId &&
+                            !linkDrag.invalidTargets.has(target.id);
+                        const color = !target ? 'rgba(0, 113, 227, 0.85)'
+                            : valid ? 'rgba(26, 106, 62, 0.95)' : 'rgba(215, 0, 21, 0.9)';
+                        // surbrillance de la cible
+                        if (target) {
+                            const tb = bars.find(b => b.id === target.id);
+                            if (tb) {
+                                ctx.strokeStyle = color;
+                                ctx.lineWidth = 2.5;
+                                ctx.setLineDash(valid ? [] : [4, 3]);
+                                ctx.strokeRect(tb.x0 - 3, tb.y - tb.h / 2 - 3,
+                                               (tb.x1 - tb.x0) + 6, tb.h + 6);
+                                ctx.setLineDash([]);
+                            }
+                        }
+                        // flèche élastique (courbe de Bézier)
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = 1.8;
+                        if (!valid && target) ctx.setLineDash([5, 4]);
+                        ctx.beginPath();
+                        ctx.moveTo(sx, sy);
+                        const midX = (sx + mX) / 2;
+                        ctx.bezierCurveTo(midX, sy, midX, mY, mX - 4, mY);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        // pointe de flèche au curseur
+                        ctx.fillStyle = color;
+                        ctx.beginPath();
+                        ctx.moveTo(mX, mY);
+                        ctx.lineTo(mX - 8, mY - 4);
+                        ctx.lineTo(mX - 8, mY + 4);
+                        ctx.closePath();
+                        ctx.fill();
+                        // pastille source remplie
+                        ctx.beginPath();
+                        ctx.arc(sx, sy, LINK_DOT_RADIUS - 1, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } else if (!isDragging && !isResizing) {
+                    // pastille au survol d'une barre (zone élargie à droite)
+                    const hovered = bars.find(b => !b.isMilestone &&
+                        mX >= b.x0 - 4 &&
+                        mX <= b.x1 + LINK_DOT_OFFSET + LINK_DOT_RADIUS + 4 &&
+                        Math.abs(mY - b.y) <= b.h / 2 + 6);
+                    if (hovered) {
+                        const dx = hovered.x1 + LINK_DOT_OFFSET, dy = hovered.y;
+                        ctx.beginPath();
+                        ctx.arc(dx, dy, LINK_DOT_RADIUS, 0, Math.PI * 2);
+                        ctx.fillStyle = 'white';
+                        ctx.fill();
+                        ctx.strokeStyle = '#0071e3';
+                        ctx.lineWidth = 1.8;
+                        ctx.stroke();
+                        // signe +
+                        ctx.beginPath();
+                        ctx.moveTo(dx - 3, dy);
+                        ctx.lineTo(dx + 3, dy);
+                        ctx.moveTo(dx, dy - 3);
+                        ctx.lineTo(dx, dy + 3);
+                        ctx.stroke();
+                    }
+                }
                 ctx.restore();
             }
         });
