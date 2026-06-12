@@ -119,6 +119,69 @@ test('UI v2.1 : 9 colonnes, carte retards, baseline, ICS, namespace localStorage
     expect(d.dependsCells).toBeGreaterThan(0);
 });
 
+test('drag Gantt : déplacer une tâche déclenche la cascade des successeurs', async ({ page }) => {
+    // Scénario utilisateur : on tire la tâche 2.2 vers la droite jusqu'à ce
+    // que sa fin dépasse le début de 2.3 (qui dependsOn 2.2) -> 2.3 et toute
+    // la chaîne doivent se décaler automatiquement, sans que 2.2 rétrécisse.
+    const before = await page.evaluate(() => ({
+        span22: new Date(risks.find(r => r.id === '2.2').endDate) -
+                new Date(risks.find(r => r.id === '2.2').startDate),
+        start22: risks.find(r => r.id === '2.2').startDate,
+        start23: risks.find(r => r.id === '2.3').startDate
+    }));
+
+    // Amener le Gantt dans le viewport puis le reconstruire : en headless,
+    // le chart initial peut avoir été rendu avant le dimensionnement du canvas
+    await page.evaluate(() => {
+        document.getElementById('ganttChart').scrollIntoView({ block: 'center' });
+        updateGantt();
+    });
+    await page.waitForTimeout(300);
+
+    const pt = await page.evaluate(() => {
+        // IMPORTANT : calculer le point depuis les ÉCHELLES (positions finales),
+        // pas depuis meta.data[i] — pendant l'animation d'entrée du chart,
+        // l'élément est encore en transit et on cliquerait à côté de la barre.
+        const d = ganttChart.options.ganttData.find(g => g.task && g.task.id === '2.2');
+        const xAxis = ganttChart.scales.x;
+        const yAxis = ganttChart.scales.y;
+        const rect = ganttChart.canvas.getBoundingClientRect();
+        const x0 = xAxis.getPixelForValue(d.x[0]);
+        const x1 = xAxis.getPixelForValue(d.x[1]);
+        return {
+            x: rect.left + (x0 + x1) / 2,
+            y: rect.top + yAxis.getPixelForValue(d.y),
+            pxPerDay: (x1 - x0) / Math.max(1, (d.x[1] - d.x[0]) / 86400000)
+        };
+    });
+    expect(pt.y).toBeGreaterThan(0);
+    expect(pt.pxPerDay).toBeGreaterThan(1); // garde : chart correctement dimensionné
+
+    // Drag de ~10 jours vers la droite, Shift enfoncé (désactive le snap)
+    await page.keyboard.down('Shift');
+    await page.mouse.move(pt.x, pt.y);
+    await page.mouse.down();
+    await page.mouse.move(pt.x + pt.pxPerDay * 10, pt.y, { steps: 10 });
+    await page.mouse.up();
+    await page.keyboard.up('Shift');
+
+    const after = await page.evaluate(() => ({
+        start22: risks.find(r => r.id === '2.2').startDate,
+        span22: new Date(risks.find(r => r.id === '2.2').endDate) -
+                new Date(risks.find(r => r.id === '2.2').startDate),
+        start23: risks.find(r => r.id === '2.3').startDate,
+        noViolation: risks.every(t => parseDependsOn(t).every(pid => {
+            const p = risks.find(r => r.id === pid);
+            return !p || t.startDate > taskEndForDeps(p);
+        }))
+    }));
+
+    expect(after.start22 > before.start22).toBe(true);  // 2.2 a bougé
+    expect(after.span22).toBe(before.span22);           // sans rétrécir
+    expect(after.start23 > before.start23).toBe(true);  // 2.3 a cascadé
+    expect(after.noViolation).toBe(true);               // 0 violation
+});
+
 test('avancement : édition du % met à jour la progression pondérée', async ({ page }) => {
     const before = await page.evaluate(() =>
         document.getElementById('dashboard-progression').textContent);

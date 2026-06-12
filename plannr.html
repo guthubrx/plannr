@@ -6385,6 +6385,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             }
 
             sanitizeData(); // Nettoyage immédiat pour éviter les incohérences
+            applyDependencyCascade({}); // v2.1 : la bascule change endDate
+            recomputeCriticalPath();
             renderPlanning();
             updateGantt();
             updateDashboard();
@@ -6419,6 +6421,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             if (globalRiskIndex !== -1) {
                 risks.splice(globalRiskIndex, 1);
             }
+
+            // Purger les références de dépendances vers la tâche supprimée (v2.1)
+            risks.forEach(r => {
+                if (Array.isArray(r.dependsOn)) {
+                    r.dependsOn = r.dependsOn.filter(id => id !== riskId);
+                    if (r.dependsOn.length === 0) delete r.dependsOn;
+                }
+            });
+            recomputeCriticalPath();
 
             // Sauvegarder le nouveau mapping AVANT de re-rendre
             saveGroupMapping();
@@ -9385,6 +9396,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
                     if (elements.length > 0) {
                         dataIndex = elements[0].index;
+                    } else {
+                        // Fallback déterministe (v2.1.1) : hit-test manuel du corps
+                        // des barres, même géométrie que la détection des bords
+                        // ci-dessus. getElementsAtEventForMode s'avère non fiable
+                        // immédiatement après un hover (retourne [] alors que la
+                        // position relative est dans la barre).
+                        ganttData.forEach((dataPoint, index) => {
+                            if (dataIndex !== undefined || dataPoint.isMilestone) return;
+                            const xStart = xAxis.getPixelForValue(dataPoint.x[0]);
+                            const xEnd = xAxis.getPixelForValue(dataPoint.x[1]);
+                            const y = yAxis.getPixelForValue(dataPoint.y);
+                            const barHeight = 35;
+                            if (clickX >= xStart && clickX <= xEnd &&
+                                clickY >= y - barHeight / 2 && clickY <= y + barHeight / 2) {
+                                dataIndex = index;
+                            }
+                        });
                     }
                 }
 
@@ -9538,11 +9566,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         ganttData[draggedTaskIndex].x[0] = finalDate;
                         ganttData[draggedTaskIndex].x[1] = finalDate + (2 * 24 * 60 * 60 * 1000); // 2 jours pour la zone de clic
                     } else {
-                        // Pour une tâche normale : déplacer en gardant la durée
-                        const duration = task.duration || 7;
-                        const newEndDate = new Date(finalDate + duration * 86400000);
+                        // Pour une tâche normale : déplacer en conservant l'étendue
+                        // CALENDAIRE réelle. NE PAS reconstruire via task.duration :
+                        // depuis la v2.1 c'est une durée en jours OUVRÉS, l'utiliser
+                        // comme delta calendaire faisait rétrécir la tâche au drag.
+                        const spanMs = Math.max(0,
+                            new Date(task.endDate) - new Date(task.startDate));
                         ganttData[draggedTaskIndex].x[0] = finalDate;
-                        ganttData[draggedTaskIndex].x[1] = newEndDate.getTime();
+                        ganttData[draggedTaskIndex].x[1] = finalDate + spanMs;
                     }
                 }
 
@@ -9564,7 +9595,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
                     task.startDate = newStart.toISOString().split('T')[0];
                     task.endDate = newEnd.toISOString().split('T')[0];
-                    task.duration = calculateDuration(task.startDate, task.endDate);
+                    task.duration = workingDaysBetween(task.startDate, task.endDate);
 
                     // Recalculer les dates de la phase
                     const phase = phases.find(p => p.tasks.some(t => t.id === task.id));
@@ -9581,8 +9612,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     snapLines = [];
                     canvas.style.cursor = 'grab';
 
-                    // Re-rendre tout
-                    ganttChart.update('none');
+                    // Cascade des dépendances + chemin critique (v2.1)
+                    const shiftedByDeps = applyDependencyCascade({});
+                    recomputeCriticalPath();
+
+                    // Re-rendre tout (rebuild complet si la cascade a décalé
+                    // d'autres tâches : leurs barres doivent être repositionnées)
+                    if (shiftedByDeps > 0) updateGantt(); else ganttChart.update('none');
                     renderPlanning();
                     updateDashboard();
 
@@ -9619,9 +9655,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     snapLines = [];
                     canvas.style.cursor = 'grab';
 
+                    // Cascade des dépendances + chemin critique (v2.1)
+                    const shiftedByDeps = applyDependencyCascade({});
+                    recomputeCriticalPath();
+
                     // Re-rendre tout
                     sanitizeData();
-                    ganttChart.update('none');
+                    if (shiftedByDeps > 0) updateGantt(); else ganttChart.update('none');
                     renderPlanning();
                     updateDashboard();
 
@@ -9648,7 +9688,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                         // Tâche normale
                         const newEnd = new Date(ganttData[draggedTaskIndex].x[1]);
                         task.endDate = newEnd.toISOString().split('T')[0];
-                        task.duration = calculateDuration(task.startDate, task.endDate);
+                        task.duration = workingDaysBetween(task.startDate, task.endDate);
                     }
 
                     // Recalculer les dates de la phase
@@ -9663,9 +9703,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                     snapLines = [];
                     canvas.style.cursor = 'grab';
 
+                    // Cascade des dépendances + chemin critique (v2.1)
+                    const shiftedByDeps = applyDependencyCascade({});
+                    recomputeCriticalPath();
+
                     // Re-rendre tout
                     sanitizeData();
-                    ganttChart.update('none');
+                    if (shiftedByDeps > 0) updateGantt(); else ganttChart.update('none');
                     renderPlanning();
                     updateDashboard();
 
@@ -9908,6 +9952,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             // Reconstruire le tableau plat
             risks.length = 0;
             riskGroups.forEach(g => risks.push(...g.tasks));
+
+            // Purger les références de dépendances orphelines (v2.1)
+            const validIds = new Set(risks.map(r => r.id));
+            risks.forEach(r => {
+                if (Array.isArray(r.dependsOn)) {
+                    r.dependsOn = r.dependsOn.filter(id => validIds.has(id));
+                    if (r.dependsOn.length === 0) delete r.dependsOn;
+                }
+            });
         }
 
         // Initialisation
