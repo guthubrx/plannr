@@ -1,0 +1,961 @@
+
+    <div class="container">
+        <!-- Header avec icône, titre et contrôles -->
+        <div class="app-header">
+            <img src="icon.svg" alt="Plannr" class="app-icon">
+
+            <div class="app-title-section">
+                <h1 id="main-title" class="editable-title" data-editing-initialized="true">Plannr - Planning de Projet</h1>
+                <p id="main-subtitle" class="editable-subtitle" style="color: #86868b; margin: 4px 0 0 0; font-size: 15px;" data-i18n="pageSubtitle" data-editing-initialized="true">ViGi360 · SNCF Gares &amp; Connexions · Gare du Nord / Gare de Lyon · Avril–Août 2026</p>
+            </div>
+
+            <div class="app-controls studio-toolbar">
+                <!-- Input caché pour l'import -->
+                <input type="file" id="import-file" style="display: none" accept=".json" onchange="importFromJSON(this)">
+                
+                <!-- Bouton Recharger données -->
+                <button onclick="reloadPlannrData()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;" title="Recharger plannr-data.js (contourne le cache)">
+                    <span>🔄</span> Recharger
+                </button>
+
+                <!-- Bouton Baseline : fige le planning actuel comme référence (v2.1) -->
+                <button onclick="setBaseline()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;" title="Figer le planning actuel comme baseline — la dérive s'affichera en gris sous les barres du Gantt">
+                    <span>📌</span> <span data-i18n="baselineBtn">Baseline</span>
+                </button>
+
+                <!-- Bouton Import -->
+                <button onclick="document.getElementById('import-file').click()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;">
+                    <span>📥</span> Import
+                </button>
+
+                <select id="export-format-selector" onchange="handleExport(this.value)" style="padding: 8px 12px 8px 36px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white url('data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2386868b%22 stroke-width=%222%22&gt;&lt;path d=%22M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4%22/&gt;&lt;polyline points=%227 10 12 15 17 10%22/&gt;&lt;line x1=%2212%22 y1=%2215%22 x2=%2212%22 y2=%223%22/&gt;&lt;/svg&gt;') no-repeat 10px center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); appearance: none; padding-right: 30px; background-size: 16px;">
+                    <option value="" disabled="disabled" selected="selected">Exporter...</option>
+                    <option value="pdf">📄 PDF</option>
+                    <option value="excel">📊 Excel (XLSX)</option>
+                    <option value="csv">📋 CSV</option>
+                    <option value="html">🌐 HTML (Web)</option>
+                    <option value="json">💾 JSON (Données)</option>
+                    <option value="datajs">🗂️ plannr-data.js (rechargeable)</option>
+                    <option value="ics">📅 ICS (jalons calendrier)</option>
+                </select>
+                <select id="language-selector" onchange="setLanguage(this.value)" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                    <option value="fr" selected="selected">🇫🇷 Français</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="ar">🇸🇦 العربية</option>
+                    <option value="zh">🇨🇳 中文</option>
+                </select>
+
+                <!-- Sélecteur de palette de couleurs pour le Gantt -->
+                <div id="color-palette-selector"></div>
+
+                <!-- Mode Présentation -->
+                <button class="pres-toggle" id="pres-toggle" onclick="togglePresentation()" title="Mode présentation — masquer les contrôles">🖥️ Présentation</button>
+            </div>
+        </div>
+
+        <!-- Dashboard de vue d'ensemble -->
+        <div class="dashboard-overview">
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="9" x2="15" y2="9"></line>
+                        <line x1="9" y1="13" x2="15" y2="13"></line>
+                        <line x1="9" y1="17" x2="13" y2="17"></line>
+                    </svg>
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-card-value" id="dashboard-total-tasks">14</div>
+                        <div class="dashboard-card-label" data-i18n="dashboardTotalTasks">Tâches totales</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-card-value" id="dashboard-in-progress">0</div>
+                        <div class="dashboard-card-label" data-i18n="dashboardTasksInProgress">En cours</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-card-value" id="dashboard-completed">0</div>
+                        <div class="dashboard-card-label" data-i18n="dashboardTasksCompleted">Terminées</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-card-value" id="dashboard-total-duration">187 j</div>
+                        <div class="dashboard-card-label" data-i18n="dashboardTotalDuration">Durée totale</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-card-value" id="dashboard-progression" style="color: rgb(102, 102, 102);">0%</div>
+                        <div class="dashboard-card-label" data-i18n="dashboardProgression">Progression</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-card-value" id="dashboard-overdue">0</div>
+                        <div class="dashboard-card-label" data-i18n="dashboardOverdue">En retard</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toggle sticky discret au-dessus -->
+        <div class="sticky-toggle-container">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="sticky-toggle-label">Épingler la vue d'ensemble</span>
+                <button onclick="toggleSticky()" class="sticky-toggle-btn" id="sticky-toggle-btn" title="Activer/Désactiver le mode collant"></button>
+            </div>
+            
+            <!-- Séparateur -->
+            <div style="width: 1px; height: 16px; background: #d2d2d7; margin: 0 12px;"></div>
+
+            <!-- Toggle Vue Compact/Cascade/Groupe -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="sticky-toggle-label">Vue :</span>
+                <div class="view-toggle-wrapper" style="background: #e5e5e7; padding: 2px; border-radius: 8px; display: flex;">
+                    <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active" style="border: medium; background: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(29, 29, 31); cursor: pointer; box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px; transition: 0.2s;">Cascade</button>
+                    <button onclick="setGanttView('consolide')" id="view-btn-consolide" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Consolidé</button>
+                    <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Compact</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagramme de Gantt sticky en haut -->
+        <div class="sticky-charts-section sticky-disabled" id="sticky-section">
+
+            <!-- Section collapsable pour le Gantt -->
+            <div class="collapsible-section" style="margin-bottom: 8px;">
+                <h3 class="collapsible-header" onclick="toggleCollapse('gantt-content')" style="margin-top: 0; margin-bottom: 8px;">
+                    <span class="collapse-icon">▼</span>
+                    <span data-i18n="ganttTitle">Diagramme de Gantt</span>
+                </h3>
+                <div id="gantt-content" class="collapsible-content">
+                    <div class="dashboard-layout">
+                        <div class="charts-column">
+                            <div class="chart-wrapper" style="width: 100%;">
+                                <div class="chart-header">
+                                    <h3 data-i18n="ganttTitle">Diagramme de Gantt - Planning du projet</h3>
+                                </div>
+                                <div class="chart-canvas" style="height: 840px; position: relative;">
+                                    <canvas id="ganttChart" width="3481" height="840" style="box-sizing: border-box; cursor: grab; display: block; height: 840px; width: 3481px;"></canvas>
+                                <div id="gantt-separator-overlay" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteneur principal pour la liste des tâches (Planning) -->
+        <div id="planning-container"><div class="group-separator" data-insert-position="0">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#2E86C1">1</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-1" data-group-id="1" data-editing-initialized="true">Phase 1 — Cadrage &amp; Prérequis</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-1" data-group-id="1" data-editing-initialized="true">Audit couverture caméras, commande licences IPSOTEK, installation serveur nouvelle version</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-1" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-1-risks" data-group-id="1">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.1" data-risk-index="0" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.1" data-editing-initialized="true">1.1. Audit couverture caméras — périmètre POC</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="1.1" onclick="toggleMilestone('1.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">01/04/2026</span><input type="date" class="editable-date" data-risk-id="1.1" data-date-type="startDate" value="2026-04-01" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">30/04/2026</span><input type="date" class="editable-date" data-risk-id="1.1" data-date-type="endDate" value="2026-04-30" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-0">
+                                30
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-0" data-risk-id="1.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.1" data-editing-initialized="true">Xavier / François</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="1" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="1" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.2" data-risk-index="1" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.2" data-editing-initialized="true">1.2. Commande licences IPSOTEK PREVENT</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="1.2" onclick="toggleMilestone('1.2', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">30/04/2026</span><input type="date" class="editable-date" data-risk-id="1.2" data-date-type="startDate" value="2026-04-30" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">14/05/2026</span><input type="date" class="editable-date" data-risk-id="1.2" data-date-type="endDate" value="2026-05-14" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-1">
+                                14
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-1" data-risk-id="1.2" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.2" data-editing-initialized="true">Xavier / Régis Bonin</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.2')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="2" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="2" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.3" data-risk-index="2" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.3" data-editing-initialized="true">1.3. Déploiement et industrialisation de l'infrastructure</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="1.3" onclick="toggleMilestone('1.3', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">14/05/2026</span><input type="date" class="editable-date" data-risk-id="1.3" data-date-type="startDate" value="2026-05-14" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">12/06/2026</span><input type="date" class="editable-date" data-risk-id="1.3" data-date-type="endDate" value="2026-06-12" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-2">
+                                29
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-2" data-risk-id="1.3" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.3" data-editing-initialized="true">Alex / ATOS-Eviden</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.3')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="3" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="3" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.4" data-risk-index="3" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.4" data-editing-initialized="true">1.4. Recette</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="1.4" onclick="toggleMilestone('1.4', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">14/05/2026</span><input type="date" class="editable-date" data-risk-id="1.4" data-date-type="startDate" value="2026-05-14" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">21/05/2026</span><input type="date" class="editable-date" data-risk-id="1.4" data-date-type="endDate" value="2026-05-21" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-3">
+                                7
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-3" data-risk-id="1.4" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.4" data-editing-initialized="true">Cliquer pour ajouter</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.4')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="4" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="4" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="1.5" data-risk-index="4" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="1.5" data-editing-initialized="true">1.5. Feu vert DG — lancement POC</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-badge" onclick="toggleMilestone('1.5', event)" title="Clic pour retransformer en tâche" style="cursor:pointer; margin-right:4px;">◆</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">01/04/2026</span><input type="date" class="editable-date" data-risk-id="1.5" data-date-type="startDate" value="2026-04-01" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">01/04/2026</span><input type="date" class="editable-date" data-risk-id="1.5" data-date-type="endDate" value="2026-04-01" disabled="disabled" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-4">
+                                1
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-4" data-risk-id="1.5" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="1.5" data-editing-initialized="true">Cliquer pour ajouter</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('1.5')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="1" data-risk-position="5" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="1" data-risk-position="5" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="1">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#27AE60">2</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-2" data-group-id="2" data-editing-initialized="true">Phase 2 — Déploiement technique</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-2" data-group-id="2" data-editing-initialized="true">Raccordement des caméras cibles et affinage des paramétrages de détection</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-2" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-2-risks" data-group-id="2">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="2" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="2" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="2.1" data-risk-index="5" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="2.1" data-editing-initialized="true">2.1. Raccordement et reprise des caméras cibles</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="2.1" onclick="toggleMilestone('2.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">12/06/2026</span><input type="date" class="editable-date" data-risk-id="2.1" data-date-type="startDate" value="2026-06-12" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">02/07/2026</span><input type="date" class="editable-date" data-risk-id="2.1" data-date-type="endDate" value="2026-07-02" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-5">
+                                20
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-5" data-risk-id="2.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="2.1" data-editing-initialized="true">Alex / Régie</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('2.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="2" data-risk-position="1" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="2" data-risk-position="1" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="2.2" data-risk-index="6" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="2.2" data-editing-initialized="true">2.2. Paramétrage des scenes</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="2.2" onclick="toggleMilestone('2.2', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">12/06/2026</span><input type="date" class="editable-date" data-risk-id="2.2" data-date-type="startDate" value="2026-06-12" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">19/06/2026</span><input type="date" class="editable-date" data-risk-id="2.2" data-date-type="endDate" value="2026-06-19" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-6">
+                                7
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-6" data-risk-id="2.2" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="2.2" data-editing-initialized="true">Cliquer pour ajouter</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('2.2')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="2" data-risk-position="2" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="2" data-risk-position="2" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="2.3" data-risk-index="7" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="2.3" data-editing-initialized="true">2.3. Affinage paramétrages — détection objets délaissés</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="2.3" onclick="toggleMilestone('2.3', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">31/05/2026</span><input type="date" class="editable-date" data-risk-id="2.3" data-date-type="startDate" value="2026-05-31" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">10/06/2026</span><input type="date" class="editable-date" data-risk-id="2.3" data-date-type="endDate" value="2026-06-10" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-7">
+                                10
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-7" data-risk-id="2.3" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="2.3" data-editing-initialized="true">François / ATOS-Eviden</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('2.3')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="2" data-risk-position="3" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="2" data-risk-position="3" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="2">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#e8000d">5</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-5" data-group-id="5" data-editing-initialized="true">Congés d'été</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-5" data-group-id="5" data-editing-initialized="true">Période bloquée — aucune activité POC en août</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-5" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-5-risks" data-group-id="5">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="5" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="5" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="5.1" data-risk-index="8" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="5.1" data-editing-initialized="true">5.1. Congés d'été — période bloquée</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="5.1" onclick="toggleMilestone('5.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">01/07/2026</span><input type="date" class="editable-date" data-risk-id="5.1" data-date-type="startDate" value="2026-07-01" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">31/07/2026</span><input type="date" class="editable-date" data-risk-id="5.1" data-date-type="endDate" value="2026-07-31" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-8">
+                                30
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-8" data-risk-id="5.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="5.1" data-editing-initialized="true">Toute l'équipe</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('5.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="5" data-risk-position="1" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="5" data-risk-position="1" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="3">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#ff9500">3</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-3" data-group-id="3" data-editing-initialized="true">Phase 3 — Exploitation active</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-3" data-group-id="3" data-editing-initialized="true">Deux sprints terrain : correction paramétrage puis qualification des algorithmes (faux négatifs)</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-3" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-3-risks" data-group-id="3">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="3" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="3" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="3.1" data-risk-index="9" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="3.1" data-editing-initialized="true">3.1. Sprint 1 — détection terrain &amp; correction paramétrage</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="3.1" onclick="toggleMilestone('3.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">01/08/2026</span><input type="date" class="editable-date" data-risk-id="3.1" data-date-type="startDate" value="2026-08-01" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">15/08/2026</span><input type="date" class="editable-date" data-risk-id="3.1" data-date-type="endDate" value="2026-08-15" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-9">
+                                15
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-9" data-risk-id="3.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="3.1" data-editing-initialized="true">Xavier / François</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('3.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="3" data-risk-position="1" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="3" data-risk-position="1" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="3.2" data-risk-index="10" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="3.2" data-editing-initialized="true">3.2. Sprint 2 — corrections algorithmiques &amp; qualification faux négatifs</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="3.2" onclick="toggleMilestone('3.2', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">10/08/2026</span><input type="date" class="editable-date" data-risk-id="3.2" data-date-type="startDate" value="2026-08-10" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">22/08/2026</span><input type="date" class="editable-date" data-risk-id="3.2" data-date-type="endDate" value="2026-08-22" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-10">
+                                13
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-10" data-risk-id="3.2" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="3.2" data-editing-initialized="true">François / ATOS-Eviden</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('3.2')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="3" data-risk-position="2" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="3" data-risk-position="2" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="4">
+                    <div class="group-separator-label">
+                        <span class="group-separator-icon">+</span>
+                        <span>Ajouter une phase</span>
+                    </div>
+                </div><div class="risk-group collapsible-section"><h2 class="collapsible-header risk-group-header-collapsible">
+                    <span class="collapse-icon">▼</span>
+                    <div class="risk-group-number" style="background:#8E44AD">4</div>
+                    <div style="flex: 1;">
+                        <div class="risk-group-title editable-group-name" id="group-name-4" data-group-id="4" data-editing-initialized="true">Phase 4 — Bilan &amp; Décision</div>
+                        <div class="risk-group-description editable-group-description" id="group-desc-4" data-group-id="4" data-editing-initialized="true">Consolidation KPI, bilan POC, recommandation déploiement national — décision le 31/08</div>
+                    </div>
+                <button class="delete-btn"><span>🗑️</span><span>Supprimer</span></button></h2><div id="group-content-4" class="collapsible-content"><div class="table-scroll-wrapper"><table class="risks-table">
+                    <colgroup>
+                        <col style="width: 30%">
+                        <col style="width: 13%">
+                        <col style="width: 13%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Tâche</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Durée (j)</th>
+                            <th>Statut</th>
+                            <th>Responsable</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="group-4-risks" data-group-id="4">
+                    <tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="4" data-risk-position="0" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="4" data-risk-position="0" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="4.1" data-risk-index="11" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="4.1" data-editing-initialized="true">4.1. Consolidation KPI — vrais positifs / faux négatifs</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="4.1" onclick="toggleMilestone('4.1', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">22/08/2026</span><input type="date" class="editable-date" data-risk-id="4.1" data-date-type="startDate" value="2026-08-22" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">27/08/2026</span><input type="date" class="editable-date" data-risk-id="4.1" data-date-type="endDate" value="2026-08-27" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-11">
+                                6
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-11" data-risk-id="4.1" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="4.1" data-editing-initialized="true">Xavier</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('4.1')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="4" data-risk-position="1" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="4" data-risk-position="1" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="4.2" data-risk-index="12" class="risk-odd">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="4.2" data-editing-initialized="true">4.2. Bilan POC &amp; recommandation déploiement national</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-x" data-risk-id="4.2" onclick="toggleMilestone('4.2', event)" title="Transformer en jalon" style="cursor:pointer; margin-right:4px;">×</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">28/08/2026</span><input type="date" class="editable-date" data-risk-id="4.2" data-date-type="startDate" value="2026-08-28" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">31/08/2026</span><input type="date" class="editable-date" data-risk-id="4.2" data-date-type="endDate" value="2026-08-31" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-12">
+                                4
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-12" data-risk-id="4.2" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="4.2" data-editing-initialized="true">Xavier / DG</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('4.2')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                            <td colspan="8">
+                                <div class="risk-separator">
+                                    <div class="risk-separator-label add-task-btn" data-group-id="4" data-risk-position="2" data-is-milestone="false">
+                                        <span class="risk-separator-icon">+</span>
+                                        <span>Tâche</span>
+                                    </div>
+                                    <div class="risk-separator-label add-milestone-btn" data-group-id="4" data-risk-position="2" data-is-milestone="true">
+                                        <span class="risk-separator-icon">◆</span>
+                                        <span>Jalon</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr><tr draggable="true" data-risk-id="4.3" data-risk-index="13" class="risk-even">
+                            <td class="risk-title-cell">
+                                <span class="editable-risk-title" data-risk-id="4.3" data-editing-initialized="true">4.3. Décision industrialisation</span>
+                            </td>
+                            <td class="date-cell" style="white-space: nowrap;">
+                                <span class="milestone-badge" onclick="toggleMilestone('4.3', event)" title="Clic pour retransformer en tâche" style="cursor:pointer; margin-right:4px;">◆</span><span class="date-display" onclick="this.nextElementSibling.showPicker()">31/08/2026</span><input type="date" class="editable-date" data-risk-id="4.3" data-date-type="startDate" value="2026-08-31" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="date-cell">
+                                <span class="date-display" onclick="this.nextElementSibling.showPicker()">31/08/2026</span><input type="date" class="editable-date" data-risk-id="4.3" data-date-type="endDate" value="2026-08-31" disabled="disabled" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" data-editing-initialized="true">
+                            </td>
+                            <td class="duration-cell" id="duration-13">
+                                1
+                            </td>
+                            <td class="status-cell">
+                                <select id="status-13" data-risk-id="4.3" class="status-dropdown" data-listener-initialized="true">
+                                    <option value="statusNotTreated" selected="selected">⚪ À faire</option><option value="statusInProgress">🔄 En cours</option><option value="statusTreated">✅ Terminé</option><option value="statusAccepted">🤝 Accepté</option>
+                                </select>
+                            </td>
+                            <td class="responsable-cell">
+                                <span class="editable-responsable" data-risk-id="4.3" data-editing-initialized="true">Cliquer pour ajouter</span>
+                            </td>
+                            <td style="text-align: center; padding: 4px;">
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('4.3')" title="Supprimer cette tâche">🗑️</button>
+                            </td>
+                        </tr><tr class="risk-separator-row">
+                        <td colspan="8">
+                            <div class="risk-separator">
+                                <div class="risk-separator-label add-task-btn" data-group-id="4" data-risk-position="3" data-is-milestone="false">
+                                    <span class="risk-separator-icon">+</span>
+                                    <span>Tâche</span>
+                                </div>
+                                <div class="risk-separator-label add-milestone-btn" data-group-id="4" data-risk-position="3" data-is-milestone="true">
+                                    <span class="risk-separator-icon">◆</span>
+                                    <span>Jalon</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr></tbody>
+                </table></div></div></div><div class="group-separator" data-insert-position="5">
+                <div class="group-separator-label">
+                    <span class="group-separator-icon">+</span>
+                    <span>Ajouter une phase</span>
+                </div>
+            </div></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-links">
+            <a href="https://github.com/guthubrx/plannr" target="_blank" rel="noopener noreferrer">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+                GitHub
+            </a>
+            <span class="footer-separator">•</span>
+            <span>Licence AGPL-3.0</span>
+        </div>
+        <div class="footer-copyright">
+            © 2026 Plannr — Application de gestion de planning et diagramme de Gantt
+        </div>
+    </footer>
+
+    
