@@ -238,6 +238,40 @@ test('Alt+drag : recul rigide du sous-arbre (descendance suit vers la gauche)', 
     expect(after.noViolation).toBe(true);              // 0 violation résiduelle
 });
 
+test('infobulle : contenu de la tâche survolée, jamais posée sur sa barre', async ({ page }) => {
+    await page.evaluate(() => {
+        document.getElementById('ganttChart').scrollIntoView({ block: 'center' });
+        updateGantt();
+    });
+    await page.waitForTimeout(1200); // fin de l'animation d'entrée
+
+    // 2.3 (centre — cas du bug : affichait 2.2) et 4.2 (proche coin bas-droit)
+    for (const taskId of ['2.3', '4.2']) {
+        const pt = await page.evaluate((id) => {
+            const d = ganttChart.options.ganttData.find(g => g.task && g.task.id === id);
+            const x = ganttChart.scales.x, y = ganttChart.scales.y;
+            const rect = ganttChart.canvas.getBoundingClientRect();
+            const x0 = x.getPixelForValue(d.x[0]), x1 = x.getPixelForValue(d.x[1]);
+            return { px: rect.left + (x0 + x1) / 2,
+                     py: rect.top + y.getPixelForValue(d.y),
+                     bar: { x0, x1, yc: y.getPixelForValue(d.y) } };
+        }, taskId);
+        await page.mouse.move(pt.px, pt.py);
+        await page.waitForTimeout(450);
+        const tt = await page.evaluate(() => {
+            const t = ganttChart.tooltip;
+            return { opacity: t.opacity, x: t.x, y: t.y, w: t.width, h: t.height,
+                     shownId: t.dataPoints && t.dataPoints[0] ? t.dataPoints[0].raw.task.id : null };
+        });
+        expect(tt.opacity).toBeGreaterThan(0);
+        expect(tt.shownId).toBe(taskId); // régression : index décalé par les jalons
+        const barTop = pt.bar.yc - 17.5, barBot = pt.bar.yc + 17.5;
+        const overlaps = !(tt.x + tt.w < pt.bar.x0 || tt.x > pt.bar.x1 ||
+                           tt.y + tt.h < barTop || tt.y > barBot);
+        expect(overlaps).toBe(false); // l'infobulle ne recouvre pas la barre
+    }
+});
+
 test('avancement : édition du % met à jour la progression pondérée', async ({ page }) => {
     const before = await page.evaluate(() =>
         document.getElementById('dashboard-progression').textContent);

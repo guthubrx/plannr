@@ -4960,12 +4960,20 @@
                             display: false
                         },
                         tooltip: {
+                            // Décalée du curseur, ne recouvre jamais la barre
+                            // survolée (bascule de côté près des bords/coins)
+                            position: 'plannrOffset',
+                            caretSize: 0,
                             callbacks: {
                                 label: function(context) {
                                     const dataIndex = context.dataIndex;
                                     const start = ganttData[dataIndex].x[0];
                                     const isMilestone = ganttData[dataIndex].isMilestone;
-                                    const task = phases.flatMap(p => p.tasks).find((t, i) => i === dataIndex);
+                                    // La tâche vient de ganttData : indexer
+                                    // phases.flatMap décalait d'un cran par jalon
+                                    // (les jalons sont exclus de ganttData en
+                                    // cascade) -> mauvais contenu affiché
+                                    const task = ganttData[dataIndex].task;
 
                                     if (!task) return '';
 

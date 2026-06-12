@@ -506,6 +506,27 @@
         }
 
         // --------------------------------------------------------------
+        // Positionneur d'infobulle : décalée du curseur pour ne jamais
+        // recouvrir la barre survolée, avec bascule automatique de côté
+        // près des bords et des coins du canvas.
+        // --------------------------------------------------------------
+        Chart.Tooltip.positioners.plannrOffset = function (elements, eventPosition) {
+            const chart = this.chart;
+            const offset = 18;
+            // Proche du bord droit -> boîte à GAUCHE du curseur ; sinon à droite.
+            const xAlign = eventPosition.x > chart.width * 0.6 ? 'right' : 'left';
+            // Proche du haut -> boîte SOUS le curseur ; sinon au-dessus
+            // (au-dessus par défaut : ne masque ni la barre ni la ligne suivante).
+            const yAlign = eventPosition.y < chart.height * 0.35 ? 'top' : 'bottom';
+            return {
+                x: eventPosition.x + (xAlign === 'left' ? offset : -offset),
+                y: eventPosition.y + (yAlign === 'top' ? offset : -offset),
+                xAlign: xAlign,
+                yAlign: yAlign
+            };
+        };
+
+        // --------------------------------------------------------------
         // Plugins Chart.js (tous gardés par chart.options.ganttData :
         // ils n'agissent QUE sur le Gantt, jamais sur les autres charts)
         // --------------------------------------------------------------
