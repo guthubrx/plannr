@@ -14,3 +14,6 @@
 - Effort total facultatif réparti également entre responsables ; capacité conventionnelle explicitée.
 - Lisibilité : hauteur extensible, zones de texte réservées, contraste sombre, calendrier avec largeur minimale et défilement local.
 - Validation via Playwright existant ; moteur testable sans interface.
+
+## Complément — Apparence et densité
+Variables CSS partagées et couleurs de canvas selon le thème. Préférence de lecture indépendante du document. Géométrie verticale en pixels basée sur les lignes de texte mesurées ; désactivation de l'offset implicite de l'axe de barres. Frontières d'insertion et coupures PDF alignées sur les lignes réelles.

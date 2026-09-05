@@ -34,3 +34,8 @@ Exports réels générés : PDF, XLSX, CSV et HTML. PDF de démonstration de tro
 - Les titres du Gantt occupent au plus trois lignes, avec ellipse si nécessaire ; le texte complet reste dans le tableau et le panneau.
 - Capacité conventionnelle d'un jour-personne par jour ouvré, effort uniformément réparti. Pas de calendrier individuel de ressources.
 - La marge utilise les dates planifiées comme débuts au plus tôt, sans gestion des dépendances autres que fin-début.
+
+## Complément — Clair/Sombre et densité
+Le complément porte la suite à 61 tests. Les 18 combinaisons de deux thèmes × trois vues × trois largeurs contrôlent les collisions entre titres, barres, jalons et bandeaux de phase. Des tests supplémentaires contrôlent la préférence après rechargement, l'absence de mutation du document/historique et le retour au thème sombre après PDF.
+
+Compact et consolidé : lignes de 70/86/102 px pour 1/2/3 lignes de texte, écart étiquette–barre de 6 px et réserve de 16 px sous la barre (dont 6 pour une baseline). Cascade : 48 px minimum, 64 px pour un titre de trois lignes. Les textes et contrôles vérifiés, y compris lignes alternées du tableau et zoom, atteignent un contraste de 4,5:1. Captures de démonstration inspectées dans les deux thèmes, ainsi que le tableau et le panneau sombres.

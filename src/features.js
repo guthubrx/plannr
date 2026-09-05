@@ -927,7 +927,7 @@
                 if ((x.max - x.min) / 86400000 > 730) return;
                 const ctx = chart.ctx;
                 ctx.save();
-                ctx.fillStyle = 'rgba(60, 60, 67, 0.055)';
+                ctx.fillStyle = ganttColors().shading;
                 let dms = Math.floor(x.min / 86400000) * 86400000;
                 for (; dms <= x.max; dms += 86400000) {
                     const probe = new Date(dms + 43200000);
@@ -997,8 +997,11 @@
                         ctx.globalAlpha = 1;
                     }
                     if (x1 - x0 > 46) {
-                        ctx.fillStyle = '#3a3a3c';
-                        ctx.font = '10px -apple-system, "Segoe UI", sans-serif';
+                        ctx.font = '12px -apple-system, "Segoe UI", sans-serif';
+                        const labelWidth = ctx.measureText(p + '%').width + 6;
+                        ctx.fillStyle = ganttColors().surface;
+                        ctx.fillRect(x1 - labelWidth - 2, el.y - 9, labelWidth, 18);
+                        ctx.fillStyle = ganttColors().ink;
                         ctx.textAlign = 'right';
                         ctx.textBaseline = 'middle';
                         ctx.fillText(p + '%', x1 - 4, el.y);
@@ -1034,8 +1037,8 @@
                     .concat((chart.options.milestonesData || []).map(m => m.task));
                 ctx.save();
                 ctx.beginPath(); ctx.rect(x.left, y.top, x.right - x.left, y.bottom - y.top); ctx.clip();
-                ctx.strokeStyle = 'rgba(99, 99, 102, 0.75)';
-                ctx.fillStyle = 'rgba(99, 99, 102, 0.9)';
+                ctx.strokeStyle = ganttColors().dependency;
+                ctx.fillStyle = ganttColors().dependency;
                 ctx.lineWidth = 1.3;
                 allTasks.forEach(task => {
                     if (!task) return;
@@ -1082,7 +1085,7 @@
                 // Contour pointillé : chemin critique
                 if (_criticalIds.size) {
                     ctx.setLineDash([5, 3]);
-                    ctx.strokeStyle = '#B71C1C';
+                    ctx.strokeStyle = ganttColors().critical;
                     ctx.lineWidth = 1.5;
                     gd.forEach((d, i) => {
                         if (d.isMilestone || !_criticalIds.has(d.task.id)) return;
@@ -1092,7 +1095,7 @@
                                        (el.x - el.base) + 3, el.height + 3);
                     });
                     ctx.setLineDash([]);
-                    ctx.fillStyle = '#B71C1C';
+                    ctx.fillStyle = ganttColors().critical;
                     ctx.font = '10px -apple-system, "Segoe UI", sans-serif';
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'bottom';

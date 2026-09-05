@@ -18,7 +18,7 @@
             [btnCompact, btnCascade, btnConsolide].forEach(btn => {
                 if (btn) {
                     btn.style.background = 'transparent';
-                    btn.style.color = '#666';
+                    btn.style.color = 'var(--muted)';
                     btn.style.boxShadow = 'none';
                     btn.classList.remove('active');
                 }
@@ -31,8 +31,8 @@
             else if (mode === 'consolide') activeBtn = btnConsolide;
 
             if (activeBtn) {
-                activeBtn.style.background = 'white';
-                activeBtn.style.color = '#1d1d1f';
+                activeBtn.style.background = 'var(--surface)';
+                activeBtn.style.color = 'var(--ink)';
                 activeBtn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.1)';
                 activeBtn.classList.add('active');
             }
@@ -103,23 +103,26 @@ Chart.register({
     afterDatasetsDraw(chart) {
         const {ctx, scales: {x, y}} = chart;
         const rows = chart.options.readableRows || [];
+        const theme = ganttColors();
         chart.$labelBoxes = [];
+        chart.$headerBoxes = [];
         ctx.save(); ctx.font = '600 13px Helvetica, Arial, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
         for (const header of chart.options.readableHeaders || []) {
-            const py = y.getPixelForValue(header.y) - 40;
-            ctx.fillStyle = '#eef3f7'; ctx.fillRect(x.left, py - 8, x.right - x.left, 52);
-            ctx.fillStyle = '#192c3d';
-            wrapGanttText(ctx, header.label, x.right - x.left - 32, 2).forEach((line,i)=>ctx.fillText(line,x.left + 12,py + i*17));
+            const py = y.getPixelForValue(header.y);
+            ctx.fillStyle = theme.header; ctx.fillRect(x.left, py, x.right - x.left, header.height);
+            ctx.fillStyle = theme.ink;
+            header.lines.forEach((line,i)=>ctx.fillText(line,x.left + 12,py + 8 + i*17));
+            chart.$headerBoxes.push({x: x.left, y: py, width: x.right - x.left, height: header.height});
         }
         for (const row of rows) {
             const task = row.task, centerY = y.getPixelForValue(row.y);
             const px = x.getPixelForValue(Date.parse(task.startDate));
             const labelX = ganttViewMode === 'cascade' ? 12 : Math.max(x.left + 4, Math.min(px, x.right - 252));
-            const labelY = ganttViewMode === 'cascade' ? centerY - 24 : centerY - 70;
             const width = ganttViewMode === 'cascade' ? x.left - 30 : 244;
-            const lines = wrapGanttText(ctx, task.id + ' · ' + task.title, width, 3);
-            ctx.fillStyle = 'rgba(255,255,255,0.96)'; ctx.fillRect(labelX - 2, labelY - 2, width + 4, lines.length * 16 + 4);
-            ctx.fillStyle = '#192C3D';
+            const lines = row.lines;
+            const labelY = ganttViewMode === 'cascade' ? centerY - lines.length * 8 : centerY - 16 - 6 - lines.length * 16;
+            ctx.fillStyle = theme.surface; ctx.fillRect(labelX - 2, labelY - 2, width + 4, lines.length * 16 + 4);
+            ctx.fillStyle = theme.ink;
             lines.forEach((line, i) => ctx.fillText(line, labelX, labelY + i * 16));
             chart.$labelBoxes.push({ id: task.id, x: labelX, y: labelY, width, height: lines.length * 16 });
             if (task.isMilestone) {
@@ -263,40 +266,20 @@ Chart.register({
                     }
                 }
 
-                // IMPORTANT: En mode cascade, les lanes correspondent aux tâches normales seulement
-                // Les jalons sont ENTRE les lanes, donc ne comptent pas pour le nombre de lanes
-                let totalLanes = yAxis.ticks.length;
-                if (ganttViewMode === 'cascade') {
-                    // En mode cascade, le nombre de lanes est le nombre de tâches normales (ganttData.length)
-                    totalLanes = chart.options.ganttData.length;
-                }
-
-                // Trouver entre quelles lanes la souris se trouve
-                const laneHeight = (yAxis.bottom - yAxis.top) / totalLanes;
-
-                // Trouver la lane actuelle
-                const relativeY = mouseY - yAxis.top;
-                const laneIndex = Math.round(relativeY / laneHeight);
-
-                // Vérifier si on est près d'une ligne de séparation (bord de lane)
-                // Les lignes de séparation sont à : yAxis.top + (i * laneHeight)
-                const tolerance = 8; // pixels de tolérance de chaque côté de la ligne
-
-                let separatorY = null;
-                let insertPosition = null;
-
-                // Vérifier la ligne de séparation au-dessus de la lane actuelle
-                const topSeparatorY = yAxis.top + (laneIndex * laneHeight);
-                if (Math.abs(mouseY - topSeparatorY) < tolerance) {
-                    separatorY = topSeparatorY;
-                    insertPosition = laneIndex;
-                }
-
-                // Vérifier la ligne de séparation en-dessous de la lane actuelle
-                const bottomSeparatorY = yAxis.top + ((laneIndex + 1) * laneHeight);
-                if (Math.abs(mouseY - bottomSeparatorY) < tolerance) {
-                    separatorY = bottomSeparatorY;
-                    insertPosition = laneIndex + 1;
+                // Frontières réelles des lignes adaptatives, indexées dans le document.
+                // Les indices de l'axe ne sont pas des indices de tâches.
+                const rows = chart.options.readableRows || [];
+                const documentPositions = new Map(riskGroups.flatMap(group => group.tasks).map((task, index) => [task.id, index]));
+                const boundaries = rows.map(row => ({
+                    y: yAxis.getPixelForValue(row.bottom - 8),
+                    position: documentPositions.get(row.task.id) + 1
+                }));
+                if (rows.length) boundaries.unshift({y: yAxis.getPixelForValue(rows[0].top), position: documentPositions.get(rows[0].task.id)});
+                const boundary = boundaries.find(edge => Math.abs(mouseY - edge.y) < 6);
+                let separatorY = boundary?.y ?? null;
+                let insertPosition = boundary?.position ?? null;
+                if (chart.$labelBoxes?.some(box => mouseX >= box.x && mouseX <= box.x + box.width && mouseY >= box.y - 4 && mouseY <= box.y + box.height + 4)) {
+                    hideSeparatorButtons(); return;
                 }
 
                 // Vérifier si on est près de la ligne de séparation active (avec tolérance élargie pour les boutons)
@@ -404,8 +387,8 @@ Chart.register({
 
             // separatorY est en pixels internes du canvas
             // Il faut convertir en pixels CSS pour le positionnement
-            const pixelRatio = rect.height / canvas.height;
-            const pixelRatioX = rect.width / canvas.width;
+            const pixelRatio = rect.height / chart.height;
+            const pixelRatioX = rect.width / chart.width;
             const separatorYCSS = separatorY * pixelRatio;
 
             // Position X des boutons (convertir de pixels internes à pixels CSS)
@@ -428,8 +411,8 @@ Chart.register({
                         width: 20px;
                         height: 20px;
                         border-radius: 50%;
-                        background: #E0E0E0;
-                        color: #666;
+                        background: var(--surface-soft);
+                        color: var(--muted);
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -447,7 +430,7 @@ Chart.register({
                         left: 20px;
                         top: 50%;
                         transform: translateY(-50%);
-                        background: white;
+                        background: var(--surface);
                         border-radius: 8px;
                         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                         padding: 4px;
@@ -466,7 +449,7 @@ Chart.register({
                                 cursor: pointer;
                                 font-size: 13px;
                                 font-weight: 500;
-                                color: #333;
+                                color: var(--ink);
                                 white-space: nowrap;
                             " onmouseover="this.style.background='rgba(175, 82, 222, 0.1)';"
                                onmouseout="this.style.background='transparent';">
@@ -486,7 +469,7 @@ Chart.register({
                                 cursor: pointer;
                                 font-size: 13px;
                                 font-weight: 500;
-                                color: #333;
+                                color: var(--ink);
                                 white-space: nowrap;
                             " onmouseover="this.style.background='rgba(0, 113, 227, 0.1)';"
                                onmouseout="this.style.background='transparent';">
@@ -708,21 +691,36 @@ Chart.register({
             const inWindow = task => Date.parse(task.endDate || task.startDate) >= range.min && Date.parse(task.startDate) <= range.max;
             const headers = [];
             const rows = [], ganttData = [], milestones = [], labels = [], colors = [];
-            let laneCount = 0;
+            // Coordonnées verticales en pixels : 6 px entre texte et barre,
+            // 16 px entre tâches (dont 6 réservés à une éventuelle baseline).
+            ctx.font = '600 13px Helvetica, Arial, sans-serif';
+            const labelWidth = ganttViewMode === 'cascade' ? range.left - 30 : 244;
+            const taskLines = new Map(allTasks.map(task => [task.id, wrapGanttText(ctx, task.id + ' · ' + task.title, labelWidth, 3)]));
+            let contentHeight = 8;
+            const addLane = (tasks, phaseFor) => {
+                const textHeight = Math.max(...tasks.map(task => taskLines.get(task.id).length * 16));
+                const cascade = ganttViewMode === 'cascade';
+                const height = cascade ? Math.max(48, textHeight + 16) : textHeight + 6 + 32 + 16;
+                const y = contentHeight + (cascade ? height / 2 : textHeight + 6 + 16);
+                tasks.forEach(task => rows.push({task, phase: phaseFor(task), y, top: contentHeight, bottom: contentHeight + height, lines: taskLines.get(task.id)}));
+                contentHeight += height;
+            };
             if (ganttViewMode === 'cascade') {
-                phases.forEach(phase => phase.tasks.filter(inWindow).forEach(task => rows.push({ task, phase, y: laneCount++ })));
+                phases.forEach(phase => phase.tasks.filter(inWindow).forEach(task => addLane([task], () => phase)));
             } else if (ganttViewMode === 'consolide') {
                 phases.forEach(phase => {
-                    headers.push({label: phase.name, y: laneCount, color: phase.color}); laneCount += 0.8;
                     const lines = packGanttTasks(phase.tasks.filter(inWindow), range, width);
-                    lines.forEach(line => { line.forEach(task => rows.push({task, phase, y: laneCount})); laneCount++; });
-                    if (lines.length) laneCount += 0.35;
+                    if (!lines.length) return;
+                    const headerLines = wrapGanttText(ctx, phase.name, width - range.left - 64, 2);
+                    const height = headerLines.length * 17 + 16;
+                    headers.push({label: phase.name, y: contentHeight, height, lines: headerLines, color: phase.color});
+                    contentHeight += height + 8;
+                    lines.forEach(line => addLane(line, () => phase));
+                    contentHeight += 8;
                 });
             } else {
                 const phaseByTask = new Map(phases.flatMap(p => p.tasks.map(t => [t.id, p])));
-                packGanttTasks(allTasks.filter(inWindow), range, width).forEach(line => {
-                    line.forEach(task => rows.push({task, phase: phaseByTask.get(task.id), y: laneCount})); laneCount++;
-                });
+                packGanttTasks(allTasks.filter(inWindow), range, width).forEach(line => addLane(line, task => phaseByTask.get(task.id)));
             }
             rows.forEach(row => {
                 const task = row.task, start = Date.parse(task.startDate);
@@ -733,8 +731,9 @@ Chart.register({
                     colors.push(row.phase.color);
                 }
             });
-            const rowHeight = ganttViewMode === 'cascade' ? 82 : 142;
-            canvas.parentElement.style.height = Math.max(300, laneCount * rowHeight + 120) + 'px';
+            contentHeight = Math.max(84, contentHeight);
+            canvas.parentElement.style.height = (contentHeight + 96) + 'px';
+            const theme = ganttColors();
             canvas.width = width; canvas.height = canvas.parentElement.offsetHeight;
             ganttChart = new Chart(ctx, {
                 type: 'bar',
@@ -742,10 +741,10 @@ Chart.register({
                 options: {
                     ganttData, phasesData: phases, milestonesData: milestones, readableRows: rows, readableHeaders: headers,
                     indexAxis: 'y', responsive: false, animation: false, maintainAspectRatio: false,
-                    layout: {padding: {left: range.left, right: 32, top: 82, bottom: 20}},
+                    layout: {padding: {left: range.left, right: 32, top: 40, bottom: 16}},
                     scales: {
-                        x: {...range, position: 'top', ticks: {maxRotation: 0, autoSkip: true, maxTicksLimit: Math.max(4, Math.floor((width - range.left) / 105)), color: '#324B60', font: {size: 12}, callback: value => new Date(value).toLocaleDateString(currentLanguage === 'en' ? 'en-GB' : 'fr-FR', {day: '2-digit', month: 'short', timeZone: 'UTC'})}, grid: {color: '#e9eef2'}},
-                        y: {type: 'linear', min: -0.5, max: Math.max(0.5, laneCount - 0.5), reverse: true, ticks: {display: false}, grid: {display: false}, border: {display: false}}
+                        x: {...range, position: 'top', afterFit: axis => { axis.height = 40; }, ticks: {maxRotation: 0, autoSkip: true, maxTicksLimit: Math.max(4, Math.floor((width - range.left) / 105)), color: theme.muted, font: {size: 12}, callback: value => new Date(value).toLocaleDateString(currentLanguage === 'en' ? 'en-GB' : 'fr-FR', {day: '2-digit', month: 'short', timeZone: 'UTC'})}, grid: {color: theme.grid}},
+                        y: {type: 'linear', display: false, offset: false, min: 0, max: contentHeight, reverse: true, ticks: {display: false}, grid: {display: false}, border: {display: false}}
                     },
                     plugins: { legend: {display: false}, tooltip: {
                         position: 'plannrOffset', caretSize: 0, displayColors: false, padding: 12,
@@ -795,16 +794,6 @@ Chart.register({
                 const labels = ganttChart.data.labels;
 
                 let dataIndex; // Déclaration déplacée ici
-
-                // Calculer la hauteur d'une ligne
-                let laneHeight;
-                if (ganttViewMode === 'cascade') {
-                    const maxY = Math.max(...ganttData.map(d => d.y));
-                    const numLanes = maxY + 1;
-                    laneHeight = (yAxis.bottom - yAxis.top) / Math.max(1, numLanes);
-                } else {
-                    laneHeight = (yAxis.bottom - yAxis.top) / Math.max(1, labels.length - 1);
-                }
 
                 // D'abord, vérifier si le clic est sur une capsule de jalon
                 let milestoneClickedTask = null;

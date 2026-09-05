@@ -160,20 +160,83 @@ test('002 une référence hors fenêtre ne déborde pas sur les libellés', asyn
     expect(await page.evaluate(()=>{const c=ganttChart;return c.$labelBoxes.every(b=>b.x>=0&&b.x+b.width<c.scales.x.left);})).toBe(true);
 });
 
-for (const mode of ['cascade','compact','consolide']) for(const width of [1440,768,390]) {
-    test(`002 géométrie sans collision ${mode} à ${width}px`, async ({page},testInfo)=>{
+for (const theme of ['light','dark']) for (const mode of ['cascade','compact','consolide']) for(const width of [1440,768,390]) {
+    test(`002 géométrie sans collision ${theme} ${mode} à ${width}px`, async ({page},testInfo)=>{
         await page.setViewportSize({width,height:1000});
         const tasks=Array.from({length:12},(_,i)=>task('1.'+(i+1),{title:('Un intitulé long qui reste lisible et accessible pour la préparation du projet ').repeat(2),isMilestone:i<6,endDate:i<6?'2026-06-01':'2026-06-05'}));
-        await importData(page,documentData(tasks));await page.evaluate(m=>setGanttView(m),mode);
+        await importData(page,documentData(tasks));await page.evaluate(({mode,theme})=>{setTheme(theme);setGanttView(mode);},{mode,theme});
         const geometry=await page.evaluate(()=>{
             const chart=ganttChart, boxes=chart.$labelBoxes;
             const overlaps=(a,b)=>a.x<b.x+b.width-0.5&&a.x+a.width>b.x+0.5&&a.y<b.y+b.height-0.5&&a.y+a.height>b.y+0.5;
             const collisions=[];
             for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++)if(overlaps(boxes[i],boxes[j]))collisions.push([boxes[i].id,boxes[j].id]);
             const bars=chart.options.readableRows.map(row=>({x:chart.scales.x.getPixelForValue(Date.parse(row.task.startDate))-(row.task.isMilestone?24:0),y:chart.scales.y.getPixelForValue(row.y)-16,width:row.task.isMilestone?48:Math.max(1,chart.scales.x.getPixelForValue(Date.parse(row.task.endDate))-chart.scales.x.getPixelForValue(Date.parse(row.task.startDate))),height:32}));
-            return {collisions,barCollisions:bars.some((bar,i)=>bars.slice(i+1).some(other=>overlaps(bar,other))),textOnBars:boxes.some(box=>bars.some(bar=>overlaps(box,bar))),count:boxes.length,overflow:document.documentElement.scrollWidth>innerWidth+1};
+            return {headersOnContent:chart.$headerBoxes.some(header=>[...boxes,...bars].some(box=>overlaps(header,box))),collisions,barCollisions:bars.some((bar,i)=>bars.slice(i+1).some(other=>overlaps(bar,other))),textOnBars:boxes.some(box=>bars.some(bar=>overlaps(box,bar))),count:boxes.length,overflow:document.documentElement.scrollWidth>innerWidth+1};
         });
-        expect(geometry).toEqual({collisions:[],barCollisions:false,textOnBars:false,count:12,overflow:false});
-        await page.screenshot({path:testInfo.outputPath(`${mode}-${width}.png`),fullPage:true});
+        expect(geometry).toEqual({headersOnContent:false,collisions:[],barCollisions:false,textOnBars:false,count:12,overflow:false});
+        await page.screenshot({path:testInfo.outputPath(`${theme}-${mode}-${width}.png`),fullPage:true});
+    });
+}
+
+
+test('002 thème mémorisé, indépendant du document, rendu PDF clair et retour sombre', async ({page})=>{
+    const before = await exported(page);
+    const historyBefore = await page.evaluate(()=>history.length);
+    await page.locator('#theme-selector').selectOption('dark');
+    await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
+    expect(await exported(page)).toEqual(before);
+    expect(await page.evaluate(()=>history.length)).toBe(historyBefore);
+    await page.reload();
+    await expect(page.locator('#theme-selector')).toHaveValue('dark');
+    const download = page.waitForEvent('download');
+    await page.evaluate(()=>exportToPDF()); await download;
+    await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
+    expect(await page.evaluate(()=>ganttColors().surface)).toBe('#182330');
+    expect(await exported(page)).toEqual(before);
+    await page.locator('#theme-selector').selectOption('light');
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme','light');
+});
+
+for (const mode of ['compact','consolide']) {
+    test(`002 espacement adapté aux titres courts et longs en ${mode}`, async ({page})=>{
+        await importData(page,documentData([
+            task('1.1',{title:'Titre court'}),
+            task('1.2',{title:'Préparation des documents et validation des besoins du projet'}),
+            task('1.3',{title:('Un titre très long pour vérifier la lisibilité de toutes les informations ').repeat(3)})
+        ]));
+        await page.evaluate(m=>setGanttView(m),mode);
+        const geometry=await page.evaluate(()=>{
+            const c=ganttChart, rows=c.options.readableRows;
+            return rows.map(row=>{
+                const box=c.$labelBoxes.find(b=>b.id===row.task.id);
+                const barTop=c.scales.y.getPixelForValue(row.y)-16;
+                return {lines:row.lines.length,gap:barTop-box.y-box.height,height:row.bottom-row.top};
+            });
+        });
+        expect(geometry.map(r=>r.lines)).toEqual([1,2,3]);
+        expect(geometry.map(r=>r.height)).toEqual([70,86,102]);
+        for(const row of geometry) expect(row.gap).toBeCloseTo(6,1);
+    });
+}
+
+for (const theme of ['light','dark']) {
+    test(`002 contraste des textes et contrôles du thème ${theme}`, async ({page})=>{
+        await page.locator('#theme-selector').selectOption(theme);
+        await page.locator('.task-details-button').first().click();
+        const contrast=await page.evaluate(()=>{
+            const luminance = rgb => {
+                const values=rgb.match(/[\d.]+/g).slice(0,3).map(v=>{const n=Number(v)/255;return n<=0.04045?n/12.92:((n+0.055)/1.055)**2.4;});
+                return values[0]*0.2126+values[1]*0.7152+values[2]*0.0722;
+            };
+            const selectors=['#main-title','#main-subtitle','#theme-selector','.studio-toolbar button','.view-toggle-btn','.collapsible-header','#task-form textarea[name="title"]','#task-form textarea','.task-margin','.risk-even .editable-risk-title','.risk-odd .editable-risk-title','.risk-odd .responsable-cell','.zoom-btn[data-span]'];
+            return selectors.flatMap(selector=>[...document.querySelectorAll(selector)].map(el=>{
+                let parent=el,bg=getComputedStyle(parent).backgroundColor;
+                while(bg==='rgba(0, 0, 0, 0)' && parent.parentElement){parent=parent.parentElement;bg=getComputedStyle(parent).backgroundColor;}
+                const a=luminance(getComputedStyle(el).color),b=luminance(bg);
+                return {selector,ratio:(Math.max(a,b)+0.05)/(Math.min(a,b)+0.05)};
+            }));
+        });
+        for(const item of contrast) expect(item.ratio, item.selector).toBeGreaterThanOrEqual(4.5);
     });
 }

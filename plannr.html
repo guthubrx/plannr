@@ -489,9 +489,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-            background: #f5f7fa;
+            background: var(--page);
             padding: 20px;
-            color: #1d1d1f;
+            color: var(--ink);
             line-height: 1.5;
         }
         
@@ -499,7 +499,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             width: 98%;
             max-width: none;
             margin: 0 auto;
-            background: white;
+            background: var(--surface);
             padding: 40px;
             border-radius: 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
@@ -542,7 +542,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .in-iframe .app-controls { display: none !important; }
 
         h1 {
-            color: #1d1d1f;
+            color: var(--ink);
             margin: 0;
             font-size: 28px;
             font-weight: 600;
@@ -550,7 +550,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
         
         h2 {
-            color: #1d1d1f;
+            color: var(--ink);
             margin: 16px 0 12px 0;
             font-size: 22px;
             font-weight: 600;
@@ -558,23 +558,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
         
         h3 {
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 17px;
             font-weight: 600;
             margin-bottom: 16px;
         }
         
         .risk-item {
-            background: #f5f5f7;
+            background: var(--surface-soft);
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 12px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
             transition: border-color 0.2s ease;
         }
 
         .risk-item:hover {
-            border-color: #d2d2d7;
+            border-color: var(--line);
         }
         
         .risk-group {
@@ -582,15 +582,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
         
         .risk-group-header {
-            background: #f5f5f7;
-            color: #1d1d1f;
+            background: var(--surface-soft);
+            color: var(--ink);
             padding: 12px 20px;
             border-radius: 12px;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 16px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
         }
         
         .risk-group-number {
@@ -610,12 +610,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .risk-group-title {
             font-size: 20px;
             font-weight: 600;
-            color: #1d1d1f;
+            color: var(--ink);
         }
 
         .risk-group-description {
             font-size: 16px;
-            color: #5a5a5f;
+            color: var(--muted);
             margin-top: 4px;
         }
 
@@ -637,9 +637,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-group-description:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
-            color: #1d1d1f;
+            color: var(--ink);
         }
 
         .editable-group-description::after {
@@ -672,7 +672,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-risk-title:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -706,7 +706,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-remediation:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -737,7 +737,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             display: inline-block;
             position: relative;
             min-width: 60px;
-            color: #1d1d1f;
+            color: var(--ink);
         }
 
         .editable-responsable:hover {
@@ -747,7 +747,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-responsable:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -797,15 +797,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
         
         .risk-group-header {
-            background: #f5f5f7;
-            color: #1d1d1f;
+            background: var(--surface-soft);
+            color: var(--ink);
             padding: 15px 20px;
             border-radius: 8px;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 15px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
         }
         
         .risk-group-number {
@@ -847,27 +847,27 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             width: 100%;
             border-collapse: collapse;
             font-size: 15px;
-            background: white;
+            background: var(--surface);
             table-layout: fixed;
         }
 
         .risks-table thead {
-            background: #f5f5f7;
+            background: var(--surface-soft);
         }
 
         .risks-table th {
             padding: 12px;
             text-align: left;
             font-weight: 600;
-            color: #1d1d1f;
-            border-bottom: 2px solid #d2d2d7;
+            color: var(--ink);
+            border-bottom: 2px solid var(--line);
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .risks-table tbody tr:not(.risk-separator-row) {
-            border-bottom: 1px solid #e5e5e7;
+            border-bottom: 1px solid var(--line);
             transition: all 0.2s ease;
             cursor: move;
             position: relative;
@@ -922,7 +922,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .risks-table .risk-title-cell {
             font-weight: 600;
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 15px;
             position: relative;
         }
@@ -950,7 +950,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         /* Alternance de couleurs : un bloc (risque + remédiation) sur deux */
         .risks-table tbody tr.risk-even {
-            background-color: #ffffff;
+            background-color: var(--surface);
         }
 
         .risks-table tbody tr.risk-odd {
@@ -977,7 +977,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .risks-table .remediation-content strong {
-            color: #1d1d1f;
+            color: var(--ink);
             margin-right: 8px;
             font-weight: 600;
         }
@@ -990,10 +990,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             width: 48%;
             padding: 6px 8px 6px 4px;
             margin: 0 1%;
-            border: 1px solid #d2d2d7;
+            border: 1px solid var(--line);
             border-radius: 6px;
             font-size: 13px;
-            background: white;
+            background: var(--surface);
             cursor: pointer;
             transition: all 0.2s ease;
             appearance: none;
@@ -1022,10 +1022,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .risks-table .dropdown-single-cell select {
             width: 100%;
             padding: 5px 6px 5px 3px;
-            border: 1px solid #d2d2d7;
+            border: 1px solid var(--line);
             border-radius: 6px;
             font-size: 13px;
-            background: white;
+            background: var(--surface);
             cursor: pointer;
             transition: all 0.2s ease;
             appearance: none;
@@ -1055,10 +1055,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .risks-table .status-dropdown {
             width: 100%;
             padding: 5px 6px 5px 3px;
-            border: 1px solid #d2d2d7;
+            border: 1px solid var(--line);
             border-radius: 6px;
             font-size: 13px;
-            background: white;
+            background: var(--surface);
             cursor: pointer;
             transition: all 0.2s ease;
             appearance: none;
@@ -1085,7 +1085,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             position: sticky;
             top: 20px;
             z-index: 100;
-            background: white;
+            background: var(--surface);
             padding: 16px;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
@@ -1162,10 +1162,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .chart-wrapper {
-            background: white;
+            background: var(--surface);
             padding: 12px;
             border-radius: 10px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1176,7 +1176,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .chart-wrapper h3 {
             text-align: center;
             margin-bottom: 8px;
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 14px;
             font-weight: 600;
             line-height: 1.3;
@@ -1193,28 +1193,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .chart-header h3 {
             margin: 0;
             flex: 1;
-        }
-
-        .zoom-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #e5e5e7;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 6px 10px;
-            transition: all 0.2s;
-            opacity: 0.7;
-            z-index: 10;
-            backdrop-filter: blur(10px);
-        }
-
-        .zoom-btn:hover {
-            opacity: 1;
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .chart-canvas {
@@ -1254,16 +1232,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
         
         .risk-table-container {
-            background: white;
+            background: var(--surface);
             padding: 16px;
             border-radius: 12px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
             margin-bottom: 12px;
         }
         
         .risk-table-container h3 {
             margin-bottom: 16px;
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 17px;
             font-weight: 600;
         }
@@ -1276,15 +1254,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
         
         .risk-table thead {
-            background: #f5f5f7;
+            background: var(--surface-soft);
         }
         
         .risk-table th {
             padding: 12px 16px;
             text-align: left;
             font-weight: 600;
-            color: #1d1d1f;
-            border-bottom: 1px solid #d2d2d7;
+            color: var(--ink);
+            border-bottom: 1px solid var(--line);
             font-size: 15px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -1308,7 +1286,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         
         .risks-table td {
             padding: 14px 16px;
-            border-bottom: 1px solid #f5f5f7;
+            border-bottom: 1px solid var(--surface-soft);
         }
         
         .risk-table tbody tr {
@@ -1326,7 +1304,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .risks-table td:first-child {
             font-weight: 600;
             text-align: center;
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 14px;
         }
         
@@ -1364,7 +1342,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .risk-group-description {
             font-size: 14px;
             font-weight: 400;
-            color: #5a5a5f;
+            color: var(--muted);
             margin-top: 4px;
             line-height: 1.4;
         }
@@ -1540,7 +1518,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 -webkit-overflow-scrolling: touch;
                 width: 100%;
                 margin-bottom: 8px;
-                border: 1px solid #e5e5e7;
+                border: 1px solid var(--line);
                 border-radius: 8px;
                 position: relative;
             }
@@ -1552,7 +1530,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 right: 0;
                 float: right;
                 background: rgba(245,245,247,0.95);
-                color: #86868b;
+                color: var(--muted);
                 font-size: 16px;
                 padding: 8px 12px;
                 pointer-events: none;
@@ -1744,7 +1722,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         /* La section sticky reste avec son fond et padding */
         .sticky-charts-section.collapsible-section {
-            background: white;
+            background: var(--surface);
             padding: 16px;
         }
 
@@ -1766,7 +1744,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             align-items: center;
             gap: 10px;
             padding: 12px;
-            background: #f5f5f7;
+            background: var(--surface-soft);
             border-radius: 8px;
             transition: all 0.2s ease;
             margin-bottom: 8px;
@@ -1800,10 +1778,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         /* Appliquer le style de bordure sur le contenu seulement pour les tableaux */
         .risk-table-container.collapsible-section .collapsible-content {
-            background: white;
+            background: var(--surface);
             padding: 16px;
             border-radius: 12px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
         }
 
         /* Pour les matrices, appliquer un padding mais pas de border (déjà dans sticky-charts-section) */
@@ -1844,14 +1822,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-title:hover,
         .editable-subtitle:hover {
-            background: #f5f5f7;
-            outline: 1px dashed #d2d2d7;
+            background: var(--surface-soft);
+            outline: 1px dashed var(--line);
         }
 
         .editable-title:focus,
         .editable-subtitle:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -1887,9 +1865,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-group-name:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
-            color: #1d1d1f;
+            color: var(--ink);
         }
 
         .editable-group-name::after {
@@ -1922,7 +1900,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-section-title:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -1978,13 +1956,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .sticky-toggle-label {
             font-size: 13px;
-            color: #666666;
+            color: var(--muted);
             font-weight: 500;
             user-select: none;
         }
 
         .sticky-toggle-btn {
-            background: #e5e5e7;
+            background: var(--line);
             border: none;
             border-radius: 20px;
             padding: 4px;
@@ -2003,7 +1981,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: white;
+            background: var(--surface);
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             left: 4px;
@@ -2031,13 +2009,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             position: relative;
             margin: 24px 0;
             height: 1px;
-            background: #e5e5e7;
+            background: var(--line);
             cursor: pointer;
             transition: background-color 0.2s ease;
         }
 
         .group-separator:hover {
-            background: #d2d2d7;
+            background: var(--line);
         }
 
         .group-separator-label {
@@ -2045,9 +2023,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: var(--surface);
             padding: 8px 20px;
-            color: #666666;
+            color: var(--muted);
             font-size: 14px;
             font-weight: 500;
             white-space: nowrap;
@@ -2060,7 +2038,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .group-separator:hover .group-separator-label {
             color: #0071e3;
-            background: #f5f5f7;
+            background: var(--surface-soft);
         }
 
         .group-separator-icon {
@@ -2105,7 +2083,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             left: 0;
             right: 0;
             height: 1px;
-            background: #e5e5e7;
+            background: var(--line);
             opacity: 0;
             transition: opacity 0.2s ease;
             transform: translateY(-50%);
@@ -2117,9 +2095,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .risk-separator-label {
-            background: white;
+            background: var(--surface);
             padding: 4px 12px;
-            color: #666666;
+            color: var(--muted);
             font-size: 12px;
             font-weight: 500;
             white-space: nowrap;
@@ -2139,7 +2117,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .risk-separator-label:hover {
-            background: #f5f5f7;
+            background: var(--surface-soft);
         }
 
         .risk-separator-icon {
@@ -2174,7 +2152,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .toast {
-            background: #1d1d1f;
+            background: var(--ink);
             color: white;
             padding: 12px 20px;
             border-radius: 10px;
@@ -2229,8 +2207,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         /* Boutons de suppression */
         .delete-btn {
             background: transparent;
-            border: 1px solid #d2d2d7;
-            color: #666666;
+            border: 1px solid var(--line);
+            color: var(--muted);
             padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
@@ -2268,7 +2246,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 13px;
-            color: #1d1d1f;
+            color: var(--ink);
             transition: background 0.15s;
         }
         .date-display:hover {
@@ -2324,9 +2302,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             margin-top: 60px;
             padding: 24px 0;
             text-align: center;
-            color: #86868b;
+            color: var(--muted);
             font-size: 13px;
-            border-top: 1px solid #e5e5e7;
+            border-top: 1px solid var(--line);
         }
 
         .app-footer a {
@@ -2351,7 +2329,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .footer-separator {
-            color: #d2d2d7;
+            color: var(--line);
         }
 
         .footer-copyright {
@@ -2388,7 +2366,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .criticality-unevaluated {
             background: #F0F0F0;
-            color: #666666;
+            color: var(--muted);
             font-style: italic;
         }
 
@@ -2427,7 +2405,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .reduction-neutral {
             background: #F0F0F0;
-            color: #666666;
+            color: var(--muted);
         }
 
         .reduction-na {
@@ -2454,7 +2432,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .dashboard-card {
-            background: white;
+            background: var(--surface);
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -2475,7 +2453,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             right: -40px;
             bottom: -40px;
             opacity: 0.04;
-            color: #1d1d1f;
+            color: var(--ink);
             pointer-events: none;
             z-index: 0;
         }
@@ -2489,13 +2467,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .dashboard-card-value {
             font-size: 24px;
             font-weight: 700;
-            color: #1d1d1f;
+            color: var(--ink);
             margin-bottom: 4px;
         }
 
         .dashboard-card-label {
             font-size: 12px;
-            color: #666;
+            color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -2552,9 +2530,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             }
         }
     /* ── Mode Présentation ── */
-    .pres-toggle { padding: 8px 14px; font-size: 13px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.1); font-weight: 600; color: #1d1d1f; transition: all .2s; display: flex; align-items: center; gap: 6px; }
-    .pres-toggle:hover { background: #f5f5f7; }
-    .pres-toggle.active { background: #1d1d1f; color: white; border-color: #1d1d1f; }
+    .pres-toggle { padding: 8px 14px; font-size: 13px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.1); font-weight: 600; color: var(--ink); transition: all .2s; display: flex; align-items: center; gap: 6px; }
+    .pres-toggle:hover { background: var(--surface-soft); }
+    .pres-toggle.active { background: var(--ink); color: white; border-color: var(--ink); }
 
     body.presentation-mode .app-controls > *:not(.pres-toggle) { display: none !important; }
     body.presentation-mode .risks-table input[type="date"] { -webkit-appearance: none !important; appearance: none !important; border: none !important; background: transparent !important; outline: none !important; pointer-events: none !important; color: inherit !important; font-family: inherit !important; }
@@ -2587,22 +2565,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
    ================================================================== */
 .progress-cell { text-align: center; }
 .editable-progress {
-    width: 54px; padding: 3px 4px; border: 1px solid #d2d2d7;
-    border-radius: 6px; font-size: 13px; text-align: right; background: white;
+    width: 54px; padding: 3px 4px; border: 1px solid var(--line);
+    border-radius: 6px; font-size: 13px; text-align: right; background: var(--surface);
 }
 .progress-mini {
-    height: 4px; background: #e5e5e7; border-radius: 2px;
+    height: 4px; background: var(--line); border-radius: 2px;
     margin-top: 4px; overflow: hidden;
 }
 .progress-mini-fill {
     height: 100%; background: #34C759; border-radius: 2px; transition: width .2s;
 }
-.depends-cell { font-size: 12.5px; color: #3a3a3c; }
+.depends-cell { font-size: 12.5px; color: var(--ink); }
 .editable-depends {
     cursor: pointer; display: inline-block; min-width: 32px;
     padding: 2px 6px; border-radius: 6px;
 }
-.editable-depends:hover { background: #f2f2f7; }
+.editable-depends:hover { background: var(--surface-soft); }
 .depends-placeholder { color: #c7c7cc; }
 .depends-input {
     width: 100%; min-width: 80px; padding: 3px 6px;
@@ -2616,7 +2594,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 @media print {
     @page { size: A3 landscape; margin: 10mm; }
-    body { background: white !important; }
+    body { background: var(--surface) !important; }
     .app-controls, .studio-toolbar, .sticky-toggle-container,
     .group-separator, .risk-separator-row, .delete-btn, .pres-toggle,
     #color-palette-selector, .toast-container, .studio-ribbon,
@@ -2633,7 +2611,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 /* Toggles des barres grises de neutralisation (v2.1.3) */
 .shading-toggle {
     display: flex; align-items: center; gap: 5px;
-    font-size: 13px; color: #1d1d1f; cursor: pointer; user-select: none;
+    font-size: 13px; color: var(--ink); cursor: pointer; user-select: none;
 }
 .shading-toggle input { accent-color: #0071e3; cursor: pointer; }
 
@@ -2642,16 +2620,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
    ================================================================== */
 .plannr-banner-inner {
     position: relative; margin: 12px 0; padding: 12px 36px 12px 16px;
-    background: white; border: 1px solid #e5e5e7; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 13px;
 }
 .banner-close {
     position: absolute; top: 8px; right: 10px; border: none; background: none;
-    font-size: 18px; color: #86868b; cursor: pointer; line-height: 1;
+    font-size: 18px; color: var(--muted); cursor: pointer; line-height: 1;
 }
 .banner-section { padding: 4px 0; }
 .banner-section ul { margin: 4px 0 4px 18px; padding: 0; }
-.banner-section li { margin: 1px 0; color: #3a3a3c; }
+.banner-section li { margin: 1px 0; color: var(--ink); }
 .banner-title { font-weight: 600; }
 .banner-error .banner-title { color: #D70015; }
 .banner-warn .banner-title { color: #B25000; }
@@ -2660,7 +2638,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 .deadline-badge {
     display: inline-block; margin-left: 4px; padding: 1px 6px;
     border-radius: 6px; font-size: 11px; font-weight: 600;
-    background: #f2f2f7; color: #6e6e73; white-space: nowrap;
+    background: var(--surface-soft); color: var(--muted); white-space: nowrap;
 }
 .deadline-badge.exceeded { background: #FFEBEA; color: #D70015; }
 .inconsistency-badge {
@@ -2677,23 +2655,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 .zoom-btn {
     border: none; background: transparent; padding: 4px 10px;
     border-radius: 6px; font-size: 12.5px; font-weight: 500;
-    color: #666666; cursor: pointer; transition: 0.2s;
+    color: var(--muted); cursor: pointer; transition: 0.2s;
 }
-.zoom-btn.active { background: white; color: #1d1d1f;
+.zoom-btn.active { background: var(--surface); color: var(--ink);
     box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-.zoom-nav-btn { background: #e5e5e7; }
+.zoom-nav-btn { background: var(--line); }
 .zoom-nav-btn:hover { background: #d8d8dc; }
 
-.workload-person { padding: 8px 0; border-bottom: 1px solid #f2f2f7; }
+.workload-person { padding: 8px 0; border-bottom: 1px solid var(--surface-soft); }
 .workload-person:last-child { border-bottom: none; }
-.workload-name { font-weight: 600; font-size: 13.5px; color: #1d1d1f; }
-.workload-total { font-weight: 400; color: #86868b; font-size: 12.5px; }
-.workload-tasks { color: #6e6e73; font-size: 12.5px; margin-top: 2px; }
+.workload-name { font-weight: 600; font-size: 13.5px; color: var(--ink); }
+.workload-total { font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.workload-tasks { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
 .workload-conflicts {
     margin-top: 4px; padding: 4px 8px; border-radius: 6px;
     background: #FFF4E5; color: #B25000; font-size: 12.5px;
 }
-.workload-empty { color: #86868b; font-size: 13px; }
+.workload-empty { color: var(--muted); font-size: 13px; }
 
 tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
 @keyframes plannr-row-flash {
@@ -2709,27 +2687,27 @@ tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
 /* ==== v2.3 : sélecteur de dépendances (popover) ==== */
 .depends-popover {
     position: absolute; z-index: 1000; width: 380px; max-height: 420px;
-    overflow-y: auto; background: white; border: 1px solid #d2d2d7;
+    overflow-y: auto; background: var(--surface); border: 1px solid var(--line);
     border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.18);
     padding: 12px 14px; font-size: 13px;
 }
 .dp-title { font-weight: 600; margin-bottom: 2px; }
-.dp-hint { color: #86868b; font-size: 11.5px; margin-bottom: 8px; }
+.dp-hint { color: var(--muted); font-size: 11.5px; margin-bottom: 8px; }
 .dp-phase {
-    font-weight: 600; font-size: 11.5px; color: #6e6e73;
+    font-weight: 600; font-size: 11.5px; color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.3px;
-    margin: 8px 0 2px; border-bottom: 1px solid #f2f2f7; padding-bottom: 2px;
+    margin: 8px 0 2px; border-bottom: 1px solid var(--surface-soft); padding-bottom: 2px;
 }
 .dp-row {
     display: flex; align-items: center; gap: 6px; padding: 3px 2px;
     border-radius: 6px; cursor: pointer;
 }
-.dp-row:hover { background: #f5f5f7; }
+.dp-row:hover { background: var(--surface-soft); }
 .dp-row input[type="checkbox"] { accent-color: #0071e3; }
 .dp-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dp-lag { color: #86868b; font-size: 12px; white-space: nowrap; }
+.dp-lag { color: var(--muted); font-size: 12px; white-space: nowrap; }
 .dp-lag-input {
-    width: 40px; padding: 1px 4px; border: 1px solid #d2d2d7;
+    width: 40px; padding: 1px 4px; border: 1px solid var(--line);
     border-radius: 5px; font-size: 12px; text-align: right;
 }
 .dp-lag-input:disabled { opacity: 0.35; }
@@ -2739,7 +2717,7 @@ tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
 .dp-check { width: 13px; text-align: center; }
 .dp-footer {
     display: flex; justify-content: space-between; align-items: center;
-    margin-top: 10px; padding-top: 8px; border-top: 1px solid #f2f2f7;
+    margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--surface-soft);
 }
 .dp-ok {
     padding: 5px 18px; border: none; border-radius: 8px; background: #0071e3;
@@ -2750,7 +2728,7 @@ tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
 
 /* Session 002 — espaces réservés, contrôles regroupés, défilement local. */
 :root { --ink: #192c3d; --muted: #516678; --line: #dbe3e9; --accent: #245b79; }
-body { color: var(--ink); background: #edf2f5; padding: 20px; }
+body { color: var(--ink); background: var(--page); padding: 20px; }
 .container { width: 100%; padding: 28px; max-width: 1920px; }
 .app-header { flex-wrap: wrap; align-items: flex-start; }
 .app-title-section { min-width: 220px; }
@@ -2764,21 +2742,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 [hidden] { display: none !important; }
 .document-status { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 8px 0 22px; color: var(--muted); font-size: 13px; }
 .history-actions { display: flex; gap: 6px; }
-.history-actions button, .planning-filters button, .panel-actions button { padding: 7px 14px; border: 1px solid var(--line); background: #fff; border-radius: 7px; }
+.history-actions button, .planning-filters button, .panel-actions button { padding: 7px 14px; border: 1px solid var(--line); background: var(--surface); border-radius: 7px; }
 #save-status { overflow-wrap: anywhere; }
 #save-status[data-dirty="true"] { color: #765014; }
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; }
 .dashboard-card { min-width: 0; min-height: 96px; }
 .dashboard-card-value { font-size: 28px; }
 .dashboard-card-label { color: var(--muted); white-space: normal; }
-.planning-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 16px; margin: 22px 0 12px; background: #f3f6f8; border: 1px solid var(--line); border-radius: 10px; }
+.planning-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 16px; margin: 22px 0 12px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 10px; }
 .planning-filters input[type="search"] { flex: 2 1 260px; min-width: 0; }
 .planning-filters select { flex: 1 1 155px; max-width: 100%; min-width: 0; }
-.planning-filters input, .planning-filters select { border: 1px solid #bdcbd6; border-radius: 6px; background: #fff; padding: 6px 10px; color: var(--ink); }
+.planning-filters input, .planning-filters select { border: 1px solid #bdcbd6; border-radius: 6px; background: var(--surface); padding: 6px 10px; color: var(--ink); }
 .checkbox-label { display: flex !important; flex-direction: row !important; align-items: center; gap: 8px; }
 .checkbox-label input { width: 18px; min-height: 18px; }
 #filter-count { color: var(--muted); font-size: 13px; white-space: nowrap; }
-#filter-empty { padding: 24px; text-align: center; background: #f3f6f8; }
+#filter-empty { padding: 24px; text-align: center; background: var(--surface-soft); }
 .sticky-toggle-container { flex-wrap: wrap !important; row-gap: 14px !important; align-items: center; padding: 16px 0; }
 .sticky-toggle-container > div { flex-wrap: wrap; max-width: 100%; }
 .sticky-toggle-container > div[style*="width: 1px"] { display: none; }
@@ -2787,7 +2765,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .chart-wrapper, .charts-column, .dashboard-layout { min-width: 0; max-width: 100%; }
 .dashboard-layout { display: block; }
 .chart-help { font-size: 13px; color: var(--muted); max-width: 980px; padding: 8px 12px 14px; }
-.gantt-scroll { max-width: 100%; overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: white; }
+.gantt-scroll { max-width: 100%; overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
 .chart-canvas { min-width: 1120px; max-width: none !important; margin: 0 !important; padding: 0 !important; }
 #workload-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 265px), 1fr)); gap: 14px; padding: 16px; }
 .workload-explanation { grid-column: 1 / -1; color: var(--muted); font-size: 13px; }
@@ -2813,14 +2791,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #task-form { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
 .panel-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .panel-header h2 { margin: 0; font-size: 21px; }
-.panel-header button { background: #edf2f5; border: 0; border-radius: 50%; width: 36px; font-size: 24px; }
+.panel-header button { background: var(--page); border: 0; border-radius: 50%; width: 36px; font-size: 24px; }
 #task-form label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; }
-#task-form input:not([type="checkbox"]), #task-form select, #task-form textarea { width: 100%; min-width: 0; border: 1px solid #b9c9d5; padding: 9px; border-radius: 6px; color: var(--ink); background: white; font-size: 14px; }
+#task-form input:not([type="checkbox"]), #task-form select, #task-form textarea { width: 100%; min-width: 0; border: 1px solid #b9c9d5; padding: 9px; border-radius: 6px; color: var(--ink); background: var(--surface); font-size: 14px; }
 #task-form textarea { resize: vertical; }
 #task-form small { font-weight: 400; color: var(--muted); }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .task-margin { color: var(--accent); padding: 10px; background: #edf5f8; border-radius: 5px; }
-.panel-actions { display: flex; gap: 10px; justify-content: flex-end; position: sticky; bottom: 0; background: white; padding: 12px 0; }
+.panel-actions { display: flex; gap: 10px; justify-content: flex-end; position: sticky; bottom: 0; background: var(--surface); padding: 12px 0; }
 .panel-actions .primary-action { background: var(--accent); color: white; border-color: var(--accent); }
 #task-form-error { color: #9a3025; }
 @media (max-width: 760px) {
@@ -2845,6 +2823,36 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .risks-table { min-width: 1220px; table-layout: auto; }
 .risks-table .risk-title-cell { width: 30%; min-width: 290px; white-space: normal; }
 .risks-table th { white-space: nowrap; }
+
+/* Thèmes de l'application HTML, y compris les surfaces de saisie. */
+:root { color-scheme: light; --surface: #ffffff; --surface-soft: #f3f6f8; --page: #edf2f5; }
+:root[data-theme="dark"] {
+ color-scheme: dark; --ink: #edf3fa; --muted: #b6c6d8; --line: #42546a;
+ --accent: #98d3f3; --surface: #182330; --surface-soft: #223143; --page: #101923;
+}
+.theme-control { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.theme-control select { padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); }
+input, select, textarea, button { color: var(--ink); }
+:root[data-theme="dark"] :is(.dashboard-card, .chart-wrapper, .collapsible-section, .sticky-charts-section, #task-panel, .depends-popover, .palette-dropdown) { background: var(--surface); border-color: var(--line); }
+:root[data-theme="dark"] :is(.risk-group-header, .planning-filters, .collapsible-header, .view-toggle-wrapper, .zoom-controls, .task-margin, .task-details-button, .dp-row:hover) { background: var(--surface-soft) !important; color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] :is(input:not([type="checkbox"]), select, textarea, .studio-toolbar button, .history-actions button, .planning-filters button, .panel-header button, .palette-trigger) { background-color: var(--surface-soft) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+:root[data-theme="dark"] :is(.risks-table th, .risks-table td) { border-color: var(--line); }
+:root[data-theme="dark"] :is(.risk-group-title, .editable-risk-title, .editable-responsable, .shading-toggle, .workload-name, .dashboard-card-value, .chart-wrapper h3) { color: var(--ink) !important; }
+:root[data-theme="dark"] :is(.risk-group-description, .workload-tasks, .workload-total, .dp-hint, .dp-phase, .banner-section li) { color: var(--muted); }
+:root[data-theme="dark"] :is(.workload-person.has-conflict, .workload-conflicts) { background: #3b3021; color: #f4ce92; }
+:root[data-theme="dark"] :is(#save-status[data-dirty="true"], .banner-warn .banner-title, .inconsistency-badge) { color: #f4ce92; }
+:root[data-theme="dark"] :is(.banner-error .banner-title, #task-form-error, .deadline-badge.exceeded) { color: #ffb2a9; }
+:root[data-theme="dark"] .deadline-badge.exceeded { background: #49312f; }
+:root[data-theme="dark"] .banner-info .banner-title { color: #98d3f3; }
+:root[data-theme="dark"] .panel-actions .primary-action { background: #327594; color: white; }
+:root[data-theme="dark"] a { color: #98d3f3; }
+:root[data-theme="dark"] input::placeholder, :root[data-theme="dark"] textarea::placeholder { color: #9dadc1; opacity: 1; }
+
+.theme-switching *, .theme-switching *::before, .theme-switching *::after { transition: none !important; }
+
+.risks-table tbody tr.risk-odd { background-color: var(--surface-soft); }
+.zoom-btn:hover { background: var(--surface-soft); color: var(--ink); }
+:root[data-theme="dark"] .risks-table tbody tr[data-risk-id]:hover + .remediation-row { background-color: var(--surface-soft) !important; }
     </style>
 </head>
 <body class="">
@@ -2855,34 +2863,40 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
             <div class="app-title-section">
                 <h1 id="main-title" class="editable-title">Plannr - Planning de Projet</h1>
-                <p id="main-subtitle" class="editable-subtitle" style="color: #86868b; margin: 4px 0 0 0; font-size: 15px;" data-i18n="pageSubtitle">ViGi360 · SNCF Gares &amp; Connexions · Gare du Nord / Gare de Lyon · Avril–Août 2026</p>
+                <p id="main-subtitle" class="editable-subtitle" style="color: var(--muted); margin: 4px 0 0 0; font-size: 15px;" data-i18n="pageSubtitle">ViGi360 · SNCF Gares &amp; Connexions · Gare du Nord / Gare de Lyon · Avril–Août 2026</p>
             </div>
 
             <div class="app-controls studio-toolbar">
+                <label class="theme-control" for="theme-selector"><span data-ui="theme">Apparence</span>
+                    <select id="theme-selector" onchange="setTheme(this.value)">
+                        <option value="light" data-ui="light">Clair</option>
+                        <option value="dark" data-ui="dark">Sombre</option>
+                    </select>
+                </label>
                 <!-- Input caché pour l'import -->
                 <input type="file" id="import-file" style="display: none" accept=".json" onchange="importFromJSON(this)">
                 
                 <!-- Bouton Recharger données -->
-                <button onclick="reloadPlannrData()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;" title="Recharger plannr-data.js (contourne le cache)">
+                <button onclick="reloadPlannrData()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); transition: background 0.2s;" title="Recharger plannr-data.js (contourne le cache)">
                     <span>🔄</span> Recharger
                 </button>
 
                 <!-- Bouton Baseline : fige le planning actuel comme référence (v2.1) -->
-                <button onclick="setBaseline()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;" title="Figer le planning actuel comme baseline — la dérive s'affichera en gris sous les barres du Gantt">
+                <button onclick="setBaseline()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); transition: background 0.2s;" title="Figer le planning actuel comme baseline — la dérive s'affichera en gris sous les barres du Gantt">
                     <span>📌</span> <span data-i18n="baselineBtn">Baseline</span>
                 </button>
 
                 <!-- Enregistrement direct de plannr-data.js (FR-9) -->
-                <button onclick="saveDataToDisk()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;" title="Écrit plannr-data.js directement sur le disque (Chrome/Edge) ou le télécharge">
+                <button onclick="saveDataToDisk()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); transition: background 0.2s;" title="Écrit plannr-data.js directement sur le disque (Chrome/Edge) ou le télécharge">
                     <span>💾</span> Enregistrer
                 </button>
 
                 <!-- Bouton Import -->
-                <button onclick="document.getElementById('import-file').click()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; transition: background 0.2s;">
+                <button onclick="document.getElementById('import-file').click()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); transition: background 0.2s;">
                     <span>📥</span> Import
                 </button>
 
-                <select id="export-format-selector" onchange="handleExport(this.value)" style="padding: 8px 12px 8px 36px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white url('data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2386868b%22 stroke-width=%222%22&gt;&lt;path d=%22M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4%22/&gt;&lt;polyline points=%227 10 12 15 17 10%22/&gt;&lt;line x1=%2212%22 y1=%2215%22 x2=%2212%22 y2=%223%22/&gt;&lt;/svg&gt;') no-repeat 10px center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); appearance: none; padding-right: 30px; background-size: 16px;">
+                <select id="export-format-selector" onchange="handleExport(this.value)" style="padding: 8px 12px 8px 36px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface) url('data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2386868b%22 stroke-width=%222%22&gt;&lt;path d=%22M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4%22/&gt;&lt;polyline points=%227 10 12 15 17 10%22/&gt;&lt;line x1=%2212%22 y1=%2215%22 x2=%2212%22 y2=%223%22/&gt;&lt;/svg&gt;') no-repeat 10px center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); appearance: none; padding-right: 30px; background-size: 16px;">
                     <option value="" disabled="disabled" selected="selected">Exporter...</option>
                     <option value="pdf">📄 PDF</option>
                     <option value="excel">📊 Excel (XLSX)</option>
@@ -2892,7 +2906,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
                     <option value="datajs">🗂️ plannr-data.js (rechargeable)</option>
                     <option value="ics">📅 ICS (jalons calendrier)</option>
                 </select>
-                <select id="language-selector" onchange="setLanguage(this.value)" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                <select id="language-selector" onchange="setLanguage(this.value)" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
                     <option value="fr" selected="selected">🇫🇷 Français</option>
                     <option value="en">🇬🇧 English</option>
                     <option value="es">🇪🇸 Español</option>
@@ -3001,20 +3015,20 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             </div>
             
             <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: #d2d2d7; margin: 0 12px;"></div>
+            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
 
             <!-- Toggle Vue Compact/Cascade/Groupe -->
             <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="sticky-toggle-label">Vue :</span>
-                <div class="view-toggle-wrapper" style="background: #e5e5e7; padding: 2px; border-radius: 8px; display: flex;">
-                    <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active" style="border: medium; background: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(29, 29, 31); cursor: pointer; box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px; transition: 0.2s;">Cascade</button>
+                <div class="view-toggle-wrapper" style="background: var(--line); padding: 2px; border-radius: 8px; display: flex;">
+                    <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active" style="border: medium; background: var(--surface); padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(29, 29, 31); cursor: pointer; box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px; transition: 0.2s;">Cascade</button>
                     <button onclick="setGanttView('consolide')" id="view-btn-consolide" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Consolidé</button>
                     <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Compact</button>
                 </div>
             </div>
 
             <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: #d2d2d7; margin: 0 12px;"></div>
+            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
 
             <!-- Barres grises de neutralisation (week-ends / fériés) — affichage seul,
                  les durées en jours ouvrés restent calculées indépendamment -->
@@ -3029,7 +3043,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             </div>
 
             <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: #d2d2d7; margin: 0 12px;"></div>
+            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
 
             <!-- Calendrier MÉTIER : samedi travaillé (durées, cascade, grisage) -->
             <label class="shading-toggle" title="Compte les samedis comme jours ouvrés — affecte les durées et la cascade">
@@ -3037,12 +3051,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             </label>
 
             <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: #d2d2d7; margin: 0 12px;"></div>
+            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
 
             <!-- Fenêtre temporelle du Gantt (FR-5) -->
             <div style="display: flex; align-items: center; gap: 6px;">
                 <span class="sticky-toggle-label">Fenêtre :</span>
-                <div class="view-toggle-wrapper" style="background: #e5e5e7; padding: 2px; border-radius: 8px; display: flex;">
+                <div class="view-toggle-wrapper" style="background: var(--line); padding: 2px; border-radius: 8px; display: flex;">
                     <button class="zoom-btn" data-span="all" onclick="setGanttZoom(null)">Tout</button>
                     <button class="zoom-btn" data-span="90" onclick="setGanttZoom(90)">3 mois</button>
                     <button class="zoom-btn" data-span="30" onclick="setGanttZoom(30)">1 mois</button>
@@ -4426,7 +4440,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
                 if ((x.max - x.min) / 86400000 > 730) return;
                 const ctx = chart.ctx;
                 ctx.save();
-                ctx.fillStyle = 'rgba(60, 60, 67, 0.055)';
+                ctx.fillStyle = ganttColors().shading;
                 let dms = Math.floor(x.min / 86400000) * 86400000;
                 for (; dms <= x.max; dms += 86400000) {
                     const probe = new Date(dms + 43200000);
@@ -4496,8 +4510,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
                         ctx.globalAlpha = 1;
                     }
                     if (x1 - x0 > 46) {
-                        ctx.fillStyle = '#3a3a3c';
-                        ctx.font = '10px -apple-system, "Segoe UI", sans-serif';
+                        ctx.font = '12px -apple-system, "Segoe UI", sans-serif';
+                        const labelWidth = ctx.measureText(p + '%').width + 6;
+                        ctx.fillStyle = ganttColors().surface;
+                        ctx.fillRect(x1 - labelWidth - 2, el.y - 9, labelWidth, 18);
+                        ctx.fillStyle = ganttColors().ink;
                         ctx.textAlign = 'right';
                         ctx.textBaseline = 'middle';
                         ctx.fillText(p + '%', x1 - 4, el.y);
@@ -4533,8 +4550,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
                     .concat((chart.options.milestonesData || []).map(m => m.task));
                 ctx.save();
                 ctx.beginPath(); ctx.rect(x.left, y.top, x.right - x.left, y.bottom - y.top); ctx.clip();
-                ctx.strokeStyle = 'rgba(99, 99, 102, 0.75)';
-                ctx.fillStyle = 'rgba(99, 99, 102, 0.9)';
+                ctx.strokeStyle = ganttColors().dependency;
+                ctx.fillStyle = ganttColors().dependency;
                 ctx.lineWidth = 1.3;
                 allTasks.forEach(task => {
                     if (!task) return;
@@ -4581,7 +4598,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
                 // Contour pointillé : chemin critique
                 if (_criticalIds.size) {
                     ctx.setLineDash([5, 3]);
-                    ctx.strokeStyle = '#B71C1C';
+                    ctx.strokeStyle = ganttColors().critical;
                     ctx.lineWidth = 1.5;
                     gd.forEach((d, i) => {
                         if (d.isMilestone || !_criticalIds.has(d.task.id)) return;
@@ -4591,7 +4608,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
                                        (el.x - el.base) + 3, el.height + 3);
                     });
                     ctx.setLineDash([]);
-                    ctx.fillStyle = '#B71C1C';
+                    ctx.fillStyle = ganttColors().critical;
                     ctx.font = '10px -apple-system, "Segoe UI", sans-serif';
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'bottom';
@@ -4869,10 +4886,10 @@ var planningFilters = { query: '', phase: '', person: '', status: '', overdue: f
 var editingTaskId = null;
 const WORKSPACE_I18N = {
     fr: {
-        search: 'Rechercher une tâche, une note…', phase: 'Toutes les phases', person: 'Tous les responsables', status: 'Tous les statuts', overdue: 'En retard', reset: 'Réinitialiser', visible: 'tâches visibles', empty: 'Aucune tâche ne correspond aux filtres.', details: 'Détails', task: 'Détail de la tâche', title: 'Titre', start: 'Début', end: 'Fin', assignee: 'Responsables (séparés par une virgule)', progress: 'Avancement (%)', state: 'Statut', deps: 'Dépendances et délai ouvré (ex. 1.2+3, 2.1)', notes: 'Notes', link: 'Lien http(s)', deadline: 'Date butoir', effort: 'Effort total (jours-personnes)', effortHelp: 'Facultatif. Réparti également entre les responsables et les jours ouvrés de la tâche.', milestone: 'Jalon ponctuel', cancel: 'Annuler', apply: 'Appliquer', slack: 'Marge', days: 'jours ouvrés', critical: 'Chemin critique', saveError: 'Sauvegarde navigateur impossible — exportez votre travail', browserSaved: 'Sauvegardé dans ce navigateur à', browserPending: 'Sauvegarde navigateur en attente', fileDirty: 'Modifications non enregistrées dans un fichier', fileSaved: 'Fichier enregistré à', downloaded: 'Téléchargement lancé à', imported: 'Document complet chargé', importError: 'Import refusé', reloadError: 'Impossible de recharger le fichier de données', invalid: 'Vérifiez les dates, le lien et les dépendances (sans cycle).', noEffort: 'effort non renseigné', workload: 'Charge estimée', capacity: 'Capacité : 1 jour-personne par jour ouvré. Les efforts manquants ne sont pas assimilés à une charge à temps plein.', overloaded: 'jours en surcharge', notAssigned: 'Sans responsable', unestimated: 'tâche(s) sans effort', duration: 'Durée', undo: 'Annuler', redo: 'Rétablir', finish: 'Fin prévisionnelle', chartHelp: 'Les lignes s’adaptent pour séparer les tâches. Sur petit écran, faites défiler le calendrier horizontalement. Cliquez sur une barre pour retrouver la tâche ; ouvrez Détails pour le texte complet.'
+        theme: 'Apparence', light: 'Clair', dark: 'Sombre', search: 'Rechercher une tâche, une note…', phase: 'Toutes les phases', person: 'Tous les responsables', status: 'Tous les statuts', overdue: 'En retard', reset: 'Réinitialiser', visible: 'tâches visibles', empty: 'Aucune tâche ne correspond aux filtres.', details: 'Détails', task: 'Détail de la tâche', title: 'Titre', start: 'Début', end: 'Fin', assignee: 'Responsables (séparés par une virgule)', progress: 'Avancement (%)', state: 'Statut', deps: 'Dépendances et délai ouvré (ex. 1.2+3, 2.1)', notes: 'Notes', link: 'Lien http(s)', deadline: 'Date butoir', effort: 'Effort total (jours-personnes)', effortHelp: 'Facultatif. Réparti également entre les responsables et les jours ouvrés de la tâche.', milestone: 'Jalon ponctuel', cancel: 'Annuler', apply: 'Appliquer', slack: 'Marge', days: 'jours ouvrés', critical: 'Chemin critique', saveError: 'Sauvegarde navigateur impossible — exportez votre travail', browserSaved: 'Sauvegardé dans ce navigateur à', browserPending: 'Sauvegarde navigateur en attente', fileDirty: 'Modifications non enregistrées dans un fichier', fileSaved: 'Fichier enregistré à', downloaded: 'Téléchargement lancé à', imported: 'Document complet chargé', importError: 'Import refusé', reloadError: 'Impossible de recharger le fichier de données', invalid: 'Vérifiez les dates, le lien et les dépendances (sans cycle).', noEffort: 'effort non renseigné', workload: 'Charge estimée', capacity: 'Capacité : 1 jour-personne par jour ouvré. Les efforts manquants ne sont pas assimilés à une charge à temps plein.', overloaded: 'jours en surcharge', notAssigned: 'Sans responsable', unestimated: 'tâche(s) sans effort', duration: 'Durée', undo: 'Annuler', redo: 'Rétablir', finish: 'Fin prévisionnelle', chartHelp: 'Les lignes s’adaptent pour séparer les tâches. Sur petit écran, faites défiler le calendrier horizontalement. Cliquez sur une barre pour retrouver la tâche ; ouvrez Détails pour le texte complet.'
     },
     en: {
-        search: 'Search tasks, notes…', phase: 'All phases', person: 'All assignees', status: 'All statuses', overdue: 'Overdue', reset: 'Reset', visible: 'visible tasks', empty: 'No tasks match your filters.', details: 'Details', task: 'Task details', title: 'Title', start: 'Start', end: 'End', assignee: 'Assignees (comma separated)', progress: 'Progress (%)', state: 'Status', deps: 'Dependencies and working-day lag (e.g. 1.2+3, 2.1)', notes: 'Notes', link: 'http(s) link', deadline: 'Deadline', effort: 'Total effort (person-days)', effortHelp: 'Optional. Shared equally among assignees and working days.', milestone: 'Milestone', cancel: 'Cancel', apply: 'Apply', slack: 'Float', days: 'working days', critical: 'Critical path', saveError: 'Browser save failed — export your work', browserSaved: 'Saved in this browser at', browserPending: 'Browser save pending', fileDirty: 'Changes not saved to a file', fileSaved: 'File saved at', downloaded: 'Download started at', imported: 'Full document loaded', importError: 'Import rejected', reloadError: 'Cannot reload the data file', invalid: 'Check dates, link and dependencies (no cycles).', noEffort: 'effort unspecified', workload: 'Estimated workload', capacity: 'Capacity: 1 person-day per working day. Missing estimates are not assumed to be full-time work.', overloaded: 'overloaded days', notAssigned: 'Unassigned', unestimated: 'task(s) without an estimate', duration: 'Duration', undo: 'Undo', redo: 'Redo', finish: 'Forecast finish', chartHelp: 'Rows expand to keep tasks separate. Scroll the calendar horizontally on narrow screens. Click a bar to locate its task; open Details for the full text.'
+        theme: 'Appearance', light: 'Light', dark: 'Dark', search: 'Search tasks, notes…', phase: 'All phases', person: 'All assignees', status: 'All statuses', overdue: 'Overdue', reset: 'Reset', visible: 'visible tasks', empty: 'No tasks match your filters.', details: 'Details', task: 'Task details', title: 'Title', start: 'Start', end: 'End', assignee: 'Assignees (comma separated)', progress: 'Progress (%)', state: 'Status', deps: 'Dependencies and working-day lag (e.g. 1.2+3, 2.1)', notes: 'Notes', link: 'http(s) link', deadline: 'Deadline', effort: 'Total effort (person-days)', effortHelp: 'Optional. Shared equally among assignees and working days.', milestone: 'Milestone', cancel: 'Cancel', apply: 'Apply', slack: 'Float', days: 'working days', critical: 'Critical path', saveError: 'Browser save failed — export your work', browserSaved: 'Saved in this browser at', browserPending: 'Browser save pending', fileDirty: 'Changes not saved to a file', fileSaved: 'File saved at', downloaded: 'Download started at', imported: 'Full document loaded', importError: 'Import rejected', reloadError: 'Cannot reload the data file', invalid: 'Check dates, link and dependencies (no cycles).', noEffort: 'effort unspecified', workload: 'Estimated workload', capacity: 'Capacity: 1 person-day per working day. Missing estimates are not assumed to be full-time work.', overloaded: 'overloaded days', notAssigned: 'Unassigned', unestimated: 'task(s) without an estimate', duration: 'Duration', undo: 'Undo', redo: 'Redo', finish: 'Forecast finish', chartHelp: 'Rows expand to keep tasks separate. Scroll the calendar horizontally on narrow screens. Click a bar to locate its task; open Details for the full text.'
     }
 };
 function uiText(key) { return (WORKSPACE_I18N[currentLanguage] || WORKSPACE_I18N.fr)[key] || key; }
@@ -5016,6 +5033,30 @@ window.addEventListener('resize', () => {
         if (workspaceReady && ganttChart && Math.max(1120, document.querySelector('.gantt-scroll').clientWidth) !== ganttChart.width) updateGantt();
     }, 120);
 });
+
+// Préférence de lecture, indépendante du document et de son historique.
+function setTheme(theme, persist = true) {
+    theme = theme === 'dark' ? 'dark' : 'light';
+    const root = document.documentElement;
+    root.classList.add('theme-switching');
+    root.dataset.theme = theme;
+    void root.offsetWidth; // Appliquer ensemble fond et texte avant de rétablir les transitions.
+    root.classList.remove('theme-switching');
+    document.getElementById('theme-selector').value = theme;
+    if (persist) appStorage.setItem('plannr-theme', theme);
+    if (ganttChart) updateGantt();
+}
+function initTheme() {
+    const saved = appStorage.getItem('plannr-theme');
+    setTheme(saved === 'light' || saved === 'dark' ? saved : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'), false);
+}
+function ganttColors() {
+    // Le PDF conserve un fond clair, quelle que soit la préférence de lecture.
+    const dark = document.documentElement.dataset.theme === 'dark' && !ganttExportWidth;
+    return dark
+        ? {surface:'#182330', header:'#253649', ink:'#edf3fa', muted:'#b6c6d8', grid:'#2b3b4d', shading:'rgba(184,204,228,0.065)', dependency:'#9cabbc', critical:'#ff9b92'}
+        : {surface:'#ffffff', header:'#eef3f7', ink:'#192c3d', muted:'#324b60', grid:'#e9eef2', shading:'rgba(60,60,67,0.055)', dependency:'#727277', critical:'#B71C1C'};
+}
         let ganttChart = null;
         var ganttExportWidth = null;
         let ganttViewMode = 'cascade'; // 'compact', 'cascade' ou 'groupe'
@@ -5036,7 +5077,7 @@ window.addEventListener('resize', () => {
             [btnCompact, btnCascade, btnConsolide].forEach(btn => {
                 if (btn) {
                     btn.style.background = 'transparent';
-                    btn.style.color = '#666';
+                    btn.style.color = 'var(--muted)';
                     btn.style.boxShadow = 'none';
                     btn.classList.remove('active');
                 }
@@ -5049,8 +5090,8 @@ window.addEventListener('resize', () => {
             else if (mode === 'consolide') activeBtn = btnConsolide;
 
             if (activeBtn) {
-                activeBtn.style.background = 'white';
-                activeBtn.style.color = '#1d1d1f';
+                activeBtn.style.background = 'var(--surface)';
+                activeBtn.style.color = 'var(--ink)';
                 activeBtn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.1)';
                 activeBtn.classList.add('active');
             }
@@ -5121,23 +5162,26 @@ Chart.register({
     afterDatasetsDraw(chart) {
         const {ctx, scales: {x, y}} = chart;
         const rows = chart.options.readableRows || [];
+        const theme = ganttColors();
         chart.$labelBoxes = [];
+        chart.$headerBoxes = [];
         ctx.save(); ctx.font = '600 13px Helvetica, Arial, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
         for (const header of chart.options.readableHeaders || []) {
-            const py = y.getPixelForValue(header.y) - 40;
-            ctx.fillStyle = '#eef3f7'; ctx.fillRect(x.left, py - 8, x.right - x.left, 52);
-            ctx.fillStyle = '#192c3d';
-            wrapGanttText(ctx, header.label, x.right - x.left - 32, 2).forEach((line,i)=>ctx.fillText(line,x.left + 12,py + i*17));
+            const py = y.getPixelForValue(header.y);
+            ctx.fillStyle = theme.header; ctx.fillRect(x.left, py, x.right - x.left, header.height);
+            ctx.fillStyle = theme.ink;
+            header.lines.forEach((line,i)=>ctx.fillText(line,x.left + 12,py + 8 + i*17));
+            chart.$headerBoxes.push({x: x.left, y: py, width: x.right - x.left, height: header.height});
         }
         for (const row of rows) {
             const task = row.task, centerY = y.getPixelForValue(row.y);
             const px = x.getPixelForValue(Date.parse(task.startDate));
             const labelX = ganttViewMode === 'cascade' ? 12 : Math.max(x.left + 4, Math.min(px, x.right - 252));
-            const labelY = ganttViewMode === 'cascade' ? centerY - 24 : centerY - 70;
             const width = ganttViewMode === 'cascade' ? x.left - 30 : 244;
-            const lines = wrapGanttText(ctx, task.id + ' · ' + task.title, width, 3);
-            ctx.fillStyle = 'rgba(255,255,255,0.96)'; ctx.fillRect(labelX - 2, labelY - 2, width + 4, lines.length * 16 + 4);
-            ctx.fillStyle = '#192C3D';
+            const lines = row.lines;
+            const labelY = ganttViewMode === 'cascade' ? centerY - lines.length * 8 : centerY - 16 - 6 - lines.length * 16;
+            ctx.fillStyle = theme.surface; ctx.fillRect(labelX - 2, labelY - 2, width + 4, lines.length * 16 + 4);
+            ctx.fillStyle = theme.ink;
             lines.forEach((line, i) => ctx.fillText(line, labelX, labelY + i * 16));
             chart.$labelBoxes.push({ id: task.id, x: labelX, y: labelY, width, height: lines.length * 16 });
             if (task.isMilestone) {
@@ -5281,40 +5325,20 @@ Chart.register({
                     }
                 }
 
-                // IMPORTANT: En mode cascade, les lanes correspondent aux tâches normales seulement
-                // Les jalons sont ENTRE les lanes, donc ne comptent pas pour le nombre de lanes
-                let totalLanes = yAxis.ticks.length;
-                if (ganttViewMode === 'cascade') {
-                    // En mode cascade, le nombre de lanes est le nombre de tâches normales (ganttData.length)
-                    totalLanes = chart.options.ganttData.length;
-                }
-
-                // Trouver entre quelles lanes la souris se trouve
-                const laneHeight = (yAxis.bottom - yAxis.top) / totalLanes;
-
-                // Trouver la lane actuelle
-                const relativeY = mouseY - yAxis.top;
-                const laneIndex = Math.round(relativeY / laneHeight);
-
-                // Vérifier si on est près d'une ligne de séparation (bord de lane)
-                // Les lignes de séparation sont à : yAxis.top + (i * laneHeight)
-                const tolerance = 8; // pixels de tolérance de chaque côté de la ligne
-
-                let separatorY = null;
-                let insertPosition = null;
-
-                // Vérifier la ligne de séparation au-dessus de la lane actuelle
-                const topSeparatorY = yAxis.top + (laneIndex * laneHeight);
-                if (Math.abs(mouseY - topSeparatorY) < tolerance) {
-                    separatorY = topSeparatorY;
-                    insertPosition = laneIndex;
-                }
-
-                // Vérifier la ligne de séparation en-dessous de la lane actuelle
-                const bottomSeparatorY = yAxis.top + ((laneIndex + 1) * laneHeight);
-                if (Math.abs(mouseY - bottomSeparatorY) < tolerance) {
-                    separatorY = bottomSeparatorY;
-                    insertPosition = laneIndex + 1;
+                // Frontières réelles des lignes adaptatives, indexées dans le document.
+                // Les indices de l'axe ne sont pas des indices de tâches.
+                const rows = chart.options.readableRows || [];
+                const documentPositions = new Map(riskGroups.flatMap(group => group.tasks).map((task, index) => [task.id, index]));
+                const boundaries = rows.map(row => ({
+                    y: yAxis.getPixelForValue(row.bottom - 8),
+                    position: documentPositions.get(row.task.id) + 1
+                }));
+                if (rows.length) boundaries.unshift({y: yAxis.getPixelForValue(rows[0].top), position: documentPositions.get(rows[0].task.id)});
+                const boundary = boundaries.find(edge => Math.abs(mouseY - edge.y) < 6);
+                let separatorY = boundary?.y ?? null;
+                let insertPosition = boundary?.position ?? null;
+                if (chart.$labelBoxes?.some(box => mouseX >= box.x && mouseX <= box.x + box.width && mouseY >= box.y - 4 && mouseY <= box.y + box.height + 4)) {
+                    hideSeparatorButtons(); return;
                 }
 
                 // Vérifier si on est près de la ligne de séparation active (avec tolérance élargie pour les boutons)
@@ -5422,8 +5446,8 @@ Chart.register({
 
             // separatorY est en pixels internes du canvas
             // Il faut convertir en pixels CSS pour le positionnement
-            const pixelRatio = rect.height / canvas.height;
-            const pixelRatioX = rect.width / canvas.width;
+            const pixelRatio = rect.height / chart.height;
+            const pixelRatioX = rect.width / chart.width;
             const separatorYCSS = separatorY * pixelRatio;
 
             // Position X des boutons (convertir de pixels internes à pixels CSS)
@@ -5446,8 +5470,8 @@ Chart.register({
                         width: 20px;
                         height: 20px;
                         border-radius: 50%;
-                        background: #E0E0E0;
-                        color: #666;
+                        background: var(--surface-soft);
+                        color: var(--muted);
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -5465,7 +5489,7 @@ Chart.register({
                         left: 20px;
                         top: 50%;
                         transform: translateY(-50%);
-                        background: white;
+                        background: var(--surface);
                         border-radius: 8px;
                         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                         padding: 4px;
@@ -5484,7 +5508,7 @@ Chart.register({
                                 cursor: pointer;
                                 font-size: 13px;
                                 font-weight: 500;
-                                color: #333;
+                                color: var(--ink);
                                 white-space: nowrap;
                             " onmouseover="this.style.background='rgba(175, 82, 222, 0.1)';"
                                onmouseout="this.style.background='transparent';">
@@ -5504,7 +5528,7 @@ Chart.register({
                                 cursor: pointer;
                                 font-size: 13px;
                                 font-weight: 500;
-                                color: #333;
+                                color: var(--ink);
                                 white-space: nowrap;
                             " onmouseover="this.style.background='rgba(0, 113, 227, 0.1)';"
                                onmouseout="this.style.background='transparent';">
@@ -5726,21 +5750,36 @@ Chart.register({
             const inWindow = task => Date.parse(task.endDate || task.startDate) >= range.min && Date.parse(task.startDate) <= range.max;
             const headers = [];
             const rows = [], ganttData = [], milestones = [], labels = [], colors = [];
-            let laneCount = 0;
+            // Coordonnées verticales en pixels : 6 px entre texte et barre,
+            // 16 px entre tâches (dont 6 réservés à une éventuelle baseline).
+            ctx.font = '600 13px Helvetica, Arial, sans-serif';
+            const labelWidth = ganttViewMode === 'cascade' ? range.left - 30 : 244;
+            const taskLines = new Map(allTasks.map(task => [task.id, wrapGanttText(ctx, task.id + ' · ' + task.title, labelWidth, 3)]));
+            let contentHeight = 8;
+            const addLane = (tasks, phaseFor) => {
+                const textHeight = Math.max(...tasks.map(task => taskLines.get(task.id).length * 16));
+                const cascade = ganttViewMode === 'cascade';
+                const height = cascade ? Math.max(48, textHeight + 16) : textHeight + 6 + 32 + 16;
+                const y = contentHeight + (cascade ? height / 2 : textHeight + 6 + 16);
+                tasks.forEach(task => rows.push({task, phase: phaseFor(task), y, top: contentHeight, bottom: contentHeight + height, lines: taskLines.get(task.id)}));
+                contentHeight += height;
+            };
             if (ganttViewMode === 'cascade') {
-                phases.forEach(phase => phase.tasks.filter(inWindow).forEach(task => rows.push({ task, phase, y: laneCount++ })));
+                phases.forEach(phase => phase.tasks.filter(inWindow).forEach(task => addLane([task], () => phase)));
             } else if (ganttViewMode === 'consolide') {
                 phases.forEach(phase => {
-                    headers.push({label: phase.name, y: laneCount, color: phase.color}); laneCount += 0.8;
                     const lines = packGanttTasks(phase.tasks.filter(inWindow), range, width);
-                    lines.forEach(line => { line.forEach(task => rows.push({task, phase, y: laneCount})); laneCount++; });
-                    if (lines.length) laneCount += 0.35;
+                    if (!lines.length) return;
+                    const headerLines = wrapGanttText(ctx, phase.name, width - range.left - 64, 2);
+                    const height = headerLines.length * 17 + 16;
+                    headers.push({label: phase.name, y: contentHeight, height, lines: headerLines, color: phase.color});
+                    contentHeight += height + 8;
+                    lines.forEach(line => addLane(line, () => phase));
+                    contentHeight += 8;
                 });
             } else {
                 const phaseByTask = new Map(phases.flatMap(p => p.tasks.map(t => [t.id, p])));
-                packGanttTasks(allTasks.filter(inWindow), range, width).forEach(line => {
-                    line.forEach(task => rows.push({task, phase: phaseByTask.get(task.id), y: laneCount})); laneCount++;
-                });
+                packGanttTasks(allTasks.filter(inWindow), range, width).forEach(line => addLane(line, task => phaseByTask.get(task.id)));
             }
             rows.forEach(row => {
                 const task = row.task, start = Date.parse(task.startDate);
@@ -5751,8 +5790,9 @@ Chart.register({
                     colors.push(row.phase.color);
                 }
             });
-            const rowHeight = ganttViewMode === 'cascade' ? 82 : 142;
-            canvas.parentElement.style.height = Math.max(300, laneCount * rowHeight + 120) + 'px';
+            contentHeight = Math.max(84, contentHeight);
+            canvas.parentElement.style.height = (contentHeight + 96) + 'px';
+            const theme = ganttColors();
             canvas.width = width; canvas.height = canvas.parentElement.offsetHeight;
             ganttChart = new Chart(ctx, {
                 type: 'bar',
@@ -5760,10 +5800,10 @@ Chart.register({
                 options: {
                     ganttData, phasesData: phases, milestonesData: milestones, readableRows: rows, readableHeaders: headers,
                     indexAxis: 'y', responsive: false, animation: false, maintainAspectRatio: false,
-                    layout: {padding: {left: range.left, right: 32, top: 82, bottom: 20}},
+                    layout: {padding: {left: range.left, right: 32, top: 40, bottom: 16}},
                     scales: {
-                        x: {...range, position: 'top', ticks: {maxRotation: 0, autoSkip: true, maxTicksLimit: Math.max(4, Math.floor((width - range.left) / 105)), color: '#324B60', font: {size: 12}, callback: value => new Date(value).toLocaleDateString(currentLanguage === 'en' ? 'en-GB' : 'fr-FR', {day: '2-digit', month: 'short', timeZone: 'UTC'})}, grid: {color: '#e9eef2'}},
-                        y: {type: 'linear', min: -0.5, max: Math.max(0.5, laneCount - 0.5), reverse: true, ticks: {display: false}, grid: {display: false}, border: {display: false}}
+                        x: {...range, position: 'top', afterFit: axis => { axis.height = 40; }, ticks: {maxRotation: 0, autoSkip: true, maxTicksLimit: Math.max(4, Math.floor((width - range.left) / 105)), color: theme.muted, font: {size: 12}, callback: value => new Date(value).toLocaleDateString(currentLanguage === 'en' ? 'en-GB' : 'fr-FR', {day: '2-digit', month: 'short', timeZone: 'UTC'})}, grid: {color: theme.grid}},
+                        y: {type: 'linear', display: false, offset: false, min: 0, max: contentHeight, reverse: true, ticks: {display: false}, grid: {display: false}, border: {display: false}}
                     },
                     plugins: { legend: {display: false}, tooltip: {
                         position: 'plannrOffset', caretSize: 0, displayColors: false, padding: 12,
@@ -5813,16 +5853,6 @@ Chart.register({
                 const labels = ganttChart.data.labels;
 
                 let dataIndex; // Déclaration déplacée ici
-
-                // Calculer la hauteur d'une ligne
-                let laneHeight;
-                if (ganttViewMode === 'cascade') {
-                    const maxY = Math.max(...ganttData.map(d => d.y));
-                    const numLanes = maxY + 1;
-                    laneHeight = (yAxis.bottom - yAxis.top) / Math.max(1, numLanes);
-                } else {
-                    laneHeight = (yAxis.bottom - yAxis.top) / Math.max(1, labels.length - 1);
-                }
 
                 // D'abord, vérifier si le clic est sur une capsule de jalon
                 let milestoneClickedTask = null;
@@ -6405,7 +6435,7 @@ function exportToPDF() {
         const scale = 388 / chartCanvas.width;
         const sliceHeight = Math.floor(225 / scale);
         const ratio = chartCanvas.width / ganttChart.width;
-        const boundaries = [...new Set(ganttChart.options.readableRows.map(row => Math.ceil((ganttChart.scales.y.getPixelForValue(row.y) + 36) * ratio)))].sort((a,b)=>a-b);
+        const boundaries = [...new Set(ganttChart.options.readableRows.map(row => Math.ceil(ganttChart.scales.y.getPixelForValue(row.bottom - 8) * ratio)))].sort((a,b)=>a-b);
         for (let offset = 0, page = 1; offset < chartCanvas.height; page++) {
             const limit = Math.min(chartCanvas.height, offset + sliceHeight);
             const candidates = boundaries.filter(y => y > offset && y <= limit);
@@ -7891,14 +7921,14 @@ function exportToCSV() {
             const trigger = document.createElement('button');
             trigger.className = 'dropdown-trigger';
             trigger.onclick = togglePaletteDropdown;
-            trigger.style.cssText = 'padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; min-width: 180px;';
+            trigger.style.cssText = 'padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); min-width: 180px;';
             trigger.innerHTML = '<span class="trigger-label">🎨 Palette...</span><span style="margin-left: auto;">▼</span>';
 
             // Créer le menu avec styles inline
             const menu = document.createElement('div');
             menu.id = 'palette-dropdown-menu';
             menu.className = 'dropdown-menu';
-            menu.style.cssText = 'display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; background: white; border: 1px solid #d2d2d7; border-radius: 8px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); max-height: 400px; overflow-y: auto; z-index: 1000; min-width: 300px;';
+            menu.style.cssText = 'display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); max-height: 400px; overflow-y: auto; z-index: 1000; min-width: 300px;';
 
             // Remplir le menu avec les palettes
             colorPalettes.forEach((palette, index) => {
@@ -7921,7 +7951,7 @@ function exportToCSV() {
 
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'palette-name';
-                nameSpan.style.cssText = 'font-size: 13px; font-weight: 500; color: #1d1d1f; flex: 1; white-space: nowrap;';
+                nameSpan.style.cssText = 'font-size: 13px; font-weight: 500; color: var(--ink); flex: 1; white-space: nowrap;';
                 nameSpan.textContent = palette.name;
 
                 item.appendChild(colorsPreview);
@@ -7933,10 +7963,10 @@ function exportToCSV() {
                 });
 
                 item.addEventListener('mouseenter', () => {
-                    item.style.background = '#f5f5f7';
+                    item.style.background = 'var(--surface-soft)';
                 });
                 item.addEventListener('mouseleave', () => {
-                    item.style.background = 'white';
+                    item.style.background = 'var(--surface)';
                 });
 
                 menu.appendChild(item);
@@ -8947,6 +8977,7 @@ function exportToCSV() {
         }
 
         // Initialisation
+        initTheme();
         prepareDocument();
         initCalendarConfig(); // v2.2 : calendrier MÉTIER avant tout calcul de durées
         sanitizeData(); // Nettoyage préventif

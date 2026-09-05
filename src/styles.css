@@ -6,9 +6,9 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-            background: #f5f7fa;
+            background: var(--page);
             padding: 20px;
-            color: #1d1d1f;
+            color: var(--ink);
             line-height: 1.5;
         }
         
@@ -16,7 +16,7 @@
             width: 98%;
             max-width: none;
             margin: 0 auto;
-            background: white;
+            background: var(--surface);
             padding: 40px;
             border-radius: 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
@@ -59,7 +59,7 @@
         .in-iframe .app-controls { display: none !important; }
 
         h1 {
-            color: #1d1d1f;
+            color: var(--ink);
             margin: 0;
             font-size: 28px;
             font-weight: 600;
@@ -67,7 +67,7 @@
         }
         
         h2 {
-            color: #1d1d1f;
+            color: var(--ink);
             margin: 16px 0 12px 0;
             font-size: 22px;
             font-weight: 600;
@@ -75,23 +75,23 @@
         }
         
         h3 {
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 17px;
             font-weight: 600;
             margin-bottom: 16px;
         }
         
         .risk-item {
-            background: #f5f5f7;
+            background: var(--surface-soft);
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 12px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
             transition: border-color 0.2s ease;
         }
 
         .risk-item:hover {
-            border-color: #d2d2d7;
+            border-color: var(--line);
         }
         
         .risk-group {
@@ -99,15 +99,15 @@
         }
         
         .risk-group-header {
-            background: #f5f5f7;
-            color: #1d1d1f;
+            background: var(--surface-soft);
+            color: var(--ink);
             padding: 12px 20px;
             border-radius: 12px;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 16px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
         }
         
         .risk-group-number {
@@ -127,12 +127,12 @@
         .risk-group-title {
             font-size: 20px;
             font-weight: 600;
-            color: #1d1d1f;
+            color: var(--ink);
         }
 
         .risk-group-description {
             font-size: 16px;
-            color: #5a5a5f;
+            color: var(--muted);
             margin-top: 4px;
         }
 
@@ -154,9 +154,9 @@
 
         .editable-group-description:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
-            color: #1d1d1f;
+            color: var(--ink);
         }
 
         .editable-group-description::after {
@@ -189,7 +189,7 @@
 
         .editable-risk-title:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -223,7 +223,7 @@
 
         .editable-remediation:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -254,7 +254,7 @@
             display: inline-block;
             position: relative;
             min-width: 60px;
-            color: #1d1d1f;
+            color: var(--ink);
         }
 
         .editable-responsable:hover {
@@ -264,7 +264,7 @@
 
         .editable-responsable:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -314,15 +314,15 @@
         }
         
         .risk-group-header {
-            background: #f5f5f7;
-            color: #1d1d1f;
+            background: var(--surface-soft);
+            color: var(--ink);
             padding: 15px 20px;
             border-radius: 8px;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 15px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
         }
         
         .risk-group-number {
@@ -364,27 +364,27 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 15px;
-            background: white;
+            background: var(--surface);
             table-layout: fixed;
         }
 
         .risks-table thead {
-            background: #f5f5f7;
+            background: var(--surface-soft);
         }
 
         .risks-table th {
             padding: 12px;
             text-align: left;
             font-weight: 600;
-            color: #1d1d1f;
-            border-bottom: 2px solid #d2d2d7;
+            color: var(--ink);
+            border-bottom: 2px solid var(--line);
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .risks-table tbody tr:not(.risk-separator-row) {
-            border-bottom: 1px solid #e5e5e7;
+            border-bottom: 1px solid var(--line);
             transition: all 0.2s ease;
             cursor: move;
             position: relative;
@@ -439,7 +439,7 @@
 
         .risks-table .risk-title-cell {
             font-weight: 600;
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 15px;
             position: relative;
         }
@@ -467,7 +467,7 @@
 
         /* Alternance de couleurs : un bloc (risque + remédiation) sur deux */
         .risks-table tbody tr.risk-even {
-            background-color: #ffffff;
+            background-color: var(--surface);
         }
 
         .risks-table tbody tr.risk-odd {
@@ -494,7 +494,7 @@
         }
 
         .risks-table .remediation-content strong {
-            color: #1d1d1f;
+            color: var(--ink);
             margin-right: 8px;
             font-weight: 600;
         }
@@ -507,10 +507,10 @@
             width: 48%;
             padding: 6px 8px 6px 4px;
             margin: 0 1%;
-            border: 1px solid #d2d2d7;
+            border: 1px solid var(--line);
             border-radius: 6px;
             font-size: 13px;
-            background: white;
+            background: var(--surface);
             cursor: pointer;
             transition: all 0.2s ease;
             appearance: none;
@@ -539,10 +539,10 @@
         .risks-table .dropdown-single-cell select {
             width: 100%;
             padding: 5px 6px 5px 3px;
-            border: 1px solid #d2d2d7;
+            border: 1px solid var(--line);
             border-radius: 6px;
             font-size: 13px;
-            background: white;
+            background: var(--surface);
             cursor: pointer;
             transition: all 0.2s ease;
             appearance: none;
@@ -572,10 +572,10 @@
         .risks-table .status-dropdown {
             width: 100%;
             padding: 5px 6px 5px 3px;
-            border: 1px solid #d2d2d7;
+            border: 1px solid var(--line);
             border-radius: 6px;
             font-size: 13px;
-            background: white;
+            background: var(--surface);
             cursor: pointer;
             transition: all 0.2s ease;
             appearance: none;
@@ -602,7 +602,7 @@
             position: sticky;
             top: 20px;
             z-index: 100;
-            background: white;
+            background: var(--surface);
             padding: 16px;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
@@ -679,10 +679,10 @@
         }
 
         .chart-wrapper {
-            background: white;
+            background: var(--surface);
             padding: 12px;
             border-radius: 10px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -693,7 +693,7 @@
         .chart-wrapper h3 {
             text-align: center;
             margin-bottom: 8px;
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 14px;
             font-weight: 600;
             line-height: 1.3;
@@ -710,28 +710,6 @@
         .chart-header h3 {
             margin: 0;
             flex: 1;
-        }
-
-        .zoom-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #e5e5e7;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 6px 10px;
-            transition: all 0.2s;
-            opacity: 0.7;
-            z-index: 10;
-            backdrop-filter: blur(10px);
-        }
-
-        .zoom-btn:hover {
-            opacity: 1;
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .chart-canvas {
@@ -771,16 +749,16 @@
         }
         
         .risk-table-container {
-            background: white;
+            background: var(--surface);
             padding: 16px;
             border-radius: 12px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
             margin-bottom: 12px;
         }
         
         .risk-table-container h3 {
             margin-bottom: 16px;
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 17px;
             font-weight: 600;
         }
@@ -793,15 +771,15 @@
         }
         
         .risk-table thead {
-            background: #f5f5f7;
+            background: var(--surface-soft);
         }
         
         .risk-table th {
             padding: 12px 16px;
             text-align: left;
             font-weight: 600;
-            color: #1d1d1f;
-            border-bottom: 1px solid #d2d2d7;
+            color: var(--ink);
+            border-bottom: 1px solid var(--line);
             font-size: 15px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -825,7 +803,7 @@
         
         .risks-table td {
             padding: 14px 16px;
-            border-bottom: 1px solid #f5f5f7;
+            border-bottom: 1px solid var(--surface-soft);
         }
         
         .risk-table tbody tr {
@@ -843,7 +821,7 @@
         .risks-table td:first-child {
             font-weight: 600;
             text-align: center;
-            color: #1d1d1f;
+            color: var(--ink);
             font-size: 14px;
         }
         
@@ -881,7 +859,7 @@
         .risk-group-description {
             font-size: 14px;
             font-weight: 400;
-            color: #5a5a5f;
+            color: var(--muted);
             margin-top: 4px;
             line-height: 1.4;
         }
@@ -1057,7 +1035,7 @@
                 -webkit-overflow-scrolling: touch;
                 width: 100%;
                 margin-bottom: 8px;
-                border: 1px solid #e5e5e7;
+                border: 1px solid var(--line);
                 border-radius: 8px;
                 position: relative;
             }
@@ -1069,7 +1047,7 @@
                 right: 0;
                 float: right;
                 background: rgba(245,245,247,0.95);
-                color: #86868b;
+                color: var(--muted);
                 font-size: 16px;
                 padding: 8px 12px;
                 pointer-events: none;
@@ -1261,7 +1239,7 @@
 
         /* La section sticky reste avec son fond et padding */
         .sticky-charts-section.collapsible-section {
-            background: white;
+            background: var(--surface);
             padding: 16px;
         }
 
@@ -1283,7 +1261,7 @@
             align-items: center;
             gap: 10px;
             padding: 12px;
-            background: #f5f5f7;
+            background: var(--surface-soft);
             border-radius: 8px;
             transition: all 0.2s ease;
             margin-bottom: 8px;
@@ -1317,10 +1295,10 @@
 
         /* Appliquer le style de bordure sur le contenu seulement pour les tableaux */
         .risk-table-container.collapsible-section .collapsible-content {
-            background: white;
+            background: var(--surface);
             padding: 16px;
             border-radius: 12px;
-            border: 1px solid #e5e5e7;
+            border: 1px solid var(--line);
         }
 
         /* Pour les matrices, appliquer un padding mais pas de border (déjà dans sticky-charts-section) */
@@ -1361,14 +1339,14 @@
 
         .editable-title:hover,
         .editable-subtitle:hover {
-            background: #f5f5f7;
-            outline: 1px dashed #d2d2d7;
+            background: var(--surface-soft);
+            outline: 1px dashed var(--line);
         }
 
         .editable-title:focus,
         .editable-subtitle:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -1404,9 +1382,9 @@
 
         .editable-group-name:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
-            color: #1d1d1f;
+            color: var(--ink);
         }
 
         .editable-group-name::after {
@@ -1439,7 +1417,7 @@
 
         .editable-section-title:focus {
             outline: 2px solid #0071e3;
-            background: #ffffff;
+            background: var(--surface);
             cursor: text;
         }
 
@@ -1495,13 +1473,13 @@
 
         .sticky-toggle-label {
             font-size: 13px;
-            color: #666666;
+            color: var(--muted);
             font-weight: 500;
             user-select: none;
         }
 
         .sticky-toggle-btn {
-            background: #e5e5e7;
+            background: var(--line);
             border: none;
             border-radius: 20px;
             padding: 4px;
@@ -1520,7 +1498,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: white;
+            background: var(--surface);
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             left: 4px;
@@ -1548,13 +1526,13 @@
             position: relative;
             margin: 24px 0;
             height: 1px;
-            background: #e5e5e7;
+            background: var(--line);
             cursor: pointer;
             transition: background-color 0.2s ease;
         }
 
         .group-separator:hover {
-            background: #d2d2d7;
+            background: var(--line);
         }
 
         .group-separator-label {
@@ -1562,9 +1540,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: var(--surface);
             padding: 8px 20px;
-            color: #666666;
+            color: var(--muted);
             font-size: 14px;
             font-weight: 500;
             white-space: nowrap;
@@ -1577,7 +1555,7 @@
 
         .group-separator:hover .group-separator-label {
             color: #0071e3;
-            background: #f5f5f7;
+            background: var(--surface-soft);
         }
 
         .group-separator-icon {
@@ -1622,7 +1600,7 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: #e5e5e7;
+            background: var(--line);
             opacity: 0;
             transition: opacity 0.2s ease;
             transform: translateY(-50%);
@@ -1634,9 +1612,9 @@
         }
 
         .risk-separator-label {
-            background: white;
+            background: var(--surface);
             padding: 4px 12px;
-            color: #666666;
+            color: var(--muted);
             font-size: 12px;
             font-weight: 500;
             white-space: nowrap;
@@ -1656,7 +1634,7 @@
         }
 
         .risk-separator-label:hover {
-            background: #f5f5f7;
+            background: var(--surface-soft);
         }
 
         .risk-separator-icon {
@@ -1691,7 +1669,7 @@
         }
 
         .toast {
-            background: #1d1d1f;
+            background: var(--ink);
             color: white;
             padding: 12px 20px;
             border-radius: 10px;
@@ -1746,8 +1724,8 @@
         /* Boutons de suppression */
         .delete-btn {
             background: transparent;
-            border: 1px solid #d2d2d7;
-            color: #666666;
+            border: 1px solid var(--line);
+            color: var(--muted);
             padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
@@ -1785,7 +1763,7 @@
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 13px;
-            color: #1d1d1f;
+            color: var(--ink);
             transition: background 0.15s;
         }
         .date-display:hover {
@@ -1841,9 +1819,9 @@
             margin-top: 60px;
             padding: 24px 0;
             text-align: center;
-            color: #86868b;
+            color: var(--muted);
             font-size: 13px;
-            border-top: 1px solid #e5e5e7;
+            border-top: 1px solid var(--line);
         }
 
         .app-footer a {
@@ -1868,7 +1846,7 @@
         }
 
         .footer-separator {
-            color: #d2d2d7;
+            color: var(--line);
         }
 
         .footer-copyright {
@@ -1905,7 +1883,7 @@
 
         .criticality-unevaluated {
             background: #F0F0F0;
-            color: #666666;
+            color: var(--muted);
             font-style: italic;
         }
 
@@ -1944,7 +1922,7 @@
 
         .reduction-neutral {
             background: #F0F0F0;
-            color: #666666;
+            color: var(--muted);
         }
 
         .reduction-na {
@@ -1971,7 +1949,7 @@
         }
 
         .dashboard-card {
-            background: white;
+            background: var(--surface);
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -1992,7 +1970,7 @@
             right: -40px;
             bottom: -40px;
             opacity: 0.04;
-            color: #1d1d1f;
+            color: var(--ink);
             pointer-events: none;
             z-index: 0;
         }
@@ -2006,13 +1984,13 @@
         .dashboard-card-value {
             font-size: 24px;
             font-weight: 700;
-            color: #1d1d1f;
+            color: var(--ink);
             margin-bottom: 4px;
         }
 
         .dashboard-card-label {
             font-size: 12px;
-            color: #666;
+            color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -2069,9 +2047,9 @@
             }
         }
     /* ── Mode Présentation ── */
-    .pres-toggle { padding: 8px 14px; font-size: 13px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.1); font-weight: 600; color: #1d1d1f; transition: all .2s; display: flex; align-items: center; gap: 6px; }
-    .pres-toggle:hover { background: #f5f5f7; }
-    .pres-toggle.active { background: #1d1d1f; color: white; border-color: #1d1d1f; }
+    .pres-toggle { padding: 8px 14px; font-size: 13px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.1); font-weight: 600; color: var(--ink); transition: all .2s; display: flex; align-items: center; gap: 6px; }
+    .pres-toggle:hover { background: var(--surface-soft); }
+    .pres-toggle.active { background: var(--ink); color: white; border-color: var(--ink); }
 
     body.presentation-mode .app-controls > *:not(.pres-toggle) { display: none !important; }
     body.presentation-mode .risks-table input[type="date"] { -webkit-appearance: none !important; appearance: none !important; border: none !important; background: transparent !important; outline: none !important; pointer-events: none !important; color: inherit !important; font-family: inherit !important; }
@@ -2104,22 +2082,22 @@
    ================================================================== */
 .progress-cell { text-align: center; }
 .editable-progress {
-    width: 54px; padding: 3px 4px; border: 1px solid #d2d2d7;
-    border-radius: 6px; font-size: 13px; text-align: right; background: white;
+    width: 54px; padding: 3px 4px; border: 1px solid var(--line);
+    border-radius: 6px; font-size: 13px; text-align: right; background: var(--surface);
 }
 .progress-mini {
-    height: 4px; background: #e5e5e7; border-radius: 2px;
+    height: 4px; background: var(--line); border-radius: 2px;
     margin-top: 4px; overflow: hidden;
 }
 .progress-mini-fill {
     height: 100%; background: #34C759; border-radius: 2px; transition: width .2s;
 }
-.depends-cell { font-size: 12.5px; color: #3a3a3c; }
+.depends-cell { font-size: 12.5px; color: var(--ink); }
 .editable-depends {
     cursor: pointer; display: inline-block; min-width: 32px;
     padding: 2px 6px; border-radius: 6px;
 }
-.editable-depends:hover { background: #f2f2f7; }
+.editable-depends:hover { background: var(--surface-soft); }
 .depends-placeholder { color: #c7c7cc; }
 .depends-input {
     width: 100%; min-width: 80px; padding: 3px 6px;
@@ -2133,7 +2111,7 @@
 
 @media print {
     @page { size: A3 landscape; margin: 10mm; }
-    body { background: white !important; }
+    body { background: var(--surface) !important; }
     .app-controls, .studio-toolbar, .sticky-toggle-container,
     .group-separator, .risk-separator-row, .delete-btn, .pres-toggle,
     #color-palette-selector, .toast-container, .studio-ribbon,
@@ -2150,7 +2128,7 @@
 /* Toggles des barres grises de neutralisation (v2.1.3) */
 .shading-toggle {
     display: flex; align-items: center; gap: 5px;
-    font-size: 13px; color: #1d1d1f; cursor: pointer; user-select: none;
+    font-size: 13px; color: var(--ink); cursor: pointer; user-select: none;
 }
 .shading-toggle input { accent-color: #0071e3; cursor: pointer; }
 
@@ -2159,16 +2137,16 @@
    ================================================================== */
 .plannr-banner-inner {
     position: relative; margin: 12px 0; padding: 12px 36px 12px 16px;
-    background: white; border: 1px solid #e5e5e7; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 13px;
 }
 .banner-close {
     position: absolute; top: 8px; right: 10px; border: none; background: none;
-    font-size: 18px; color: #86868b; cursor: pointer; line-height: 1;
+    font-size: 18px; color: var(--muted); cursor: pointer; line-height: 1;
 }
 .banner-section { padding: 4px 0; }
 .banner-section ul { margin: 4px 0 4px 18px; padding: 0; }
-.banner-section li { margin: 1px 0; color: #3a3a3c; }
+.banner-section li { margin: 1px 0; color: var(--ink); }
 .banner-title { font-weight: 600; }
 .banner-error .banner-title { color: #D70015; }
 .banner-warn .banner-title { color: #B25000; }
@@ -2177,7 +2155,7 @@
 .deadline-badge {
     display: inline-block; margin-left: 4px; padding: 1px 6px;
     border-radius: 6px; font-size: 11px; font-weight: 600;
-    background: #f2f2f7; color: #6e6e73; white-space: nowrap;
+    background: var(--surface-soft); color: var(--muted); white-space: nowrap;
 }
 .deadline-badge.exceeded { background: #FFEBEA; color: #D70015; }
 .inconsistency-badge {
@@ -2194,23 +2172,23 @@
 .zoom-btn {
     border: none; background: transparent; padding: 4px 10px;
     border-radius: 6px; font-size: 12.5px; font-weight: 500;
-    color: #666666; cursor: pointer; transition: 0.2s;
+    color: var(--muted); cursor: pointer; transition: 0.2s;
 }
-.zoom-btn.active { background: white; color: #1d1d1f;
+.zoom-btn.active { background: var(--surface); color: var(--ink);
     box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-.zoom-nav-btn { background: #e5e5e7; }
+.zoom-nav-btn { background: var(--line); }
 .zoom-nav-btn:hover { background: #d8d8dc; }
 
-.workload-person { padding: 8px 0; border-bottom: 1px solid #f2f2f7; }
+.workload-person { padding: 8px 0; border-bottom: 1px solid var(--surface-soft); }
 .workload-person:last-child { border-bottom: none; }
-.workload-name { font-weight: 600; font-size: 13.5px; color: #1d1d1f; }
-.workload-total { font-weight: 400; color: #86868b; font-size: 12.5px; }
-.workload-tasks { color: #6e6e73; font-size: 12.5px; margin-top: 2px; }
+.workload-name { font-weight: 600; font-size: 13.5px; color: var(--ink); }
+.workload-total { font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.workload-tasks { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
 .workload-conflicts {
     margin-top: 4px; padding: 4px 8px; border-radius: 6px;
     background: #FFF4E5; color: #B25000; font-size: 12.5px;
 }
-.workload-empty { color: #86868b; font-size: 13px; }
+.workload-empty { color: var(--muted); font-size: 13px; }
 
 tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
 @keyframes plannr-row-flash {
@@ -2226,27 +2204,27 @@ tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
 /* ==== v2.3 : sélecteur de dépendances (popover) ==== */
 .depends-popover {
     position: absolute; z-index: 1000; width: 380px; max-height: 420px;
-    overflow-y: auto; background: white; border: 1px solid #d2d2d7;
+    overflow-y: auto; background: var(--surface); border: 1px solid var(--line);
     border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.18);
     padding: 12px 14px; font-size: 13px;
 }
 .dp-title { font-weight: 600; margin-bottom: 2px; }
-.dp-hint { color: #86868b; font-size: 11.5px; margin-bottom: 8px; }
+.dp-hint { color: var(--muted); font-size: 11.5px; margin-bottom: 8px; }
 .dp-phase {
-    font-weight: 600; font-size: 11.5px; color: #6e6e73;
+    font-weight: 600; font-size: 11.5px; color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.3px;
-    margin: 8px 0 2px; border-bottom: 1px solid #f2f2f7; padding-bottom: 2px;
+    margin: 8px 0 2px; border-bottom: 1px solid var(--surface-soft); padding-bottom: 2px;
 }
 .dp-row {
     display: flex; align-items: center; gap: 6px; padding: 3px 2px;
     border-radius: 6px; cursor: pointer;
 }
-.dp-row:hover { background: #f5f5f7; }
+.dp-row:hover { background: var(--surface-soft); }
 .dp-row input[type="checkbox"] { accent-color: #0071e3; }
 .dp-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dp-lag { color: #86868b; font-size: 12px; white-space: nowrap; }
+.dp-lag { color: var(--muted); font-size: 12px; white-space: nowrap; }
 .dp-lag-input {
-    width: 40px; padding: 1px 4px; border: 1px solid #d2d2d7;
+    width: 40px; padding: 1px 4px; border: 1px solid var(--line);
     border-radius: 5px; font-size: 12px; text-align: right;
 }
 .dp-lag-input:disabled { opacity: 0.35; }
@@ -2256,7 +2234,7 @@ tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
 .dp-check { width: 13px; text-align: center; }
 .dp-footer {
     display: flex; justify-content: space-between; align-items: center;
-    margin-top: 10px; padding-top: 8px; border-top: 1px solid #f2f2f7;
+    margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--surface-soft);
 }
 .dp-ok {
     padding: 5px 18px; border: none; border-radius: 8px; background: #0071e3;
@@ -2267,7 +2245,7 @@ tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
 
 /* Session 002 — espaces réservés, contrôles regroupés, défilement local. */
 :root { --ink: #192c3d; --muted: #516678; --line: #dbe3e9; --accent: #245b79; }
-body { color: var(--ink); background: #edf2f5; padding: 20px; }
+body { color: var(--ink); background: var(--page); padding: 20px; }
 .container { width: 100%; padding: 28px; max-width: 1920px; }
 .app-header { flex-wrap: wrap; align-items: flex-start; }
 .app-title-section { min-width: 220px; }
@@ -2281,21 +2259,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 [hidden] { display: none !important; }
 .document-status { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 8px 0 22px; color: var(--muted); font-size: 13px; }
 .history-actions { display: flex; gap: 6px; }
-.history-actions button, .planning-filters button, .panel-actions button { padding: 7px 14px; border: 1px solid var(--line); background: #fff; border-radius: 7px; }
+.history-actions button, .planning-filters button, .panel-actions button { padding: 7px 14px; border: 1px solid var(--line); background: var(--surface); border-radius: 7px; }
 #save-status { overflow-wrap: anywhere; }
 #save-status[data-dirty="true"] { color: #765014; }
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; }
 .dashboard-card { min-width: 0; min-height: 96px; }
 .dashboard-card-value { font-size: 28px; }
 .dashboard-card-label { color: var(--muted); white-space: normal; }
-.planning-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 16px; margin: 22px 0 12px; background: #f3f6f8; border: 1px solid var(--line); border-radius: 10px; }
+.planning-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 16px; margin: 22px 0 12px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 10px; }
 .planning-filters input[type="search"] { flex: 2 1 260px; min-width: 0; }
 .planning-filters select { flex: 1 1 155px; max-width: 100%; min-width: 0; }
-.planning-filters input, .planning-filters select { border: 1px solid #bdcbd6; border-radius: 6px; background: #fff; padding: 6px 10px; color: var(--ink); }
+.planning-filters input, .planning-filters select { border: 1px solid #bdcbd6; border-radius: 6px; background: var(--surface); padding: 6px 10px; color: var(--ink); }
 .checkbox-label { display: flex !important; flex-direction: row !important; align-items: center; gap: 8px; }
 .checkbox-label input { width: 18px; min-height: 18px; }
 #filter-count { color: var(--muted); font-size: 13px; white-space: nowrap; }
-#filter-empty { padding: 24px; text-align: center; background: #f3f6f8; }
+#filter-empty { padding: 24px; text-align: center; background: var(--surface-soft); }
 .sticky-toggle-container { flex-wrap: wrap !important; row-gap: 14px !important; align-items: center; padding: 16px 0; }
 .sticky-toggle-container > div { flex-wrap: wrap; max-width: 100%; }
 .sticky-toggle-container > div[style*="width: 1px"] { display: none; }
@@ -2304,7 +2282,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .chart-wrapper, .charts-column, .dashboard-layout { min-width: 0; max-width: 100%; }
 .dashboard-layout { display: block; }
 .chart-help { font-size: 13px; color: var(--muted); max-width: 980px; padding: 8px 12px 14px; }
-.gantt-scroll { max-width: 100%; overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: white; }
+.gantt-scroll { max-width: 100%; overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
 .chart-canvas { min-width: 1120px; max-width: none !important; margin: 0 !important; padding: 0 !important; }
 #workload-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 265px), 1fr)); gap: 14px; padding: 16px; }
 .workload-explanation { grid-column: 1 / -1; color: var(--muted); font-size: 13px; }
@@ -2330,14 +2308,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #task-form { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
 .panel-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .panel-header h2 { margin: 0; font-size: 21px; }
-.panel-header button { background: #edf2f5; border: 0; border-radius: 50%; width: 36px; font-size: 24px; }
+.panel-header button { background: var(--page); border: 0; border-radius: 50%; width: 36px; font-size: 24px; }
 #task-form label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; }
-#task-form input:not([type="checkbox"]), #task-form select, #task-form textarea { width: 100%; min-width: 0; border: 1px solid #b9c9d5; padding: 9px; border-radius: 6px; color: var(--ink); background: white; font-size: 14px; }
+#task-form input:not([type="checkbox"]), #task-form select, #task-form textarea { width: 100%; min-width: 0; border: 1px solid #b9c9d5; padding: 9px; border-radius: 6px; color: var(--ink); background: var(--surface); font-size: 14px; }
 #task-form textarea { resize: vertical; }
 #task-form small { font-weight: 400; color: var(--muted); }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .task-margin { color: var(--accent); padding: 10px; background: #edf5f8; border-radius: 5px; }
-.panel-actions { display: flex; gap: 10px; justify-content: flex-end; position: sticky; bottom: 0; background: white; padding: 12px 0; }
+.panel-actions { display: flex; gap: 10px; justify-content: flex-end; position: sticky; bottom: 0; background: var(--surface); padding: 12px 0; }
 .panel-actions .primary-action { background: var(--accent); color: white; border-color: var(--accent); }
 #task-form-error { color: #9a3025; }
 @media (max-width: 760px) {
@@ -2362,3 +2340,33 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .risks-table { min-width: 1220px; table-layout: auto; }
 .risks-table .risk-title-cell { width: 30%; min-width: 290px; white-space: normal; }
 .risks-table th { white-space: nowrap; }
+
+/* Thèmes de l'application HTML, y compris les surfaces de saisie. */
+:root { color-scheme: light; --surface: #ffffff; --surface-soft: #f3f6f8; --page: #edf2f5; }
+:root[data-theme="dark"] {
+ color-scheme: dark; --ink: #edf3fa; --muted: #b6c6d8; --line: #42546a;
+ --accent: #98d3f3; --surface: #182330; --surface-soft: #223143; --page: #101923;
+}
+.theme-control { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.theme-control select { padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); }
+input, select, textarea, button { color: var(--ink); }
+:root[data-theme="dark"] :is(.dashboard-card, .chart-wrapper, .collapsible-section, .sticky-charts-section, #task-panel, .depends-popover, .palette-dropdown) { background: var(--surface); border-color: var(--line); }
+:root[data-theme="dark"] :is(.risk-group-header, .planning-filters, .collapsible-header, .view-toggle-wrapper, .zoom-controls, .task-margin, .task-details-button, .dp-row:hover) { background: var(--surface-soft) !important; color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] :is(input:not([type="checkbox"]), select, textarea, .studio-toolbar button, .history-actions button, .planning-filters button, .panel-header button, .palette-trigger) { background-color: var(--surface-soft) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+:root[data-theme="dark"] :is(.risks-table th, .risks-table td) { border-color: var(--line); }
+:root[data-theme="dark"] :is(.risk-group-title, .editable-risk-title, .editable-responsable, .shading-toggle, .workload-name, .dashboard-card-value, .chart-wrapper h3) { color: var(--ink) !important; }
+:root[data-theme="dark"] :is(.risk-group-description, .workload-tasks, .workload-total, .dp-hint, .dp-phase, .banner-section li) { color: var(--muted); }
+:root[data-theme="dark"] :is(.workload-person.has-conflict, .workload-conflicts) { background: #3b3021; color: #f4ce92; }
+:root[data-theme="dark"] :is(#save-status[data-dirty="true"], .banner-warn .banner-title, .inconsistency-badge) { color: #f4ce92; }
+:root[data-theme="dark"] :is(.banner-error .banner-title, #task-form-error, .deadline-badge.exceeded) { color: #ffb2a9; }
+:root[data-theme="dark"] .deadline-badge.exceeded { background: #49312f; }
+:root[data-theme="dark"] .banner-info .banner-title { color: #98d3f3; }
+:root[data-theme="dark"] .panel-actions .primary-action { background: #327594; color: white; }
+:root[data-theme="dark"] a { color: #98d3f3; }
+:root[data-theme="dark"] input::placeholder, :root[data-theme="dark"] textarea::placeholder { color: #9dadc1; opacity: 1; }
+
+.theme-switching *, .theme-switching *::before, .theme-switching *::after { transition: none !important; }
+
+.risks-table tbody tr.risk-odd { background-color: var(--surface-soft); }
+.zoom-btn:hover { background: var(--surface-soft); color: var(--ink); }
+:root[data-theme="dark"] .risks-table tbody tr[data-risk-id]:hover + .remediation-row { background-color: var(--surface-soft) !important; }

@@ -28,7 +28,7 @@ function exportToPDF() {
         const scale = 388 / chartCanvas.width;
         const sliceHeight = Math.floor(225 / scale);
         const ratio = chartCanvas.width / ganttChart.width;
-        const boundaries = [...new Set(ganttChart.options.readableRows.map(row => Math.ceil((ganttChart.scales.y.getPixelForValue(row.y) + 36) * ratio)))].sort((a,b)=>a-b);
+        const boundaries = [...new Set(ganttChart.options.readableRows.map(row => Math.ceil(ganttChart.scales.y.getPixelForValue(row.bottom - 8) * ratio)))].sort((a,b)=>a-b);
         for (let offset = 0, page = 1; offset < chartCanvas.height; page++) {
             const limit = Math.min(chartCanvas.height, offset + sliceHeight);
             const candidates = boundaries.filter(y => y > offset && y <= limit);

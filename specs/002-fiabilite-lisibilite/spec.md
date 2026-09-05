@@ -19,3 +19,6 @@ Tests : 47/47 (100 %) — Chromium, 2026-09-05.
 
 ## Contraintes
 Format historique accepté. Aucune migration vers un framework. Aucun réseau requis à l'exécution. Échappement des données. Libellés nouveaux français/anglais. Les autres langues conservent le fallback existant.
+
+## Complément validé — Apparence et densité
+À la demande de l'utilisateur après inspection du Gantt : choix Clair/Sombre directement dans l'application HTML principale, préférence mémorisée, espacement réduit entre libellés et barres et entre tâches dans les trois vues. Les titres longs doivent garder un espace adapté sans collisions.

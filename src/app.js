@@ -1444,14 +1444,14 @@
             const trigger = document.createElement('button');
             trigger.className = 'dropdown-trigger';
             trigger.onclick = togglePaletteDropdown;
-            trigger.style.cssText = 'padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid #d2d2d7; background: white; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: #1d1d1f; min-width: 180px;';
+            trigger.style.cssText = 'padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); min-width: 180px;';
             trigger.innerHTML = '<span class="trigger-label">🎨 Palette...</span><span style="margin-left: auto;">▼</span>';
 
             // Créer le menu avec styles inline
             const menu = document.createElement('div');
             menu.id = 'palette-dropdown-menu';
             menu.className = 'dropdown-menu';
-            menu.style.cssText = 'display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; background: white; border: 1px solid #d2d2d7; border-radius: 8px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); max-height: 400px; overflow-y: auto; z-index: 1000; min-width: 300px;';
+            menu.style.cssText = 'display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); max-height: 400px; overflow-y: auto; z-index: 1000; min-width: 300px;';
 
             // Remplir le menu avec les palettes
             colorPalettes.forEach((palette, index) => {
@@ -1474,7 +1474,7 @@
 
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'palette-name';
-                nameSpan.style.cssText = 'font-size: 13px; font-weight: 500; color: #1d1d1f; flex: 1; white-space: nowrap;';
+                nameSpan.style.cssText = 'font-size: 13px; font-weight: 500; color: var(--ink); flex: 1; white-space: nowrap;';
                 nameSpan.textContent = palette.name;
 
                 item.appendChild(colorsPreview);
@@ -1486,10 +1486,10 @@
                 });
 
                 item.addEventListener('mouseenter', () => {
-                    item.style.background = '#f5f5f7';
+                    item.style.background = 'var(--surface-soft)';
                 });
                 item.addEventListener('mouseleave', () => {
-                    item.style.background = 'white';
+                    item.style.background = 'var(--surface)';
                 });
 
                 menu.appendChild(item);
@@ -2500,6 +2500,7 @@
         }
 
         // Initialisation
+        initTheme();
         prepareDocument();
         initCalendarConfig(); // v2.2 : calendrier MÉTIER avant tout calcul de durées
         sanitizeData(); // Nettoyage préventif
