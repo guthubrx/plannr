@@ -30,12 +30,15 @@ def build() -> str:
     parts.append(GLUE_LIBS_TO_CSS)
     parts.append((SRC / "styles.css").read_text(encoding="utf-8"))
     parts.append(GLUE_CSS_TO_BODY)
-    parts.append((SRC / "body.html").read_text(encoding="utf-8"))
+    import base64
+    body = (SRC / "body.html").read_text(encoding="utf-8")
+    icon = base64.b64encode((ROOT / "icon.svg").read_bytes()).decode()
+    parts.append(body.replace('src="icon.svg"', 'src="data:image/svg+xml;base64,' + icon + '"'))
     parts.append(APP_OPEN)
     # features.js AVANT app.js : plugins Chart.js enregistres avant le premier
     # rendu, fonctions hoistees visibles par l'init de app.js
-    parts.append((SRC / "features.js").read_text(encoding="utf-8"))
-    parts.append((SRC / "app.js").read_text(encoding="utf-8"))
+    for module in ["planning.js", "features.js", "document.js", "workspace.js", "gantt.js", "exports.js", "app.js"]:
+        parts.append((SRC / module).read_text(encoding="utf-8"))
     parts.append(TAIL)
     return "".join(parts)
 

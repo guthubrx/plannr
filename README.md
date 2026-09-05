@@ -10,6 +10,20 @@
 
 ## ✨ Fonctionnalités
 
+
+### Fiabilité et lisibilité (v2.3)
+- **Document complet** : import/export des tâches, calendrier, référence, métadonnées et effort. Les cycles sont refusés avant remplacement.
+- **Sauvegarde navigateur complète** : restauration après rechargement, migration des anciennes clés du document, état de sauvegarde et heure visibles. Un téléchargement est distingué d'une écriture confirmée sur disque.
+- **Annuler / rétablir** : historique du document complet ; la saisie conserve ses raccourcis natifs.
+- **Durées ouvrées** : déplacer une tâche préserve ses jours de travail, y compris autour des fériés. Modifier sa fin constitue un redimensionnement.
+- **Marges** : calcul du chemin critique incluant les délais entre tâches ; marge en jours ouvrés dans le panneau Détails. Les dates planifiées sont traitées comme des contraintes de début au plus tôt.
+- **Recherche et filtres** : phase, responsable, statut, retards et texte ; synchronisés entre tableau et Gantt. Les exports et calculs restent fondés sur le document complet.
+- **Panneau Détails** : édition groupée, validation des dates/dépendances, notes multilignes, butoir, lien et effort. Accessible au clavier.
+- **Effort distinct de la durée** : `effortDays` désigne un total de jours-personnes, partagé également entre responsables et jours ouvrés ; surcharge au-delà de 1 jour/personne/jour. Les tâches terminées sont exclues ; les efforts inconnus restent explicites.
+- **Trois vues lisibles** : espaces réservés aux libellés et jalons ; une ligne supplémentaire remplace toute collision. Titres répartis sur trois lignes au maximum, texte intégral dans le tableau et Détails. Le calendrier et le tableau défilent localement sur petit écran.
+- **Exports** : HTML autonome contenant les données et l'icône ; PDF A3 paysage paginé sans écraser le Gantt ; Excel/CSV avec responsables, effort, notes et dépendances.
+- **Identifiants stables** : ajouter, déplacer ou supprimer une tâche ne renumérote plus les autres tâches, afin de préserver leurs dépendances et leur référence. L'ordre d'affichage demeure modifiable.
+
 ### Chaîne agent → visualisation (v2.2)
 - **Bandeau de validation** : anomalies corrigées au chargement (doublons,
   dates invalides, dépendances inconnues, liens non-http), butoirs dépassées,
@@ -63,7 +77,7 @@
 - **Ajout/suppression** de tâches et de phases (groupes)
 - **Drag & drop interactif** pour déplacer les tâches et les jalons directement sur le Gantt
 - **Jalons (Milestones)** : Transformation facile de tâches en jalons et inversement
-- **Renumérotation automatique** des tâches lors des modifications
+- **Identifiants stables** lors des modifications, ordre des tâches modifiable
 
 ### Visualisation
 - **Diagramme de Gantt interactif** propulsé par Chart.js
@@ -107,15 +121,20 @@ Le HTML est **généré** — ne pas l'éditer directement :
 src/head.html      # <head> (meta, favicon)
 src/styles.css     # CSS applicatif (+ @media print)
 src/body.html      # markup
-src/features.js    # module v2.1 (jours ouvrés, dépendances, baseline, plugins Gantt)
-src/app.js         # application historique
+src/planning.js    # calendrier, dépendances, cascade et marges
+src/document.js    # document canonique, historique et persistance
+src/workspace.js   # filtres, panneau de tâche et charge
+src/gantt.js       # placement, rendu et interactions Gantt
+src/exports.js     # HTML autonome, PDF, Excel et CSV
+src/features.js    # référence, plugins et édition complémentaire
+src/app.js         # tableau, traductions et initialisation
 src/libs/          # bibliothèques vendorisées (pinnées)
 
 python3 build.py   # assemble -> plannr.html (déterministe, vérifié en CI)
 
-npm install && npx playwright install chromium
-npm test           # suite e2e (8 tests : libs, jours ouvrés, cascade,
-                   # round-trip, rétro-compat, UI v2.1, progression)
+npm ci && npx playwright install chromium
+npm test           # 47 tests : métier, historique, formats, interactions,
+                   # absence de collisions à 1440/768/390 px dans les 3 vues
 ```
 
 

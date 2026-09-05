@@ -69,7 +69,7 @@ test('round-trip : export canonique v2.1 -> import sans perte', async ({ page })
         input.files = dt.files;
         importFromJSON(input);
         setTimeout(() => resolve(
-            canon.version === '2.2' && !!canon.phases && !('riskGroups' in canon) &&
+            canon.version === '2.3' && !!canon.phases && !('riskGroups' in canon) &&
             riskGroups.length === before.p && risks.length === before.t
         ), 500);
     }));
@@ -124,8 +124,7 @@ test('drag Gantt : déplacer une tâche déclenche la cascade des successeurs', 
     // que sa fin dépasse le début de 2.3 (qui dependsOn 2.2) -> 2.3 et toute
     // la chaîne doivent se décaler automatiquement, sans que 2.2 rétrécisse.
     const before = await page.evaluate(() => ({
-        span22: new Date(risks.find(r => r.id === '2.2').endDate) -
-                new Date(risks.find(r => r.id === '2.2').startDate),
+        span22: workingDaysBetween(risks.find(r => r.id === '2.2').startDate, risks.find(r => r.id === '2.2').endDate),
         start22: risks.find(r => r.id === '2.2').startDate,
         start23: risks.find(r => r.id === '2.3').startDate
     }));
@@ -167,8 +166,7 @@ test('drag Gantt : déplacer une tâche déclenche la cascade des successeurs', 
 
     const after = await page.evaluate(() => ({
         start22: risks.find(r => r.id === '2.2').startDate,
-        span22: new Date(risks.find(r => r.id === '2.2').endDate) -
-                new Date(risks.find(r => r.id === '2.2').startDate),
+        span22: workingDaysBetween(risks.find(r => r.id === '2.2').startDate, risks.find(r => r.id === '2.2').endDate),
         start23: risks.find(r => r.id === '2.3').startDate,
         noViolation: risks.every(t => parseDependsOn(t).every(pid => {
             const p = risks.find(r => r.id === pid);
@@ -247,6 +245,7 @@ test('infobulle : contenu de la tâche survolée, jamais posée sur sa barre', a
 
     // 2.3 (centre — cas du bug : affichait 2.2) et 4.2 (proche coin bas-droit)
     for (const taskId of ['2.3', '4.2']) {
+        await page.evaluate(id => { const d = ganttChart.options.ganttData.find(g => g.task.id === id); const rect = ganttChart.canvas.getBoundingClientRect(); window.scrollBy(0, rect.top + ganttChart.scales.y.getPixelForValue(d.y) - innerHeight / 2); }, taskId);
         const pt = await page.evaluate((id) => {
             const d = ganttChart.options.ganttData.find(g => g.task && g.task.id === id);
             const x = ganttChart.scales.x, y = ganttChart.scales.y;
@@ -280,6 +279,9 @@ test('mode consolidé : pas de bouton + sur les barres, drag fonctionnel', async
     await page.evaluate(() => {
         document.getElementById('ganttChart').scrollIntoView({ block: 'center' });
         setGanttView('consolide');
+        const d = ganttChart.options.ganttData.find(g => g.task.id === '2.1');
+        const rect = ganttChart.canvas.getBoundingClientRect();
+        window.scrollBy(0, rect.top + ganttChart.scales.y.getPixelForValue(d.y) - innerHeight / 2);
     });
     await page.waitForTimeout(1300);
 
@@ -331,7 +333,7 @@ test('neutralisation grisée : toggles week-ends/fériés indépendants, métier
         const ctx = ganttChart.canvas.getContext('2d');
         const t0 = new Date(dateStr).getTime();
         const px = Math.round((x.getPixelForValue(t0) + x.getPixelForValue(t0 + 86400000)) / 2);
-        const yP = Math.round((y.top + y.bottom) * 0.93);
+        const yP = Math.round(y.top + (y.bottom - y.top) * 0.93);
         return ctx.getImageData(px, yP, 1, 1).data[3] > 0; // alpha = bande présente
     }, ds);
     const duration22 = () => page.evaluate(() => risks.find(r => r.id === '2.2').duration);
@@ -436,8 +438,8 @@ test('v2.2 FR-6 : charge par responsable avec détection de chevauchement', asyn
         document.getElementById('workload-content').textContent);
     expect(wl).toContain('Alice');
     expect(wl).toContain('Diana');
-    expect(wl).toContain('∥'); // conflit 2.1 ∥ 2.2 (Diana) présent dans la démo
-    expect(wl).toContain('j ouvrés');
+    expect(wl).toContain('sans effort'); // conflit 2.1 ∥ 2.2 (Diana) présent dans la démo
+    expect(wl).toContain('j-personnes');
 });
 
 test('v2.2 FR-7 : lag de dépendance en jours ouvrés (id+N)', async ({ page }) => {

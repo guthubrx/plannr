@@ -23,7 +23,7 @@ jobs:
           git diff --exit-code plannr.html
 
       - name: Installer les dependances de test
-        run: npm install
+        run: npm ci
 
       - name: Installer Chromium
         run: npx playwright install --with-deps chromium

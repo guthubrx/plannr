@@ -105,359 +105,6 @@
         // Jours ouvrés & fériés français
         // --------------------------------------------------------------
         // Dimanche de Pâques (algorithme de Meeus/Butcher, valide gregorien)
-        function easterSunday(year) {
-            const a = year % 19, b = Math.floor(year / 100), c = year % 100,
-                  d = Math.floor(b / 4), e = b % 4,
-                  f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
-                  h = (19 * a + b - d - g + 15) % 30,
-                  i = Math.floor(c / 4), k = c % 4,
-                  l = (32 + 2 * e + 2 * i - h - k) % 7,
-                  m = Math.floor((a + 11 * h + 22 * l) / 451),
-                  month = Math.floor((h + l - 7 * m + 114) / 31),
-                  day = ((h + l - 7 * m + 114) % 31) + 1;
-            return new Date(Date.UTC(year, month - 1, day));
-        }
-
-        var _frHolidaysCache = {};
-        // Fériés français (métropole) : 8 fixes + lundi de Pâques, Ascension,
-        // lundi de Pentecôte. Retourne un Set de chaînes "YYYY-MM-DD".
-        function frenchHolidays(year) {
-            if (_frHolidaysCache[year]) return _frHolidaysCache[year];
-            const set = new Set(
-                ['01-01', '05-01', '05-08', '07-14', '08-15', '11-01', '11-11', '12-25']
-                    .map(s => year + '-' + s));
-            const easter = easterSunday(year);
-            [1, 39, 50].forEach(offset => {
-                const d = new Date(easter.getTime() + offset * 86400000);
-                set.add(d.toISOString().slice(0, 10));
-            });
-            _frHolidaysCache[year] = set;
-            return set;
-        }
-
-        // ------------------------------------------------------------------
-        // Calendrier MÉTIER paramétrable (v2.2 / FR-11) : porté par
-        // PLANNR_DATA.calendar (décision de l'agent, par projet), avec
-        // override utilisateur persisté pour le samedi. Affecte durées,
-        // cascade, chemin critique et grisage — c'est voulu.
-        // ------------------------------------------------------------------
-        var calendarConfig = {
-            saturdayWorked: false,
-            extraHolidays: new Set(),
-            skippedHolidays: new Set()
-        };
-
-        function initCalendarConfig() {
-            const data = (window.PLANNR_DATA && window.PLANNR_DATA.calendar) || {};
-            calendarConfig.extraHolidays =
-                new Set(Array.isArray(data.extraHolidays) ? data.extraHolidays : []);
-            calendarConfig.skippedHolidays =
-                new Set(Array.isArray(data.skippedHolidays) ? data.skippedHolidays : []);
-            const stored = appStorage.getItem('plannr-saturday-worked');
-            calendarConfig.saturdayWorked =
-                stored !== null ? stored === 'true' : !!data.saturdayWorked;
-            const cb = document.getElementById('toggle-saturday-worked');
-            if (cb) cb.checked = calendarConfig.saturdayWorked;
-        }
-
-        function toggleSaturdayWorked(checked) {
-            calendarConfig.saturdayWorked = !!checked;
-            appStorage.setItem('plannr-saturday-worked', String(!!checked));
-            // MÉTIER : recalcul complet des durées puis des contraintes
-            risks.forEach(tk => {
-                tk.duration = tk.isMilestone ? 0 :
-                    workingDaysBetween(tk.startDate, tk.endDate || tk.startDate);
-            });
-            applyDependencyCascade({ silent: true });
-            recomputeCriticalPath();
-            renderPlanning();
-            updateGantt();
-            updateDashboard();
-        }
-
-        // date : objet Date ancré à midi UTC (évite les dérives de fuseau)
-        function isWeekendDay(date) {
-            const day = date.getUTCDay();
-            return day === 0 || (day === 6 && !calendarConfig.saturdayWorked);
-        }
-
-        function isFrenchHoliday(date) {
-            const iso = date.toISOString().slice(0, 10);
-            if (calendarConfig.extraHolidays.has(iso)) return true;
-            if (calendarConfig.skippedHolidays.has(iso)) return false;
-            return frenchHolidays(date.getUTCFullYear()).has(iso);
-        }
-
-        // Référence MÉTIER (durées, cascade) : ne dépend PAS des préférences
-        // d'affichage des barres de neutralisation.
-        function isWorkingDay(date) {
-            return !isWeekendDay(date) && !isFrenchHoliday(date);
-        }
-
-        // N-ième jour ouvré STRICTEMENT après dateStr. O(n) sur l'intervalle.
-        function addWorkingDays(dateStr, n) {
-            let d = new Date(dateStr + 'T12:00:00Z');
-            let count = 0, guard = 0;
-            while (count < n && guard++ < 3700) {
-                d = new Date(d.getTime() + 86400000);
-                if (isWorkingDay(d)) count++;
-            }
-            return d.toISOString().slice(0, 10);
-        }
-
-        // ------------------------------------------------------------------
-        // Barres grises de neutralisation : préférences d'AFFICHAGE uniquement
-        // (les calculs en jours ouvrés ignorent toujours week-ends + fériés)
-        // ------------------------------------------------------------------
-        var showWeekendShading = true;
-        var showHolidayShading = true;
-
-        function initShadingPrefs() {
-            showWeekendShading = appStorage.getItem('plannr-shade-weekends') !== 'false';
-            showHolidayShading = appStorage.getItem('plannr-shade-holidays') !== 'false';
-            const cw = document.getElementById('toggle-shade-weekends');
-            const ch = document.getElementById('toggle-shade-holidays');
-            if (cw) cw.checked = showWeekendShading;
-            if (ch) ch.checked = showHolidayShading;
-        }
-
-        function toggleWeekendShading(checked) {
-            showWeekendShading = !!checked;
-            appStorage.setItem('plannr-shade-weekends', String(showWeekendShading));
-            if (typeof ganttChart !== 'undefined' && ganttChart) ganttChart.update('none');
-        }
-
-        function toggleHolidayShading(checked) {
-            showHolidayShading = !!checked;
-            appStorage.setItem('plannr-shade-holidays', String(showHolidayShading));
-            if (typeof ganttChart !== 'undefined' && ganttChart) ganttChart.update('none');
-        }
-
-        // Jours ouvrés entre deux dates ISO, bornes INCLUSES. O(n) sur l'intervalle.
-        function workingDaysBetween(startStr, endStr) {
-            if (!startStr || !endStr) return 0;
-            let cur = new Date(startStr + 'T12:00:00Z');
-            const end = new Date(endStr + 'T12:00:00Z');
-            if (isNaN(cur) || isNaN(end) || end < cur) return 0;
-            let n = 0, guard = 0;
-            while (cur <= end && guard++ < 36600) { // borne ~100 ans
-                if (isWorkingDay(cur)) n++;
-                cur = new Date(cur.getTime() + 86400000);
-            }
-            return n;
-        }
-
-        function addCalendarDays(dateStr, days) {
-            const d = new Date(dateStr + 'T12:00:00Z');
-            return new Date(d.getTime() + days * 86400000).toISOString().slice(0, 10);
-        }
-
-        // --------------------------------------------------------------
-        // Statut, retard, avancement
-        // --------------------------------------------------------------
-        function isTaskDone(task) {
-            return task.statut === 'statusDone' || task.statut === 'statusTreated' ||
-                   task.statut === 'Terminé';
-        }
-
-        function todayISO() {
-            const d = new Date();
-            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') +
-                   '-' + String(d.getDate()).padStart(2, '0');
-        }
-
-        function isTaskOverdue(task) {
-            if (isTaskDone(task)) return false;
-            const ref = task.isMilestone ? task.startDate : (task.endDate || task.startDate);
-            return !!ref && ref < todayISO();
-        }
-
-        // Avancement effectif 0-100 : champ `progress` si présent, sinon
-        // déduit du statut (terminé = 100, sinon 0 — pas d'invention).
-        function effectiveProgress(task) {
-            if (isTaskDone(task)) return 100;
-            const p = parseInt(task.progress, 10);
-            return Number.isFinite(p) ? Math.min(100, Math.max(0, p)) : 0;
-        }
-
-        // --------------------------------------------------------------
-        // Dépendances : cascade + chemin critique
-        // --------------------------------------------------------------
-        // Entrées dependsOn : "1.2" ou "1.2+3" (lag de 3 jours OUVRÉS après
-        // le jour ouvré suivant la fin du prédécesseur) — FR-7
-        function parseDependsOnFull(task) {
-            if (!Array.isArray(task.dependsOn)) return [];
-            return task.dependsOn.filter(Boolean).map(entry => {
-                const m = String(entry).match(/^(.*?)(?:\+(\d+))?$/);
-                return { id: m[1].trim(), lag: m[2] ? parseInt(m[2], 10) : 0 };
-            });
-        }
-
-        function parseDependsOn(task) {
-            return parseDependsOnFull(task).map(dep => dep.id);
-        }
-
-        function tasksById() {
-            const map = {};
-            risks.forEach(t => { map[t.id] = t; });
-            return map;
-        }
-
-        function taskEndForDeps(task) {
-            return (task.isMilestone || !task.endDate) ? task.startDate : task.endDate;
-        }
-
-        // Décale les successeurs : un successeur démarre au plus tôt le jour
-        // OUVRÉ suivant la fin de son dernier prédécesseur. Le décalage
-        // conserve l'étendue calendaire (start et end glissent du même delta).
-        // Complexité : O(V+E) (DFS mémoïsé), anti-cycle par marquage.
-        function applyDependencyCascade(options) {
-            const opts = options || {};
-            const exceededBefore = new Set(
-                risks.filter(isDeadlineExceeded).map(tk => tk.id));
-            const byId = tasksById();
-            const memo = new Set();
-            const visiting = new Set();
-            let shifted = 0;
-            let cycle = false;
-
-            function resolve(task) {
-                if (memo.has(task.id)) return;
-                if (visiting.has(task.id)) { cycle = true; return; }
-                visiting.add(task.id);
-                let minStart = null;
-                parseDependsOnFull(task).forEach(dep => {
-                    const pred = byId[dep.id];
-                    if (!pred) return;
-                    resolve(pred);
-                    const predEnd = taskEndForDeps(pred);
-                    if (!predEnd) return;
-                    // jour ouvré suivant la fin + lag éventuel (en jours ouvrés)
-                    const candidate = addWorkingDays(predEnd, 1 + dep.lag);
-                    if (minStart === null || candidate > minStart) minStart = candidate;
-                });
-                visiting.delete(task.id);
-                memo.add(task.id);
-                if (minStart && task.startDate && task.startDate < minStart) {
-                    const deltaDays = Math.round(
-                        (new Date(minStart + 'T12:00:00Z') - new Date(task.startDate + 'T12:00:00Z')) / 86400000);
-                    task.startDate = minStart;
-                    if (task.isMilestone) {
-                        // un jalon est ponctuel : end suit start
-                        if (task.endDate) task.endDate = task.startDate;
-                    } else if (task.endDate) {
-                        task.endDate = addCalendarDays(task.endDate, deltaDays);
-                    }
-                    task.duration = workingDaysBetween(task.startDate, task.endDate || task.startDate);
-                    shifted++;
-                }
-            }
-
-            risks.forEach(resolve);
-            if (cycle && !opts.silent && typeof showToast === 'function') {
-                showToast(t('depsCycle'), 'error');
-            }
-            if (shifted > 0) {
-                riskGroups.forEach(updatePhaseDates);
-                if (!opts.silent && typeof showToast === 'function') {
-                    showToast(t('tasksShifted').replace('{n}', shifted));
-                    // FR-3 : alerter si la cascade vient de faire sauter une butoir
-                    const newlyExceeded = risks.filter(tk =>
-                        isDeadlineExceeded(tk) && !exceededBefore.has(tk.id));
-                    if (newlyExceeded.length) {
-                        showToast('⚑ Butoir dépassée : ' +
-                            newlyExceeded.map(tk => tk.id).join(', '), 'error');
-                    }
-                }
-            }
-            return shifted;
-        }
-
-        // Chemin critique : plus long chemin (durée ouvrée cumulée) dans le
-        // graphe des dépendances. Vide si aucune dépendance ou chaîne de 1.
-        var _criticalIds = new Set();
-        function computeCriticalPath() {
-            if (!risks.some(tk => parseDependsOn(tk).length > 0)) return new Set();
-            const byId = tasksById();
-            const memo = {};
-            const visiting = new Set();
-
-            function longest(task) {
-                if (memo[task.id]) return memo[task.id];
-                if (visiting.has(task.id)) return { len: 0, prev: null }; // cycle neutralisé
-                visiting.add(task.id);
-                const dur = Math.max(1, workingDaysBetween(task.startDate, taskEndForDeps(task) || task.startDate));
-                let best = { len: dur, prev: null };
-                parseDependsOn(task).forEach(pid => {
-                    const pred = byId[pid];
-                    if (!pred) return;
-                    const r = longest(pred);
-                    if (r.len + dur > best.len) best = { len: r.len + dur, prev: pid };
-                });
-                visiting.delete(task.id);
-                memo[task.id] = best;
-                return best;
-            }
-
-            let endId = null, max = -1;
-            risks.forEach(tk => {
-                const r = longest(tk);
-                if (r.len > max) { max = r.len; endId = tk.id; }
-            });
-            const set = new Set();
-            let cur = endId;
-            while (cur) { set.add(cur); cur = memo[cur] ? memo[cur].prev : null; }
-            return set.size > 1 ? set : new Set();
-        }
-
-        function recomputeCriticalPath() {
-            _criticalIds = computeCriticalPath();
-        }
-
-        // Successeurs transitifs d'une tâche (descendance complète).
-        // Complexité : O(V*E) borné — collections de quelques dizaines de tâches.
-        function collectDescendants(rootId) {
-            const out = new Set();
-            const queue = [rootId];
-            while (queue.length) {
-                const id = queue.shift();
-                risks.forEach(t => {
-                    if (!out.has(t.id) && parseDependsOn(t).includes(id)) {
-                        out.add(t.id);
-                        queue.push(t.id);
-                    }
-                });
-            }
-            return out;
-        }
-
-        // Déplacement RIGIDE du sous-arbre (Alt+glisser) : toute la descendance
-        // suit du même delta calendaire, vers la gauche comme vers la droite.
-        // La cascade (applyDependencyCascade) repasse derrière pour réparer
-        // toute violation résiduelle vis-à-vis d'autres branches.
-        function shiftDescendants(rootTask, deltaDays) {
-            if (!deltaDays) return 0;
-            const ids = collectDescendants(rootTask.id);
-            let count = 0;
-            ids.forEach(id => {
-                const t = risks.find(r => r.id === id);
-                if (!t || !t.startDate) return;
-                t.startDate = addCalendarDays(t.startDate, deltaDays);
-                if (t.isMilestone) {
-                    if (t.endDate) t.endDate = t.startDate;
-                } else if (t.endDate) {
-                    t.endDate = addCalendarDays(t.endDate, deltaDays);
-                }
-                t.duration = workingDaysBetween(t.startDate, t.endDate || t.startDate);
-                count++;
-            });
-            if (count) riskGroups.forEach(updatePhaseDates);
-            return count;
-        }
-
-        // --------------------------------------------------------------
-        // Baseline (planning initial figé, dérive en barres fantômes)
-        // --------------------------------------------------------------
         var baselineData = null; // { savedAt, tasks: { id: {startDate, endDate} } }
 
         function loadBaseline() {
@@ -555,11 +202,13 @@
                     if (!Number.isFinite(v)) v = 0;
                     v = Math.min(100, Math.max(0, v));
                     task.progress = v;
+                    if (v === 100) task.statut = 'statusTreated';
+                    else if (isTaskDone(task)) task.statut = 'statusInProgress';
                     this.value = v;
                     const fill = this.parentElement.querySelector('.progress-mini-fill');
                     if (fill) fill.style.width = v + '%';
                     updateGantt();
-                    updateDashboard();
+                    updateDashboard(); renderPlanning();
                 });
             });
         }
@@ -767,23 +416,9 @@
         }
 
         function initNotesEditing() {
-            document.querySelectorAll('.notes-icon').forEach(el => {
-                if (el.dataset.editingInitialized) return;
-                el.dataset.editingInitialized = 'true';
-                el.addEventListener('click', function (ev) {
-                    ev.stopPropagation();
-                    const task = risks.find(r => r.id === this.dataset.riskId);
-                    if (!task) return;
-                    const value = prompt('Note pour ' + task.id + ' :', task.notes || '');
-                    if (value === null) return;
-                    saveState();
-                    if (value.trim()) task.notes = value.trim();
-                    else delete task.notes;
-                    renderPlanning();
-                    updateGantt();
-                });
-            });
+            document.querySelectorAll('.notes-icon').forEach(el => { el.tabIndex = 0; el.setAttribute('role', 'button'); el.onclick = () => openTaskPanel(el.dataset.riskId); el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openTaskPanel(el.dataset.riskId); } }; });
         }
+
 
         // ----- Anomalies de chargement + bandeau (FR-1/3/8/10) -----
         var dataAnomalies = [];
@@ -884,51 +519,7 @@
             return start <= end ? workingDaysBetween(start, end) : 0;
         }
 
-        function renderWorkload() {
-            const host = document.getElementById('workload-content');
-            if (!host) return;
-            const byPerson = {};
-            risks.filter(tk => !tk.isMilestone).forEach(tk =>
-                splitAssignees(tk).forEach(person => {
-                    (byPerson[person] = byPerson[person] || []).push(tk);
-                }));
-            const names = Object.keys(byPerson).sort();
-            if (!names.length) {
-                host.innerHTML = '<p class="workload-empty">Aucun responsable renseigné.</p>';
-                return;
-            }
-            // O(p * t²) — t = tâches par personne, borné à quelques dizaines.
-            // XSS : noms, ids et titres échappés (données agent, NFR-2).
-            host.innerHTML = names.map(name => {
-                const list = byPerson[name];
-                const total = list.reduce((sum, tk) =>
-                    sum + workingDaysBetween(tk.startDate, tk.endDate || tk.startDate), 0);
-                const conflicts = [];
-                for (let i = 0; i < list.length; i++) {
-                    for (let j = i + 1; j < list.length; j++) {
-                        if (isTaskDone(list[i]) && isTaskDone(list[j])) continue;
-                        const overlap = workingOverlapDays(list[i], list[j]);
-                        if (overlap > 0) {
-                            conflicts.push(list[i].id + ' ∥ ' + list[j].id +
-                                ' (' + overlap + ' j ouvrés)');
-                        }
-                    }
-                }
-                return '<div class="workload-person' +
-                    (conflicts.length ? ' has-conflict' : '') + '">' +
-                    '<div class="workload-name">' + escapeHtml(name) +
-                    ' <span class="workload-total">' + total + ' j ouvrés · ' +
-                    list.length + ' tâche(s)</span></div>' +
-                    '<div class="workload-tasks">' +
-                    list.map(tk => escapeHtml(tk.id + ' ' + tk.title)).join(' · ') +
-                    '</div>' +
-                    (conflicts.length
-                        ? '<div class="workload-conflicts">⚠ Chevauchements : ' +
-                          conflicts.map(escapeHtml).join(' — ') + '</div>'
-                        : '') +
-                    '</div>';
-            }).join('');
-        }
+
 
         // ----- Fenêtre temporelle du Gantt (FR-5) -----
         var ganttZoomSpanDays = null;   // null = tout le projet
@@ -1004,10 +595,13 @@
         }
 
         async function saveDataToDisk() {
+            commitDocument();
+            const signature = JSON.stringify(canonicalSnapshot());
             const content = buildDataJsContent();
             if (!window.showSaveFilePicker) {
                 // Safari / Firefox : pas de File System Access — téléchargement
                 downloadTextFile(content, 'plannr-data.js', 'text/javascript');
+                downloadedAt = new Date().toISOString(); renderSaveStatus();
                 showToast('Navigateur sans accès fichier : plannr-data.js téléchargé');
                 return;
             }
@@ -1022,6 +616,7 @@
                 const writable = await fsDataFileHandle.createWritable();
                 await writable.write(content);
                 await writable.close();
+                markFileSaved(signature);
                 showToast('💾 plannr-data.js enregistré');
             } catch (err) {
                 if (err && err.name === 'AbortError') return; // annulé par l'utilisateur
@@ -1115,7 +710,7 @@
                 const px0 = xAxis.getPixelForValue(d.x[0]);
                 const px1 = xAxis.getPixelForValue(d.x[1]);
                 let y = yAxis.getPixelForValue(d.y);
-                if (d.isMilestone && d.compactMode && ganttViewMode === 'compact') y += 28;
+                if (d.isMilestone && d.compactMode && ganttViewMode === 'compact') y += 0;
                 out.push({ id: d.task.id, task: d.task,
                            x0: Math.min(px0, px1), x1: Math.max(px0, px1),
                            y: y, h: barH, isMilestone: !!d.isMilestone });
@@ -1357,10 +952,11 @@
             beforeDatasetsDraw: function (chart) {
                 const gd = chart.options.ganttData;
                 if (!gd || !baselineData || !baselineData.tasks) return;
-                const x = chart.scales.x;
+                const x = chart.scales.x, y = chart.scales.y;
                 const meta = chart.getDatasetMeta(0);
                 const ctx = chart.ctx;
                 ctx.save();
+                ctx.beginPath(); ctx.rect(x.left, y.top, x.right - x.left, y.bottom - y.top); ctx.clip();
                 ctx.fillStyle = 'rgba(142, 142, 147, 0.5)';
                 gd.forEach((d, i) => {
                     if (d.isMilestone) return;
@@ -1384,8 +980,9 @@
                 const gd = chart.options.ganttData;
                 if (!gd) return;
                 const meta = chart.getDatasetMeta(0);
-                const ctx = chart.ctx;
+                const ctx = chart.ctx, x = chart.scales.x, y = chart.scales.y;
                 ctx.save();
+                ctx.beginPath(); ctx.rect(x.left, y.top, x.right - x.left, y.bottom - y.top); ctx.clip();
                 gd.forEach((d, i) => {
                     if (d.isMilestone) return;
                     const el = meta.data[i];
@@ -1423,7 +1020,7 @@
                 gd.forEach((d, i) => {
                     const el = meta.data[i];
                     if (!el || !d.task) return;
-                    const yPx = el.y + ((d.isMilestone && d.compactMode) ? 28 : 0);
+                    const yPx = el.y;
                     pos[d.task.id] = { start: el.base, end: d.isMilestone ? el.base : el.x, y: yPx };
                 });
                 (chart.options.milestonesData || []).forEach(m => {
@@ -1436,6 +1033,7 @@
                 const allTasks = gd.map(d => d.task)
                     .concat((chart.options.milestonesData || []).map(m => m.task));
                 ctx.save();
+                ctx.beginPath(); ctx.rect(x.left, y.top, x.right - x.left, y.bottom - y.top); ctx.clip();
                 ctx.strokeStyle = 'rgba(99, 99, 102, 0.75)';
                 ctx.fillStyle = 'rgba(99, 99, 102, 0.9)';
                 ctx.lineWidth = 1.3;
@@ -1498,7 +1096,7 @@
                     ctx.font = '10px -apple-system, "Segoe UI", sans-serif';
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'bottom';
-                    ctx.fillText(t('criticalPathLegend'), x.right, y.top - 4);
+                    ctx.fillText(t('criticalPathLegend'), x.right, 20);
                 }
                 // Ligne verticale « aujourd'hui »
                 const now = new Date();

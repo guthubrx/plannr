@@ -4,36 +4,75 @@
   "title": "Plannr — format canonique PLANNR_DATA v2.2",
   "description": "Contenu de window.PLANNR_DATA (fichier plannr-data.js). Cle canonique : phases (riskGroups acceptee en lecture pour compatibilite).",
   "type": "object",
-  "required": ["version"],
+  "required": [
+    "version"
+  ],
   "anyOf": [
-    { "required": ["phases"] },
-    { "required": ["riskGroups"] }
+    {
+      "required": [
+        "phases"
+      ]
+    },
+    {
+      "required": [
+        "riskGroups"
+      ]
+    }
   ],
   "properties": {
-    "version": { "type": "string", "examples": ["2.2"] },
-    "timestamp": { "type": "string" },
+    "version": {
+      "type": "string",
+      "examples": [
+        "2.3"
+      ]
+    },
+    "timestamp": {
+      "type": "string"
+    },
     "appState": {
       "type": "object",
       "properties": {
-        "title": { "type": "string" },
-        "subtitle": { "type": "string" },
-        "language": { "enum": ["fr", "en", "es", "ar", "zh"] }
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "language": {
+          "enum": [
+            "fr",
+            "en",
+            "es",
+            "ar",
+            "zh"
+          ]
+        }
       }
     },
-    "phases": { "$ref": "#/definitions/phaseList" },
-    "riskGroups": { "$ref": "#/definitions/phaseList" },
+    "phases": {
+      "$ref": "#/definitions/phaseList"
+    },
+    "riskGroups": {
+      "$ref": "#/definitions/phaseList"
+    },
     "baseline": {
       "type": "object",
       "description": "Snapshot du planning de reference (bouton Baseline)",
       "properties": {
-        "savedAt": { "type": "string" },
+        "savedAt": {
+          "type": "string"
+        },
         "tasks": {
           "type": "object",
           "additionalProperties": {
             "type": "object",
             "properties": {
-              "startDate": { "$ref": "#/definitions/isoDate" },
-              "endDate": { "$ref": "#/definitions/isoDate" }
+              "startDate": {
+                "$ref": "#/definitions/isoDate"
+              },
+              "endDate": {
+                "$ref": "#/definitions/isoDate"
+              }
             }
           }
         }
@@ -43,15 +82,22 @@
       "type": "object",
       "description": "Calendrier METIER : affecte durees, cascade, chemin critique et grisage",
       "properties": {
-        "saturdayWorked": { "type": "boolean", "default": false },
+        "saturdayWorked": {
+          "type": "boolean",
+          "default": false
+        },
         "extraHolidays": {
           "type": "array",
-          "items": { "$ref": "#/definitions/isoDate" },
+          "items": {
+            "$ref": "#/definitions/isoDate"
+          },
           "description": "Jours chomes supplementaires (fermeture entreprise...)"
         },
         "skippedHolidays": {
           "type": "array",
-          "items": { "$ref": "#/definitions/isoDate" },
+          "items": {
+            "$ref": "#/definitions/isoDate"
+          },
           "description": "Feries francais a NE PAS chomer pour ce projet"
         }
       }
@@ -66,49 +112,84 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "tasks"],
+        "required": [
+          "id",
+          "name",
+          "tasks"
+        ],
         "properties": {
-          "id": { "type": "integer", "minimum": 1 },
-          "name": { "type": "string" },
-          "description": { "type": "string" },
-          "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
           "tasks": {
             "type": "array",
-            "items": { "$ref": "#/definitions/task" }
+            "items": {
+              "$ref": "#/definitions/task"
+            }
           }
         }
       }
     },
     "task": {
       "type": "object",
-      "required": ["id", "title", "startDate"],
+      "required": [
+        "id",
+        "title",
+        "startDate"
+      ],
       "properties": {
         "id": {
           "type": "string",
           "pattern": "^\\d+\\.\\d+$",
           "description": "Format <phase>.<n>, unique dans tout le planning"
         },
-        "title": { "type": "string", "minLength": 1 },
-        "startDate": { "$ref": "#/definitions/isoDate" },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "startDate": {
+          "$ref": "#/definitions/isoDate"
+        },
         "endDate": {
           "$ref": "#/definitions/isoDate",
           "description": ">= startDate. Pour un jalon : egale a startDate"
         },
         "duration": {
-          "type": "integer", "minimum": 0,
+          "type": "integer",
+          "minimum": 0,
           "description": "Jours OUVRES (informatif : recalcule au chargement)"
         },
         "statut": {
           "type": "string",
-          "examples": ["A faire", "En cours", "Terminé"]
+          "examples": [
+            "A faire",
+            "En cours",
+            "Terminé"
+          ]
         },
         "assignedTo": {
           "type": "string",
           "description": "Responsables separes par / , ; ou & (vue charge)"
         },
-        "isMilestone": { "type": "boolean", "default": false },
+        "isMilestone": {
+          "type": "boolean",
+          "default": false
+        },
         "progress": {
-          "type": "integer", "minimum": 0, "maximum": 100,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
           "description": "Avancement %. Omis : 0, ou 100 si statut Terminé"
         },
         "dependsOn": {
@@ -125,12 +206,19 @@
           "description": "Date butoir : finir CE jour est autorise. Marqueur Gantt + alerte si depassee"
         },
         "notes": {
-          "type": "string", "maxLength": 2000,
+          "type": "string",
+          "maxLength": 2000,
           "description": "Contexte/hypotheses — affiche dans l'infobulle Gantt"
         },
         "link": {
-          "type": "string", "pattern": "^https?://",
+          "type": "string",
+          "pattern": "^https?://",
           "description": "Reference externe (CR, ticket). http(s) uniquement"
+        },
+        "effortDays": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Effort total en jours-personnes, partagé entre les responsables."
         }
       }
     }
