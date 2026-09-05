@@ -14,7 +14,8 @@
 ### Lisibilité des thèmes et commandes du Gantt
 - Palette sombre charbon avec accent vert doux ; surfaces et textes coordonnés dans les survols, mises en évidence, champs et graphiques.
 - En-tête du Gantt compact : titre à gauche, bouton punaise et commandes de vue/période à droite ; retour à la ligne sur petit écran.
-- Bouton punaise de 32 px, activable au clavier, état annoncé et mémorisé ; le titre reste repliable indépendamment des commandes.
+- Pourcentage compact éditable, sans cadre permanent ni barre supplémentaire ; Gantt ajusté à la largeur réelle du conteneur, défilement horizontal conservé uniquement lorsque nécessaire.
+- Bouton punaise de 32 px tout à droite, activable au clavier, état annoncé et mémorisé ; le titre reste repliable indépendamment des commandes.
 
 ### Pilotage métier (v2.4)
 - **Indicateurs utiles** : prochaine échéance, fin prévisionnelle, écart à la référence, blocages, durée et avancement. La durée couvre le début à la fin du projet en jours ouvrés, sans additionner les tâches parallèles.
@@ -150,7 +151,7 @@ src/libs/          # bibliothèques vendorisées (pinnées)
 python3 build.py   # assemble -> plannr.html (déterministe, vérifié en CI)
 
 npm ci && npx playwright install chromium
-npm test           # 97 tests : métier, historique, formats, interactions,
+npm test           # 102 tests : métier, historique, formats, interactions,
                    # absence de collisions à 1440/768/390 px dans les 3 vues
 ```
 

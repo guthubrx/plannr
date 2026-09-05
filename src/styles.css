@@ -2043,17 +2043,6 @@
    v2.1 — avancement, dépendances, retards, impression
    ================================================================== */
 .progress-cell { text-align: center; }
-.editable-progress {
-    width: 54px; padding: 3px 4px; border: 1px solid var(--line);
-    border-radius: 6px; font-size: 13px; text-align: right; background: var(--surface);
-}
-.progress-mini {
-    height: 4px; background: var(--line); border-radius: 2px;
-    margin-top: 4px; overflow: hidden;
-}
-.progress-mini-fill {
-    height: 100%; background: #34C759; border-radius: 2px; transition: width .2s;
-}
 .depends-cell { font-size: 12.5px; color: var(--ink); }
 .editable-depends {
     cursor: pointer; display: inline-block; min-width: 32px;
@@ -2077,8 +2066,8 @@
     .app-controls, .studio-toolbar, .sticky-toggle-container,
     .group-separator, .risk-separator-row, .delete-btn, .pres-toggle,
     #color-palette-selector, .toast-container, .studio-ribbon,
-    .editable-progress { display: none !important; }
-    .progress-mini { margin-top: 0; }
+    .editable-progress { border: 0 !important; }
+
     .collapsible-content.collapsed {
         display: block !important; max-height: none !important;
         overflow: visible !important;
@@ -2500,3 +2489,11 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
 .sticky-toggle-btn[aria-pressed="true"] { background: var(--selection); color: var(--accent); border-color: var(--accent); box-shadow: inset 0 -2px var(--accent); }
 @media (max-width: 760px) { .gantt-controls { margin-left: 0; width: 100%; } }
 @media print { .gantt-controls { display: none !important; } }
+
+/* Avancement discret : valeur lisible, édition signalée au survol et au focus. */
+.progress-value { display: inline-flex; align-items: center; gap: 2px; height: 28px; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+:root .risks-table input.editable-progress { width: 39px; height: 26px; min-height: 26px; padding: 2px 3px; border: 1px solid transparent !important; border-radius: 4px; background: transparent !important; color: var(--ink); font-size: 13px; text-align: right; appearance: textfield; }
+.editable-progress::-webkit-inner-spin-button, .editable-progress::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+:root .risks-table input.editable-progress:not(:disabled):hover { border-color: var(--line) !important; background: var(--surface-soft) !important; }
+:root .risks-table input.editable-progress:focus-visible { border-color: var(--accent) !important; outline: 2px solid var(--accent); outline-offset: 1px; background: var(--surface) !important; }
+.sticky-toggle-btn { margin-left: auto; }

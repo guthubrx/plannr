@@ -131,13 +131,19 @@ function initWorkspace() {
     initDocumentHistory();
 }
 
+// Observer la largeur réelle : l'épinglage et les barres verticales peuvent la changer
+// sans événement window.resize. Ignorer les changements de hauteur et les exports.
 let ganttResizeTimer;
-window.addEventListener('resize', () => {
+function scheduleGanttResize() {
     clearTimeout(ganttResizeTimer);
     ganttResizeTimer = setTimeout(() => {
-        if (workspaceReady && ganttChart && Math.max(1120, document.querySelector('.gantt-scroll').clientWidth) !== ganttChart.width) updateGantt();
+        const viewport = document.querySelector('.gantt-scroll');
+        if (workspaceReady && ganttChart && !ganttExportWidth && viewport.clientWidth > 0 && Math.max(1120, viewport.clientWidth) !== ganttChart.width) updateGantt();
     }, 120);
-});
+}
+window.addEventListener('resize', scheduleGanttResize);
+const ganttViewportObserver = new ResizeObserver(scheduleGanttResize);
+document.addEventListener('DOMContentLoaded', () => ganttViewportObserver.observe(document.querySelector('.gantt-scroll')));
 
 // Préférence de lecture, indépendante du document et de son historique.
 function setTheme(theme, persist = true) {

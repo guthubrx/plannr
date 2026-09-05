@@ -169,10 +169,10 @@
         function renderProgressCellHTML(risk) {
             if (risk.isMilestone) return '<td class="progress-cell">—</td>';
             const p = effectiveProgress(risk);
-            return '<td class="progress-cell">' +
+            return '<td class="progress-cell"><label class="progress-value">' +
                 '<input type="number" class="editable-progress" data-risk-id="' + risk.id +
-                '" min="0" max="100" step="5" value="' + p + '"' + (isTaskClosed(risk) ? ' disabled' : '') + '>' +
-                '<div class="progress-mini"><div class="progress-mini-fill" style="width:' + p + '%"></div></div>' +
+                '" aria-label="' + uiText('progress') + '" min="0" max="100" step="5" value="' + p + '"' + (isTaskClosed(risk) ? ' disabled' : '') + '>' +
+                '<span aria-hidden="true">%</span></label>' +
                 '</td>';
         }
 
@@ -205,8 +205,6 @@
                     if (v === 100 && !isTaskDone(task)) task.statut = 'statusReview';
                     else if (isTaskDone(task)) task.statut = 'statusInProgress';
                     this.value = v;
-                    const fill = this.parentElement.querySelector('.progress-mini-fill');
-                    if (fill) fill.style.width = v + '%';
                     updateGantt();
                     updateDashboard(); renderPlanning();
                 });

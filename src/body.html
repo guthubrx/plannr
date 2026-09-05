@@ -59,7 +59,7 @@
                 <div class="gantt-heading">
                     <h3><button class="collapsible-header" onclick="toggleCollapse('gantt-content')" aria-controls="gantt-content" aria-expanded="true"><span class="collapse-icon">▼</span><span data-i18n="ganttTitle">Diagramme de Gantt</span></button></h3>
                     <div class="gantt-controls" role="group" aria-label="Commandes du Gantt">
-                        <button onclick="toggleSticky()" class="sticky-toggle-btn" id="sticky-toggle-btn" data-ui-label="pinGantt" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6m-5 0v6l-4 4v2h12v-2l-4-4V3M12 15v6"/></svg></button>
+
                         <div class="view-toggle-wrapper" role="group" aria-label="Vue du Gantt">
                             <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active">Cascade</button>
                             <button onclick="setGanttView('consolide')" id="view-btn-consolide" class="view-toggle-btn">Consolidé</button>
@@ -76,6 +76,7 @@
                             <button class="zoom-btn zoom-nav-btn" onclick="ganttGoToday()">Aujourd'hui</button>
                             <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(1)" aria-label="Période suivante" title="Période suivante"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
                         </span>
+                        <button onclick="toggleSticky()" class="sticky-toggle-btn" id="sticky-toggle-btn" data-ui-label="pinGantt" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6m-5 0v6l-4 4v2h12v-2l-4-4V3M12 15v6"/></svg></button>
                     </div>
                 </div>
                 <div id="gantt-content" class="collapsible-content">
