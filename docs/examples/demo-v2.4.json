@@ -1,0 +1,191 @@
+{
+  "version": "2.4",
+  "appState": {
+    "title": "Plannr — Portail de services",
+    "subtitle": "Démonstration fictive · septembre 2026",
+    "language": "fr"
+  },
+  "resources": [
+    {
+      "name": "Personne A",
+      "capacity": 0.5,
+      "absences": [
+        "2026-09-10"
+      ]
+    },
+    {
+      "name": "Personne B",
+      "capacity": 1,
+      "absences": []
+    }
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "name": "Cadrage",
+      "description": "Projet fictif de démonstration",
+      "color": "#648980",
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Recueillir les besoins",
+          "startDate": "2026-09-01",
+          "endDate": "2026-09-03",
+          "statut": "statusTreated",
+          "owner": "Personne A",
+          "assignedTo": "Personne A",
+          "effortDays": 3,
+          "actualStartDate": "2026-09-01",
+          "actualEndDate": "2026-09-03",
+          "progress": 100
+        },
+        {
+          "id": "1.2",
+          "title": "Valider le périmètre",
+          "startDate": "2026-09-04",
+          "endDate": "2026-09-04",
+          "statut": "statusTreated",
+          "owner": "Personne A",
+          "assignedTo": "Personne A",
+          "isMilestone": true,
+          "decisionOwner": "Personne A",
+          "acceptanceCriteria": "Périmètre et critères de recette approuvés.",
+          "decision": "approved",
+          "decisionDate": "2026-09-04",
+          "actualStartDate": "2026-09-04",
+          "actualEndDate": "2026-09-04",
+          "dependsOn": [
+            "1.1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Réalisation",
+      "description": "Projet fictif de démonstration",
+      "color": "#6689aa",
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Configurer le portail",
+          "startDate": "2026-09-07",
+          "endDate": "2026-09-11",
+          "statut": "statusBlocked",
+          "owner": "Personne A",
+          "assignedTo": "Personne A, Personne B",
+          "effortDays": 5,
+          "remainingEffortDays": 3,
+          "progress": 40,
+          "blockerReason": "Arbitrer le parcours de demande avant de poursuivre.",
+          "dependsOn": [
+            "1.2"
+          ],
+          "notes": "Exemple fictif : trois parcours à vérifier avant la recette.",
+          "allocationShares": {
+            "Personne A": 0.6,
+            "Personne B": 0.4
+          }
+        },
+        {
+          "id": "2.2",
+          "title": "Préparer les contenus",
+          "startDate": "2026-09-07",
+          "endDate": "2026-09-11",
+          "statut": "statusNotTreated",
+          "owner": "Personne B",
+          "assignedTo": "Personne B",
+          "effortDays": 4,
+          "remainingEffortDays": 4
+        },
+        {
+          "id": "2.3",
+          "title": "Réaliser la recette",
+          "startDate": "2026-09-14",
+          "endDate": "2026-09-16",
+          "statut": "statusNotTreated",
+          "owner": "Personne A",
+          "assignedTo": "Personne A",
+          "effortDays": 4,
+          "remainingEffortDays": 4,
+          "dependsOn": [
+            "2.1",
+            "2.2"
+          ],
+          "deadline": "2026-09-16"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Mise en service",
+      "description": "Projet fictif de démonstration",
+      "color": "#a7895c",
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Former les utilisateurs",
+          "startDate": "2026-09-17",
+          "endDate": "2026-09-18",
+          "statut": "statusNotTreated",
+          "owner": "Personne B",
+          "assignedTo": "Personne B",
+          "effortDays": 2,
+          "remainingEffortDays": 2,
+          "dependsOn": [
+            "2.3"
+          ]
+        },
+        {
+          "id": "3.2",
+          "title": "Décider de la mise en service",
+          "startDate": "2026-09-21",
+          "endDate": "2026-09-21",
+          "statut": "statusReview",
+          "owner": "Personne A",
+          "assignedTo": "Personne A",
+          "isMilestone": true,
+          "decisionOwner": "Personne A",
+          "acceptanceCriteria": "Recette signée, documentation disponible et aucune anomalie bloquante.",
+          "decision": "pending",
+          "dependsOn": [
+            "3.1"
+          ],
+          "deadline": "2026-09-22"
+        }
+      ]
+    }
+  ],
+  "baseline": {
+    "tasks": {
+      "1.1": {
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-03"
+      },
+      "1.2": {
+        "startDate": "2026-09-04",
+        "endDate": "2026-09-04"
+      },
+      "2.1": {
+        "startDate": "2026-09-07",
+        "endDate": "2026-09-11"
+      },
+      "2.2": {
+        "startDate": "2026-09-07",
+        "endDate": "2026-09-11"
+      },
+      "2.3": {
+        "startDate": "2026-09-14",
+        "endDate": "2026-09-16"
+      },
+      "3.1": {
+        "startDate": "2026-09-17",
+        "endDate": "2026-09-18"
+      },
+      "3.2": {
+        "startDate": "2026-09-21",
+        "endDate": "2026-09-21"
+      }
+    }
+  }
+}

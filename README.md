@@ -1,194 +1,154 @@
 <div align="center">
-  <img src="icon.svg" alt="Plannr Logo" width="128" height="128">
+  <img src="icon.svg" alt="Logo Plannr" width="72" height="72">
   <h1>Plannr</h1>
-  <p>Application web de gestion de planning et diagramme de Gantt interactif.</p>
+  <p>Planifier, suivre le réalisé et préparer les décisions, dans un fichier HTML autonome.</p>
 </div>
 
-## 📋 À propos
+Plannr est une application de planning de projet utilisable directement dans le navigateur, sans installation, compte ni serveur applicatif. Elle associe un Gantt interactif, un tableau éditable, le suivi des charges et des jalons de décision. Les bibliothèques sont intégrées au HTML : aucun CDN n'est nécessaire.
 
-**Plannr** est une application web one-page complète pour la gestion de projet. Elle permet de visualiser et d'organiser vos phases et tâches à travers un diagramme de Gantt interactif, des vues compactes intelligentes et des tableaux de bord détaillés.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/apercu-dark.png">
+  <img src="docs/screenshots/apercu-light.png" alt="Vue consolidée de Plannr : indicateurs du projet, filtres et Gantt organisé par phase.">
+</picture>
 
-## ✨ Fonctionnalités
+*Toutes les captures utilisent le même [projet fictif de démonstration](docs/examples/demo-v2.4.json). [Voir le thème sombre](docs/screenshots/apercu-dark.png).*
 
+## Démarrer
 
-### Lisibilité des thèmes et commandes du Gantt
-- Palette sombre charbon avec accent vert doux ; surfaces et textes coordonnés dans les survols, mises en évidence, champs et graphiques.
-- En-tête du Gantt compact : titre à gauche, bouton punaise et commandes de vue/période à droite ; retour à la ligne sur petit écran.
-- Pourcentage compact éditable, sans cadre permanent ni barre supplémentaire ; Gantt ajusté à la largeur réelle du conteneur, défilement horizontal conservé uniquement lorsque nécessaire.
-- Bouton punaise de 32 px tout à droite, activable au clavier, état annoncé et mémorisé ; le titre reste repliable indépendamment des commandes.
+1. Télécharger [plannr.html](https://github.com/guthubrx/plannr/raw/refs/heads/main/plannr.html).
+2. L'ouvrir dans un navigateur récent. Le fichier [plannr-data.js](plannr-data.js), placé à côté du HTML, permet de charger un planning au démarrage.
+3. Pour découvrir le suivi métier, télécharger le [document de démonstration](docs/examples/demo-v2.4.json), puis utiliser **Importer** dans Plannr.
+4. Utiliser **Enregistrer** pour conserver un fichier de données, ou **Exporter → HTML** pour transmettre une copie autonome contenant le projet.
 
-### Pilotage métier (v2.4)
-- **Indicateurs utiles** : prochaine échéance, fin prévisionnelle, écart à la référence, blocages, durée et avancement. La durée couvre le début à la fin du projet en jours ouvrés, sans additionner les tâches parallèles.
-- **Avancement pondéré** par effort lorsque toutes les tâches de travail sont estimées, sinon par durée ; la méthode est affichée. Les tâches annulées sont exclues.
-- **Prévision, référence et réalisé distincts** : dates réelles saisies explicitement, piste dédiée sur le Gantt ; les cascades protègent les tâches commencées ou closes.
-- **Six statuts** : À faire, En cours, Bloqué, À valider, Terminé, Annulé. Un avancement de 100 % ne vaut pas validation de livraison.
-- **Reste à faire** en jours-personnes, indépendant du pourcentage d'avancement. Une valeur inconnue reste signalée.
-- **Responsabilité et charge** : responsable de livraison unique, contributeurs et répartition optionnelle en pourcentages ; capacité journalière et absences dans les paramètres. La charge porte sur le travail futur restant.
-- **Jalons de décision** : valideur, critères d'acceptation, décision et date de décision.
-- **À traiter** : actions groupées ouvrant directement la tâche concernée (blocage, validation, échéance, donnée manquante, dépendance ou capacité).
-- **Simulation de décalage** : depuis Détails, prévisualiser les dates des tâches affectées, les conflits et butoirs menacés avant d'appliquer ; annuler laisse le document intact.
-- **Paramètres compacts** : calendrier, palette et disponibilités regroupés ; thèmes clair/sombre. Toutes les nouvelles données sont conservées par le document complet, son historique et ses exports.
+Le thème clair ou sombre, la vue et la période sont mémorisés dans le navigateur. Chrome et Edge peuvent proposer l'écriture directe du fichier après sélection de son emplacement ; les autres navigateurs utilisent le téléchargement.
 
-### Fiabilité et lisibilité (v2.3)
-- **Document complet** : import/export des tâches, calendrier, référence, métadonnées et effort. Les cycles sont refusés avant remplacement.
-- **Sauvegarde navigateur complète** : restauration après rechargement, migration des anciennes clés du document, état de sauvegarde et heure visibles. Un téléchargement est distingué d'une écriture confirmée sur disque.
-- **Annuler / rétablir** : historique du document complet ; la saisie conserve ses raccourcis natifs.
-- **Durées ouvrées** : déplacer une tâche préserve ses jours de travail, y compris autour des fériés. Modifier sa fin constitue un redimensionnement.
-- **Marges** : calcul du chemin critique incluant les délais entre tâches ; marge en jours ouvrés dans le panneau Détails. Les dates planifiées sont traitées comme des contraintes de début au plus tôt.
-- **Recherche et filtres** : phase, responsable, statut, retards et texte ; synchronisés entre tableau et Gantt. Les exports et calculs restent fondés sur le document complet.
-- **Panneau Détails** : édition groupée, validation des dates/dépendances, notes multilignes, butoir, lien et effort. Accessible au clavier.
-- **Effort distinct de la durée** : `effortDays` désigne une estimation initiale en jours-personnes. Depuis v2.4, la charge utilise le reste à faire, réparti entre contributeurs et jours disponibles ; le seuil de surcharge correspond à la capacité de chacun. Les tâches terminées ou annulées sont exclues.
-- **Trois vues lisibles** : espaces réservés aux libellés et jalons ; une ligne supplémentaire remplace toute collision. Titres répartis sur trois lignes au maximum, texte intégral dans le tableau et Détails. Le calendrier et le tableau défilent localement sur petit écran.
-- **Exports** : HTML autonome contenant les données et l'icône ; PDF A3 paysage paginé sans écraser le Gantt ; Excel/CSV avec responsables, effort, notes et dépendances.
-- **Identifiants stables** : ajouter, déplacer ou supprimer une tâche ne renumérote plus les autres tâches, afin de préserver leurs dépendances et leur référence. L'ordre d'affichage demeure modifiable.
+## Lire et modifier le planning
 
-### Chaîne agent → visualisation (v2.2)
-- **Bandeau de validation** : anomalies corrigées au chargement (doublons,
-  dates invalides, dépendances inconnues, liens non-http), et **journal des changements** depuis le
-  chargement précédent
-- **Schéma machine** : `schemas/plannr-data.schema.json` décrit le format
-  complet — l'agent peut valider avant de livrer
-- **Dates butoirs** (`deadline`) : marqueur ⚑ sur le Gantt, badge tableau,
-  alerte quand une cascade fait dépasser une butoir
-- **Notes & lien** par tâche (`notes`, `link` http(s)) : contexte de l'agent
-  dans l'infobulle, icônes géométriques dans le tableau, note éditable au clic
-- **Lag de dépendance** : `"1.2+3"` = démarre 3 jours ouvrés après le jour
-  ouvré suivant la fin de 1.2
-- **Sélecteur de dépendances** (v2.3) : popover à cases à cocher dans le
-  tableau — anti-cycle préventif (les descendantes sont grisées), lag par
-  ligne, Échap pour annuler
-- **Pastille de connexion** (v2.3) : au survol d'une barre, un ⊕ apparaît à
-  côté du bord droit (zone disjointe du resize) — tirer une flèche élastique
-  jusqu'à une autre barre crée la dépendance (cibles invalides en rouge,
-  cycles refusés), cascade immédiate
-- **Charge par responsable** : section dédiée avec totaux futurs en jours-personnes et
-  détection des dépassements de capacité
-- **Fenêtre temporelle** : Tout / 3 mois / 1 mois / 2 sem + ◀ ▶ + Aujourd'hui
-- **Calendrier paramétrable** (`calendar`) : samedi ouvré, fériés ajoutés ou
-  retirés — affecte les durées et la cascade (métier)
-- **Enregistrer** : écrit `plannr-data.js` directement sur disque
-  (Chrome/Edge), fallback téléchargement ailleurs
-- **Clic sur une barre** : ouverture du panneau Détails
-- Tout HTML issu des données est échappé (données agent = non fiables)
+| Vue | Usage |
+| --- | --- |
+| **Cascade** | Une ligne par tâche, pour examiner les dates et les enchaînements. |
+| **Consolidé** | Regroupement par phase et placement des tâches parallèles sur des lignes distinctes. |
+| **Compact** | Regroupement temporel pour réduire la hauteur du diagramme. |
 
-### Planification (v2.1)
-- **Dépendances entre tâches** (`dependsOn`) : édition dans le tableau, flèches
-  sur le Gantt, **décalage automatique en cascade** des successeurs (un
-  successeur démarre au plus tôt le jour ouvré suivant la fin de ses
-  prédécesseurs), détection de cycles
-- **Chemin critique** : plus long chemin du graphe de dépendances, surligné
-  en pointillé rouge sur le Gantt
-- **Jours ouvrés** : durées calculées hors week-ends et **fériés français**
-  (fixes + Pâques/Ascension/Pentecôte calculés), jours non ouvrés grisés
-  sur le Gantt
-- **Référence (baseline)** : bouton Référence pour figer le planning de référence — la dérive
-  s'affiche en barres fantômes grises sous les barres actuelles
-- **Ligne « Aujourd'hui »** sur le Gantt + **détection des retards** (badge
-  rouge dans le tableau, contour rouge sur le Gantt, actions « À traiter »)
-- **% d'avancement par tâche** : éditable dans le tableau, rempli dans les
-  barres du Gantt, **progression globale pondérée par effort ou durée ouvrée**
+Les libellés disposent d'un espace réservé : les lignes s'adaptent aux titres longs, avec texte complet dans le tableau et le panneau **Détails**. Sur un petit écran, le calendrier et le tableau défilent dans leur propre zone ; le Gantt se réajuste lorsque la largeur disponible change.
 
-### Gestion de Planning
-- **Édition inline** de tous les champs (phases, tâches, dates, responsables)
-- **Ajout/suppression** de tâches et de phases (groupes)
-- **Drag & drop interactif** pour déplacer les tâches et les jalons directement sur le Gantt
-- **Jalons (Milestones)** : Transformation facile de tâches en jalons et inversement
-- **Identifiants stables** lors des modifications, ordre des tâches modifiable
+![Vue compacte : tâches, jalons, progression, dépendances et référence sur un calendrier commun.](docs/screenshots/gantt-compact.png)
 
-### Visualisation
-- **Diagramme de Gantt interactif** propulsé par Chart.js
-- **Mode Compact** : Algorithme de compactage intelligent pour minimiser l'espace vertical tout en gardant les titres lisibles (placement alterné, tiges de liaison)
-- **Mode Cascade** : Vue classique une ligne par tâche
-- **Dashboard Dynamique** : Indicateurs opérationnels en temps réel (échéance, fin, écart à la référence, blocages, durée, avancement)
+- **Commandes dans l'en-tête** : vues, période et bouton punaise tout à droite. L'épinglage maintient le diagramme visible pendant le défilement sur ordinateur.
+- **Périodes** : tout le projet, trois mois, un mois ou deux semaines ; navigation précédente/suivante et retour à aujourd'hui.
+- **Recherche et filtres** : texte, phase, personne, statut et retards, synchronisés entre tableau et Gantt. Les calculs et exports restent fondés sur le document complet.
+- **Édition** : titres, dates, contributeurs, statut et pourcentage directement dans le tableau ; champs complémentaires et modifications groupées dans **Détails**.
+- **Organisation** : ajout, suppression et réordonnancement des phases et tâches. Les identifiants restent stables pour préserver les dépendances et la référence.
+- **Interactions** : déplacement et redimensionnement des tâches dans le Gantt ; ouverture des détails par clic. Alt + glisser déplace aussi les descendants modifiables.
+- **Présentation** : mode dédié pour masquer les commandes d'édition ; thèmes clair et sombre, icônes géométriques et pourcentage discret.
 
-### Export et Partage
-- **Export PDF Premium** : Génération de rapports incluant une capture haute résolution de votre diagramme de Gantt
-- **Export Excel & CSV** : Exportation structurée de toutes les données du planning
-- **Export/Import JSON** : Sauvegarde complète de vos données (format canonique v2.4, clé `phases` ; l'ancienne clé `riskGroups` reste lue)
-- **Export plannr-data.js** : fichier de données rechargeable à reposer à côté du HTML
-- **Export ICS** : les jalons deviennent des événements calendrier (Outlook, Apple Calendar…)
-- **Impression** : feuille `@media print` dédiée (A3 paysage, contrôles masqués)
+## Suivre l'avancement et le réalisé
 
-### Système d'Historique
-- **Undo/Redo** complet (Cmd+Z / Cmd+Y)
-- Sauvegarde automatique locale (localStorage, **namespacée par document** —
-  plusieurs copies de Plannr sur le même domaine ne se polluent pas)
-- Fonctionne **entièrement hors-ligne** : les 4 bibliothèques sont vendorisées
-  inline dans le HTML, aucune dépendance CDN
+Les indicateurs affichent la prochaine échéance, la fin du projet selon les dates disponibles, l'écart à la référence, les blocages, la durée et l'avancement.
 
-## 🚀 Utilisation
+- **Durée du projet** : enveloppe début-fin en jours ouvrés, sans additionner les tâches parallèles.
+- **Avancement pondéré** : par effort si toutes les tâches de travail sont estimées et que le total est positif ; sinon par durée ouvrée. La méthode est affichée. Les tâches annulées sont exclues.
+- **Effort et reste à faire distincts** : estimation initiale et travail restant en jours-personnes, indépendants du pourcentage. Une valeur inconnue n'est pas assimilée à zéro.
+- **Prévision, référence et réalisé** : la référence fige un engagement ; les dates réelles sont renseignées explicitement et représentées sur une piste séparée. Les cascades ne déplacent pas le début d'une tâche commencée ni les dates d'une tâche close.
+- **Six statuts** : À faire, En cours, Bloqué, À valider, Terminé, Annulé. Un pourcentage de 100 % ne vaut pas validation automatique de la livraison.
 
-**L'artefact livré est un seul fichier HTML autonome.**
+**À traiter** regroupe les blocages, validations, échéances menacées, informations manquantes, conflits de dépendances et problèmes de capacité. Chaque entrée ouvre la tâche concernée.
 
-1. Télécharger `plannr.html` (+ optionnellement `plannr-data.js` pour vos données)
-2. Ouvrir le fichier dans votre navigateur
-3. C'est tout ! Aucune installation requise, aucun réseau nécessaire
+![Liste des actions à traiter : validations attendues, blocage et charge à rééquilibrer.](docs/screenshots/actions.png)
 
-Les données vivent dans `plannr-data.js` (`window.PLANNR_DATA`, format
-canonique v2.4 ; les anciens documents restent lisibles). Le menu Exporter propose un
-`plannr-data.js` rechargeable qui se repose tel quel à côté du HTML.
+## Dépendances, contraintes et simulation
 
-## 🧑‍💻 Développement
+Les dépendances relient les tâches avec une contrainte de début au plus tôt : le jour ouvré suivant la fin du prédécesseur, plus un éventuel délai. Par exemple, `1.2+3` ajoute trois jours ouvrés à cette contrainte.
 
-Le HTML est **généré** — ne pas l'éditer directement :
+- Saisie dans **Détails**, sélecteur à cases à cocher dans le tableau, ou création graphique d'un lien depuis la pastille d'une barre.
+- Contrôle des cycles et décalage automatique des successeurs modifiables.
+- Dates butoirs, ligne du jour, détection des retards et signalement des contraintes non respectées.
+- Chemin critique et marges en jours ouvrés ; les dates planifiées sont prises comme contraintes de début au plus tôt.
+- **Simuler un décalage**, depuis **Détails** : aperçu des tâches affectées, nouvelles dates, impact sur la fin et butoirs menacés. Appliquer valide une opération annulable ; abandonner ne modifie rien.
+
+![Simulation de décalage avec comparaison des dates actuelles et simulées et alerte sur les butoirs.](docs/screenshots/simulation.png)
+
+La simulation est une action explicite. Les modifications ordinaires et les glisser-déposer s'appliquent directement et restent annulables. Une dépendance vers une tâche annulée est signalée pour arbitrage.
+
+## Responsabilités, charge et disponibilités
+
+Le **responsable de livraison** est distinct des **contributeurs**. L'effort peut être réparti explicitement entre eux, avec un total de 100 % ; à défaut, les parts sont égales.
+
+La charge utilise uniquement le reste à faire sur les jours futurs disponibles. Elle tient compte de la capacité dédiée au projet et des absences de chaque personne. Les tâches terminées, annulées et les jalons ne génèrent pas de charge future. Les surcharges, restes inconnus et travaux sans jour disponible restent explicites.
+
+![Charge restante par contributeur, avec avertissement lorsque la capacité est dépassée.](docs/screenshots/charge.png)
+
+Dans **Paramètres**, régler la capacité quotidienne, les absences, le samedi ouvré et les exceptions au calendrier. Les jours fériés français sont calculés automatiquement ; leur grisage peut être activé séparément des règles de travail. La palette de couleurs se trouve au même endroit.
+
+![Paramètres : palette, grisage, calendrier du projet, capacités et absences.](docs/screenshots/parametres.png)
+
+La répartition est uniforme sur les jours disponibles ; Plannr signale les surcharges sans effectuer de nivellement automatique du planning.
+
+## Jalons de décision
+
+Un jalon comporte une date, un responsable de validation, des critères d'acceptation et une décision : en attente, approuvée ou refusée, avec date de décision facultative. Les dates réelles ne sont jamais inventées à partir du calendrier.
+
+<img src="docs/screenshots/jalon.png" alt="Champs d'un jalon : valideur, critères d'acceptation, décision et date de décision." width="560">
+
+## Sauvegarder et partager
+
+| Format ou action | Contenu et usage |
+| --- | --- |
+| **Enregistrer / plannr-data.js** | Document rechargeable à placer à côté du HTML. |
+| **JSON** | Import/export du document complet : métadonnées, phases, tâches, calendrier, référence et disponibilités. |
+| **HTML** | Copie autonome de l'application contenant les données du projet et les bibliothèques. |
+| **PDF** | Gantt paginé en A3 paysage, tableau des tâches, informations métier et disponibilités. Le rendu reste clair, quel que soit le thème de lecture. |
+| **Excel** | Une feuille par phase, champs métier et feuille des disponibilités. |
+| **CSV** | Tableau des tâches et champs métier, séparé par des points-virgules. |
+| **ICS** | Jalons sous forme d'événements à importer dans un calendrier. |
+| **Impression** | Mise en page A3 paysage, commandes masquées et texte lisible. |
+
+Le document canonique est en **v2.4** ; les anciennes versions et l'ancienne clé `riskGroups` restent lisibles. Le [schéma JSON](schemas/plannr-data.schema.json) décrit les champs. Certains contrôles, tels que les cycles et la somme des répartitions, sont réalisés par l'application.
+
+### Historique et stockage local
+
+- Sauvegarde automatique dans le navigateur, avec restauration au rechargement et séparation par document.
+- **Annuler / rétablir** sur le document complet, y compris calendrier et disponibilités. Cmd/Ctrl + Z et Cmd/Ctrl + Maj + Z ; les champs conservent leur annulation native pendant la saisie.
+- État de sauvegarde visible : stockage navigateur, modifications non enregistrées dans un fichier, téléchargement ou écriture confirmée.
+- Validation des imports avant remplacement, refus des cycles et signalement des anomalies corrigées et des changements depuis le chargement précédent.
+
+La sauvegarde navigateur est distincte d'un fichier enregistré. Les exports contiennent les données du projet, notamment noms, notes, liens et disponibilités : vérifier leur contenu avant de partager son propre planning. Les documents et captures fournis dans ce dépôt sont fictifs.
+
+## Développement et vérification
+
+Le fichier HTML est généré depuis les sources ; ne pas le modifier directement.
 
 ```bash
-# Sources éditables
-src/head.html      # <head> (meta, favicon)
-src/styles.css     # CSS applicatif (+ @media print)
-src/body.html      # markup
-src/planning.js    # calendrier, dépendances, cascade et marges
-src/document.js    # document canonique, historique et persistance
-src/business.js    # règles métier, charge, simulation et piste du réalisé
-src/business-ui.js # indicateurs, actions, paramètres et champs métier
-src/workspace.js   # filtres, panneau de tâche et charge
-src/gantt.js       # placement, rendu et interactions Gantt
-src/exports.js     # HTML autonome, PDF, Excel et CSV
-src/features.js    # référence, plugins et édition complémentaire
-src/app.js         # tableau, traductions et initialisation
-src/libs/          # bibliothèques vendorisées (pinnées)
-
-python3 build.py   # assemble -> plannr.html (déterministe, vérifié en CI)
-
-npm ci && npx playwright install chromium
-npm test           # 102 tests : métier, historique, formats, interactions,
-                   # absence de collisions à 1440/768/390 px dans les 3 vues
+python3 build.py
+npm ci
+npx playwright install chromium
+npm test
 ```
 
+La suite comprend **102 tests Chromium** : calculs métier, imports, historique, simulation, interactions, exports, contraste et géométrie des trois vues aux largeurs 1440, 768 et 390 px. L'intégration continue vérifie également que la construction reproduit exactement le HTML livré.
 
-## 🛠️ Stack Technique
+| Source | Rôle |
+| --- | --- |
+| `src/body.html`, `src/styles.css` | Structure, thèmes et présentation adaptative. |
+| `src/planning.js` | Calendrier, dépendances, cascade et marges. |
+| `src/document.js` | Document canonique, validation, historique et persistance. |
+| `src/business.js`, `src/business-ui.js` | Indicateurs, règles métier, réalisé, charge, décisions et simulation. |
+| `src/workspace.js` | Filtres, panneau de tâche, thèmes et ajustement du Gantt. |
+| `src/gantt.js` | Placement, rendu et interactions graphiques. |
+| `src/exports.js` | HTML, PDF, Excel et CSV. |
+| `src/features.js`, `src/app.js` | Référence, fonctions complémentaires, tableau, traductions et initialisation. |
+| `src/libs/` | Chart.js, jsPDF, jsPDF-AutoTable et SheetJS intégrés. |
 
-### Frontend
-- **HTML5 / CSS3** - Design moderne inspiré des codes visuels d'Apple
-- **JavaScript (ES6+)** - Vanilla JS pur, aucune dépendance framework complexe
+Pour régénérer les captures du README après construction du HTML :
 
-### Bibliothèques
-- **Chart.js** - Moteur de rendu du diagramme de Gantt
-- **jsPDF** - Génération des rapports PDF
-- **SheetJS** - Exportation vers Excel (XLSX)
+```bash
+node scripts/capture-readme.cjs
+```
 
-## 📄 License
+Le script ouvre un navigateur isolé, bloque les accès HTTP(S), fixe la date de démonstration au 5 septembre 2026 et importe uniquement l'exemple fictif du dépôt.
 
-Ce projet est sous licence **GNU Affero General Public License v3.0 (AGPL-3.0)**.
+## Licence et contribution
 
-Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+Plannr est distribué sous **GNU Affero General Public License v3.0** : voir [LICENSE](LICENSE).
 
-## 🤝 Contribution
-
-Les contributions sont les bienvenues !
-
-1. Fork le projet
-2. Créer une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. Commit vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
-## 📞 Support
-
-Pour toute question ou suggestion :
-- Ouvrir une [issue](https://github.com/guthubrx/plannr/issues)
-- Consulter la documentation dans le code source
-
----
-
-© 2026 Plannr — Gestion de planning et diagramme de Gantt
+Pour contribuer : créer une branche, modifier les sources, reconstruire le HTML et lancer les tests avant une pull request. Les anomalies et propositions peuvent être déposées dans les [issues du projet](https://github.com/guthubrx/plannr/issues).

@@ -24,3 +24,10 @@ playwright-report/
 
 ._*
 .worktrees/
+
+# Configuration locale et secrets (ne pas publier)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
