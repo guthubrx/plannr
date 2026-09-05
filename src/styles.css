@@ -2446,3 +2446,47 @@ body.presentation-mode .document-status { display: none; }
 .gantt-scroll { width: 100%; }
 #gantt-content:not(.collapsed) { max-height: none; }
 @media (max-width: 480px) { .app-controls select { padding: 5px 7px !important; font-size: 12px !important; } }
+
+/* Pilotage : informations utiles en priorité, détails à la demande. */
+.dashboard-card-value { font-size: clamp(17px,1.8vw,23px); overflow-wrap: anywhere; }
+.dashboard-card-label { text-transform: none; }
+.action-center { margin: 6px 0; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-soft); font-size: 13px; }
+.action-center summary { cursor: pointer; font-weight: 600; }
+.action-center summary strong { margin-left: 6px; padding: 1px 6px; border-radius: 4px; background: var(--surface); }
+.action-totals { margin: 8px 0; color: var(--muted); }
+#action-groups { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,300px),1fr)); gap: 12px; max-height: 360px; overflow: auto; }
+#action-groups h3 { font-size: 13px; margin: 4px 0; color: var(--ink); }
+#action-groups ul { list-style: none; margin: 0; padding: 0; }
+#action-groups button { width: 100%; text-align: left; white-space: normal; overflow-wrap: anywhere; padding: 5px; border: 0; background: transparent; color: var(--ink); font-size: 13px; }
+#action-groups button:hover { background: var(--surface); }
+#action-groups small { color: var(--muted); }
+.field-help { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.panel-extra { padding: 8px; border: 1px solid var(--line); border-radius: 6px; }
+.panel-extra summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+.panel-extra[open] > :not(summary) { margin-top: 8px; }
+.business-dialog { position: fixed; inset: 0; margin: auto; width: min(760px,calc(100% - 24px)); max-height: 90dvh; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); }
+.business-dialog::backdrop { background: #10192399; }
+.business-dialog form, .business-dialog-content { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.business-dialog h2 { margin: 0; font-size: 20px; }
+fieldset { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 6px; display: grid; gap: 10px; }
+legend { padding: 0 5px; font-size: 13px; font-weight: 600; }
+.business-dialog label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.business-dialog :is(input:not([type="checkbox"]),textarea) { width: 100%; min-width: 0; padding: 7px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-soft); color: var(--ink); font-size: 13px; }
+.business-dialog button, .panel-extra button { padding: 6px 10px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-soft); color: var(--ink); font-size: 13px; }
+.business-dialog input[type="checkbox"] { min-height: 18px; }
+.business-dialog .shading-toggle { flex-direction: row; align-items: center; }
+.business-dialog .panel-actions { background: var(--surface); }
+.business-dialog .primary-action { background: #327594; color: white; }
+.resource-row { display: grid; grid-template-columns: 1fr 95px 1.4fr 34px; gap: 8px; align-items: end; padding: 8px 0; }
+.remove-resource { padding: 7px !important; }
+.form-error { color: #aa3125; font-size: 13px; }
+:root[data-theme="dark"] .form-error { color: #ffb2a9; }
+.simulation-table { overflow: auto; max-width: 100%; }
+.simulation-table table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.simulation-table :is(th,td) { padding: 8px; text-align: left; border-bottom: 1px solid var(--line); min-width: 160px; }
+.simulation-table td:first-child { white-space: normal; overflow-wrap: anywhere; }
+#settings-dialog #palette-dropdown-menu { left: 0 !important; right: auto; }
+@media (max-width: 760px) { .resource-row { grid-template-columns: 1fr 90px 34px; } .resource-row label:nth-child(3) { grid-column: 1 / 3; grid-row: 2; } .resource-row button { grid-column: 3; grid-row: 2; } .business-dialog form, .business-dialog-content { padding: 14px; } }
+.settings-palette { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+#task-form { gap: 12px; }
+@media (max-width: 420px) { #task-form .form-grid { grid-template-columns: 1fr; } }

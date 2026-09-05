@@ -69,7 +69,7 @@ test('round-trip : export canonique v2.1 -> import sans perte', async ({ page })
         input.files = dt.files;
         importFromJSON(input);
         setTimeout(() => resolve(
-            canon.version === '2.3' && !!canon.phases && !('riskGroups' in canon) &&
+            canon.version === '2.4' && !!canon.phases && !('riskGroups' in canon) &&
             riskGroups.length === before.p && risks.length === before.t
         ), 500);
     }));
@@ -399,12 +399,12 @@ test('v2.2 FR-3 : butoir dépassée — bandeau, badge, données démo', async (
         exceeded43: isDeadlineExceeded(risks.find(r => r.id === '4.3')),
         ok31: !isDeadlineExceeded(risks.find(r => r.id === '3.1')),
         badgeExceeded: !!document.querySelector('.deadline-badge.exceeded'),
-        banner: document.getElementById('plannr-banner').textContent
+        banner: document.getElementById('action-groups').textContent
     }));
     expect(d.exceeded43).toBe(true);
     expect(d.ok31).toBe(true);
     expect(d.badgeExceeded).toBe(true);
-    expect(d.banner).toContain('butoir');
+    expect(d.banner).toContain('Échéances menacées');
 });
 
 test('v2.2 FR-5 : fenêtre temporelle — zoom, pan, retour Tout, persistance', async ({ page }) => {
@@ -438,7 +438,7 @@ test('v2.2 FR-6 : charge par responsable avec détection de chevauchement', asyn
         document.getElementById('workload-content').textContent);
     expect(wl).toContain('Alice');
     expect(wl).toContain('Diana');
-    expect(wl).toContain('sans effort'); // conflit 2.1 ∥ 2.2 (Diana) présent dans la démo
+    expect(wl).toContain('sans reste à faire'); // conflit 2.1 ∥ 2.2 (Diana) présent dans la démo
     expect(wl).toContain('j-personnes');
 });
 

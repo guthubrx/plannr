@@ -37,7 +37,7 @@ def build() -> str:
     parts.append(APP_OPEN)
     # features.js AVANT app.js : plugins Chart.js enregistres avant le premier
     # rendu, fonctions hoistees visibles par l'init de app.js
-    for module in ["planning.js", "features.js", "document.js", "workspace.js", "gantt.js", "exports.js", "app.js"]:
+    for module in ["planning.js", "features.js", "document.js", "business.js", "workspace.js", "business-ui.js", "gantt.js", "exports.js", "app.js"]:
         parts.append((SRC / module).read_text(encoding="utf-8"))
     parts.append(TAIL)
     return "".join(parts)

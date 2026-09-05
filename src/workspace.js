@@ -75,6 +75,7 @@ function openTaskPanel(id) {
     document.getElementById('task-form-error').textContent = '';
     const margin = taskMargins.get(id);
     document.getElementById('task-margin').textContent = margin ? uiText('slack') + ' : ' + margin.days + ' ' + uiText('days') + (margin.days === 0 ? ' · ' + uiText('critical') : '') : '';
+    populateBusinessPanel(task);
     if (!dialog.open) dialog.showModal();
     form.elements.title.focus();
 }
@@ -83,6 +84,8 @@ function applyTaskPanel(event) {
     const form = event.target, task = risks.find(t => t.id === editingTaskId); if (!task) return;
     const value = name => form.elements[name].value.trim();
     const next = { ...task, title: value('title'), startDate: value('startDate'), endDate: value('endDate'), assignedTo: value('assignedTo'), notes: value('notes'), link: value('link'), deadline: value('deadline'), statut: value('statut'), progress: Number(value('progress')), isMilestone: form.elements.isMilestone.checked };
+    if ((isScheduleAnchored(task) && (next.startDate!==task.startDate || next.isMilestone!==!!task.isMilestone)) || (isTaskClosed(task) && next.endDate!==task.endDate)) { document.getElementById('task-form-error').textContent=uiText('scheduleLocked'); return; }
+    try { readBusinessPanel(next); } catch(error) { document.getElementById('task-form-error').textContent=error.message; return; }
     const dependencies = value('dependsOn').split(',').map(s => s.trim()).filter(Boolean);
     const blocked = collectDescendants(task.id); blocked.add(task.id);
     const byId = new Set(risks.map(t => t.id));
@@ -96,7 +99,7 @@ function applyTaskPanel(event) {
     if (next.effortDays !== undefined && (!Number.isFinite(next.effortDays) || next.effortDays < 0)) return;
     if (dependencies.length) next.dependsOn = [...new Set(dependencies)]; else delete next.dependsOn;
     if (isTaskDone(next)) next.progress = 100;
-    else if (next.progress === 100) next.statut = 'statusTreated';
+    else if (next.progress === 100 && next.statut === 'statusInProgress') next.statut = 'statusReview';
     commitDocument();
     Object.keys(task).forEach(key => delete task[key]); Object.assign(task, next);
     applyDependencyCascade({}); refreshDocumentViews(); commitDocument();
@@ -104,43 +107,25 @@ function applyTaskPanel(event) {
 }
 
 // O(t*d*a), d = jours ouvrés des tâches, a = nombre de responsables.
-function computeWorkload() {
-    const people = new Map();
-    for (const task of risks) {
-        if (task.isMilestone || isTaskDone(task)) continue;
-        const assignees = splitAssignees(task);
-        const names = assignees.length ? assignees : [uiText('notAssigned')];
-        const duration = workingDaysBetween(task.startDate, task.endDate || task.startDate);
-        for (const name of names) {
-            if (!people.has(name)) people.set(name, { name, effort: 0, unknown: 0, tasks: [], days: new Map() });
-            const person = people.get(name); person.tasks.push(task);
-            if (!Number.isFinite(task.effortDays)) { person.unknown++; continue; }
-            const effort = task.effortDays / names.length; person.effort += effort;
-            if (!duration) continue;
-            for (let date = task.startDate; date <= (task.endDate || task.startDate); date = addCalendarDays(date, 1)) {
-                if (isWorkingDay(new Date(date + 'T12:00:00Z'))) person.days.set(date, (person.days.get(date) || 0) + effort / duration);
-            }
-        }
-    }
-    return [...people.values()].sort((a,b) => a.name.localeCompare(b.name));
-}
+function computeWorkload() { return computeFutureWorkload(); }
 function renderWorkload() {
     const host = document.getElementById('workload-content'); if (!host) return;
     host.innerHTML = '<p class="workload-explanation">' + uiText('capacity') + '</p>' + computeWorkload().map(person => {
-        const overload = [...person.days.entries()].filter(([,load]) => load > 1.00001);
-        return '<article class="workload-person' + (overload.length ? ' has-conflict' : '') + '"><h3 class="workload-name">' + escapeHtml(person.name) + '</h3><p><strong>' + Math.round(person.effort * 100) / 100 + ' j-personnes</strong> · ' + person.unknown + ' ' + uiText('unestimated') + '</p><p class="workload-tasks">' + person.tasks.map(t => escapeHtml(t.id + ' · ' + t.title)).join('<br>') + '</p>' + (overload.length ? '<details><summary>' + overload.length + ' ' + uiText('overloaded') + '</summary>' + overload.map(([date, load]) => '<div>' + formatDateFR(date) + ' · ' + Math.round(load * 100) + '%</div>').join('') + '</details>' : '') + '</article>';
+        const overload = [...person.days.entries()].filter(([,load]) => load > person.capacity + 0.00001);
+        return '<article class="workload-person' + (overload.length ? ' has-conflict' : '') + '"><h3 class="workload-name">' + escapeHtml(person.name) + '</h3><p><strong>' + (person.effort===0 && person.unknown ? '—' : Math.round(person.effort * 100) / 100) + ' j-personnes</strong> · ' + person.unknown + ' ' + uiText('remainingUnknown') + '</p><p>' + (person.unscheduled ? person.unscheduled + ' ' + uiText('unscheduled') : '') + '</p><p class="workload-tasks">' + person.tasks.map(t => escapeHtml(t.id + ' · ' + t.title)).join('<br>') + '</p>' + (overload.length ? '<details><summary>' + overload.length + ' ' + uiText('overloaded') + '</summary>' + overload.map(([date, load]) => '<div>' + formatDateFR(date) + ' · ' + Math.round(load * 100) + '%</div>').join('') + '</details>' : '') + '</article>';
     }).join('');
 }
 function refreshWorkspaceLabels() {
     document.querySelectorAll('[data-ui]').forEach(el => { el.textContent = uiText(el.dataset.ui); });
     document.querySelectorAll('[data-ui-label]').forEach(el => { el.title = uiText(el.dataset.uiLabel); el.setAttribute('aria-label', el.title); });
     document.getElementById('filter-query').placeholder = uiText('search');
-    refreshFilterOptions(); decoratePlanning();
+    refreshFilterOptions(); decoratePlanning(); renderBusinessDashboard();
 }
 function initWorkspace() {
     refreshWorkspaceLabels();
     document.getElementById('task-form').addEventListener('submit', applyTaskPanel);
-    document.getElementById('task-form').elements.isMilestone.addEventListener('change', e => { document.getElementById('task-form').elements.endDate.disabled = e.target.checked; });
+    document.getElementById('settings-form').addEventListener('submit', saveSettings);
+    document.getElementById('task-form').elements.isMilestone.addEventListener('change', e => { document.getElementById('task-form').elements.endDate.disabled = e.target.checked; document.getElementById('milestone-fields').hidden=!e.target.checked; });
     initDocumentHistory();
 }
 

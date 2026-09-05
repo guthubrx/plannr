@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "plannr/plannr-data.schema.json",
-  "title": "Plannr — format canonique PLANNR_DATA v2.2",
+  "title": "Plannr — format canonique PLANNR_DATA v2.4",
   "description": "Contenu de window.PLANNR_DATA (fichier plannr-data.js). Cle canonique : phases (riskGroups acceptee en lecture pour compatibilite).",
   "type": "object",
   "required": [
@@ -23,7 +23,7 @@
     "version": {
       "type": "string",
       "examples": [
-        "2.3"
+        "2.4"
       ]
     },
     "timestamp": {
@@ -101,6 +101,33 @@
           "description": "Feries francais a NE PAS chomer pour ce projet"
         }
       }
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "capacity"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "capacity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "absences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/isoDate"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -151,7 +178,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^\\d+\\.\\d+$",
+          "pattern": "^[\\w.-]+$",
           "description": "Format <phase>.<n>, unique dans tout le planning"
         },
         "title": {
@@ -173,9 +200,12 @@
         "statut": {
           "type": "string",
           "examples": [
-            "A faire",
-            "En cours",
-            "Terminé"
+            "statusNotTreated",
+            "statusInProgress",
+            "statusBlocked",
+            "statusReview",
+            "statusTreated",
+            "statusCancelled"
           ]
         },
         "assignedTo": {
@@ -196,7 +226,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "pattern": "^\\d+\\.\\d+(\\+\\d+)?$",
+            "pattern": "^[\\w.-]+(\\+\\d+)?$",
             "description": "\"1.2\" ou \"1.2+3\" (lag de 3 jours OUVRES)"
           },
           "description": "La tache demarre au plus tot le jour ouvre suivant la fin de chaque predecesseur (+ lag eventuel). Cascade automatique."
@@ -219,6 +249,48 @@
           "type": "number",
           "minimum": 0,
           "description": "Effort total en jours-personnes, partagé entre les responsables."
+        },
+        "owner": {
+          "type": "string"
+        },
+        "blockerReason": {
+          "type": "string"
+        },
+        "decisionOwner": {
+          "type": "string"
+        },
+        "acceptanceCriteria": {
+          "type": "string"
+        },
+        "actualStartDate": {
+          "$ref": "#/definitions/isoDate"
+        },
+        "actualEndDate": {
+          "$ref": "#/definitions/isoDate"
+        },
+        "decisionDate": {
+          "$ref": "#/definitions/isoDate"
+        },
+        "remainingEffortDays": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Reste à faire saisi indépendamment du pourcentage. Omis : inconnu sauf tâche à faire entièrement non commencée."
+        },
+        "allocationShares": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "description": "Parts des contributeurs ; mêmes noms et somme 1, contrôlés au chargement."
+        },
+        "decision": {
+          "enum": [
+            "pending",
+            "approved",
+            "refused"
+          ]
         }
       }
     }

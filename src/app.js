@@ -587,6 +587,8 @@
                 // Écouter les changements de statut
                 dropdown.addEventListener('change', function(e) {
                     const newStatus = e.target.value;
+                    const current = risks.find(r=>r.id===riskId);
+                    if(current.actualEndDate && !isTaskClosed({statut:newStatus})) { this.value=current.statut; showToast(uiText('scheduleLocked')); return; }
 
                     // Sauvegarder dans localStorage
                     appStorage.setItem(storageKey, newStatus);
@@ -598,8 +600,8 @@
                     }
 
                     // Mettre à jour le dashboard
-                    if (isTaskDone(risk)) risk.progress = 100;
-                    else if (risk.progress === 100) risk.progress = 0;
+                    if (isTaskDone(risk)) { risk.progress = 100; if(risk.remainingEffortDays!==undefined)risk.remainingEffortDays=0; }
+                    else if (risk.progress === 100 && risk.statut === 'statusNotTreated') risk.progress = 0;
                     updateDashboard(); updateGantt(); renderPlanning();
 
                     showToast('Statut mis à jour');
@@ -667,6 +669,8 @@
                     const newValue = element.textContent.trim();
                     const originalValue = element.dataset.originalValue || '';
 
+                    const assignedTask=risks.find(r=>r.id===riskId);
+                    if(assignedTask?.allocationShares && newValue!==originalValue) { element.textContent=originalValue; showToast(uiText('allocationEdit')); return; }
                     // Si vide, afficher le placeholder
                     if (!newValue || newValue === t('clickToAdd')) {
                         element.textContent = t('clickToAdd');
@@ -797,9 +801,10 @@
                     if (!task) return;
 
                     // Mettre à jour la date
+                    if (isTaskClosed(task) || (task.actualStartDate && dateType === 'startDate')) { this.value=task[dateType]; showToast(uiText('scheduleLocked')); return; }
                     if (!validISODate(newValue)) { this.value = task[dateType]; return; }
                     if (dateType === 'startDate') moveTaskToWorkingDate(task, newValue);
-                    else if (newValue < task.startDate) { this.value = task.endDate; return; }
+                    else if (newValue < (task.actualStartDate || task.startDate)) { this.value = task.endDate; return; }
                     else task.endDate = newValue;
 
                     // Mettre à jour le span d'affichage français
@@ -883,7 +888,7 @@
         // et l'import — le round-trip est garanti par construction.
         function buildCanonicalData() {
             return {
-                version: "2.3",
+                version: "2.4",
                 timestamp: new Date().toISOString(),
                 appState: {
                     title: document.getElementById('main-title').textContent,
@@ -894,6 +899,7 @@
                 // Clé canonique v2.1 : `phases` — la lecture (loader, import,
                 // reload) accepte aussi l'ancienne clé `riskGroups`.
                 phases: riskGroups,
+                resources: projectResources,
                 // Baseline incluse si figée (undefined = clé omise au stringify)
                 baseline: baselineData || undefined,
                 // Calendrier métier (v2.2) : omis si tout est aux défauts
@@ -1272,12 +1278,7 @@
         }
 
         function getStatusOptions() {
-            return [
-                { value: "statusNotTreated", label: t('statusNotTreated'), emoji: "⚪" },
-                { value: "statusInProgress", label: t('statusInProgress'), emoji: "🔄" },
-                { value: "statusTreated", label: t('statusTreated'), emoji: "✅" },
-                { value: "statusAccepted", label: t('statusAccepted'), emoji: "🤝" }
-            ];
+            return BUSINESS_STATUSES.map(value=>({value,label:uiText(value)}));
         }
 
         // Helper pour générer les options avec carrés colorés
@@ -2311,74 +2312,10 @@
         }
 
         // Lire les valeurs des formulaires
-        function updateDashboard(currentRisks) {
+        function updateDashboard() {
             saveState();
-            // Récupérer toutes les tâches depuis les phases
-            const allTasks = riskGroups.flatMap(p => p.tasks);
-
-            // Vérifier que les éléments existent avant de les mettre à jour
-            const totalEl = document.getElementById('dashboard-total-tasks');
-            const inProgressEl = document.getElementById('dashboard-in-progress');
-            const completedEl = document.getElementById('dashboard-completed');
-            const durationEl = document.getElementById('dashboard-total-duration');
-            const progressionEl = document.getElementById('dashboard-progression');
-
-            if (!totalEl || !inProgressEl || !completedEl || !durationEl || !progressionEl) {
-                return; // Un des éléments n'existe pas
-            }
-
-            // 1. Nombre total de tâches
-            totalEl.textContent = allTasks.length;
-
-            // 2. Tâches en cours
-            const inProgressTasks = allTasks.filter(task => {
-                return task.statut === 'statusInProgress' || task.statut === 'En cours';
-            }).length;
-            inProgressEl.textContent = inProgressTasks;
-
-            // 3. Tâches terminées
-            const completedTasks = allTasks.filter(task => {
-                return task.statut === 'statusDone' || task.statut === 'statusTreated' || task.statut === 'Terminé';
-            }).length;
-            completedEl.textContent = completedTasks;
-
-            // 4. Durée totale du projet (somme des durées OUVRÉES, jalons exclus)
-            const totalDuration = allTasks.reduce((sum, task) => sum +
-                (task.isMilestone ? 0 : workingDaysBetween(task.startDate, task.endDate || task.startDate)), 0);
-            durationEl.textContent = `${totalDuration} j`;
-
-            // 5. Tâches en retard (échéance dépassée, non terminées)
-            const overdueEl = document.getElementById('dashboard-overdue');
-            if (overdueEl) {
-                const overdueCount = allTasks.filter(isTaskOverdue).length;
-                overdueEl.textContent = overdueCount;
-                overdueEl.style.color = overdueCount > 0 ? '#FF3B30' : '#1A6A3E';
-            }
-
-            // 6. Progression PONDÉRÉE par la durée ouvrée (jalons exclus) —
-            // une tâche de 30 j pèse 30x plus qu'une tâche de 1 j
-            const weightedTasks = allTasks.filter(task => !task.isMilestone);
-            let wSum = 0, wTotal = 0;
-            weightedTasks.forEach(task => {
-                const w = Math.max(1, workingDaysBetween(task.startDate, task.endDate || task.startDate));
-                wTotal += w;
-                wSum += w * effectiveProgress(task);
-            });
-            const completionRate = wTotal > 0 ? Math.round(wSum / wTotal) : 0;
-            progressionEl.textContent = `${completionRate}%`;
-
-            // Colorer selon le taux de complétion
-            if (completionRate >= 75) {
-                progressionEl.style.color = '#1A6A3E'; // Vert
-            } else if (completionRate >= 50) {
-                progressionEl.style.color = '#FF9500'; // Orange
-            } else {
-                progressionEl.style.color = '#666666'; // Gris
-            }
-
-            // v2.2 : vues dérivées rafraîchies avec chaque refresh du dashboard
-            renderWorkload();
-            renderValidationBanner();
+            renderBusinessDashboard();
+            renderWorkload(); renderBusinessActions(); renderValidationBanner();
         }
 
         // ========================================

@@ -82,6 +82,7 @@ test('002 marges et chemin critique tiennent compte du lag et de branches parall
 });
 
 test('002 effort partagé et surcharge réelle, sans assimiler durée et effort', async ({page})=>{
+    await page.clock.setFixedTime(new Date('2026-06-01T12:00:00Z'));
     await importData(page,documentData([task('1.1',{effortDays:5,assignedTo:'Alice, Bob'}),task('1.2',{effortDays:5}),task('1.3')]));
     const result=await page.evaluate(()=>computeWorkload().map(p=>({name:p.name,effort:p.effort,unknown:p.unknown,overload:[...p.days.values()].filter(n=>n>1).length})));
     expect(result).toEqual([{name:'Alice',effort:7.5,unknown:1,overload:5},{name:'Bob',effort:2.5,unknown:0,overload:0}]);

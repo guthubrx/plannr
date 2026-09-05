@@ -171,7 +171,7 @@
             const p = effectiveProgress(risk);
             return '<td class="progress-cell">' +
                 '<input type="number" class="editable-progress" data-risk-id="' + risk.id +
-                '" min="0" max="100" step="5" value="' + p + '">' +
+                '" min="0" max="100" step="5" value="' + p + '"' + (isTaskClosed(risk) ? ' disabled' : '') + '>' +
                 '<div class="progress-mini"><div class="progress-mini-fill" style="width:' + p + '%"></div></div>' +
                 '</td>';
         }
@@ -196,13 +196,13 @@
                 input.dataset.editingInitialized = 'true';
                 input.addEventListener('change', function () {
                     const task = risks.find(r => r.id === this.dataset.riskId);
-                    if (!task) return;
+                    if (!task || isTaskClosed(task)) return;
                     saveState();
                     let v = parseInt(this.value, 10);
                     if (!Number.isFinite(v)) v = 0;
                     v = Math.min(100, Math.max(0, v));
                     task.progress = v;
-                    if (v === 100) task.statut = 'statusTreated';
+                    if (v === 100 && !isTaskDone(task)) task.statut = 'statusReview';
                     else if (isTaskDone(task)) task.statut = 'statusInProgress';
                     this.value = v;
                     const fill = this.parentElement.querySelector('.progress-mini-fill');
@@ -365,7 +365,7 @@
         function isDeadlineExceeded(task) {
             if (!task.deadline) return false;
             const end = taskEndForDeps(task);
-            return !!end && end > task.deadline;
+            return !isTaskCancelled(task) && !!end && end > task.deadline;
         }
 
         function deadlineBadgeHTML(risk) {
@@ -384,7 +384,7 @@
             if (isTaskDone(task) && Number.isFinite(prog) && prog < 100) {
                 issues.push('statut Terminé mais avancement ' + prog + ' %');
             }
-            if (!isTaskDone(task) && prog === 100) {
+            if (!isTaskClosed(task) && task.statut !== 'statusReview' && prog === 100) {
                 issues.push('avancement 100 % mais statut « ' + (task.statut || '?') + ' »');
             }
             return issues;
@@ -442,19 +442,6 @@
             if (dataAnomalies.length) {
                 sections.push({ cls: 'banner-error',
                     title: 'Anomalies corrigées au chargement', items: dataAnomalies });
-            }
-            const exceeded = risks.filter(isDeadlineExceeded);
-            if (exceeded.length) {
-                sections.push({ cls: 'banner-error', title: 'Dates butoirs dépassées',
-                    items: exceeded.map(tk => tk.id + ' — ' + tk.title +
-                        ' (butoir ' + formatDateFR(tk.deadline) +
-                        ', fin ' + formatDateFR(taskEndForDeps(tk)) + ')') });
-            }
-            const inconsistencies = risks.flatMap(tk =>
-                taskInconsistencies(tk).map(msg => tk.id + ' — ' + msg));
-            if (inconsistencies.length) {
-                sections.push({ cls: 'banner-warn', title: 'Incohérences',
-                    items: inconsistencies });
             }
             if (dataChangeSummary.length) {
                 sections.push({ cls: 'banner-info',

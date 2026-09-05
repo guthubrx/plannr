@@ -160,8 +160,8 @@
         }
 
         function isTaskOverdue(task) {
-            if (isTaskDone(task)) return false;
-            const ref = task.isMilestone ? task.startDate : (task.endDate || task.startDate);
+            if (isTaskClosed(task)) return false;
+            const ref = reportingEnd(task);
             return !!ref && ref < todayISO();
         }
 
@@ -197,7 +197,7 @@
         }
 
         function taskEndForDeps(task) {
-            return (task.isMilestone || !task.endDate) ? task.startDate : task.endDate;
+            return reportingEnd(task);
         }
 
         // Décale les successeurs : un successeur démarre au plus tôt le jour
@@ -221,7 +221,7 @@
                 let minStart = null;
                 parseDependsOnFull(task).forEach(dep => {
                     const pred = byId[dep.id];
-                    if (!pred) return;
+                    if (!pred || isTaskCancelled(pred)) return;
                     resolve(pred);
                     const predEnd = taskEndForDeps(pred);
                     if (!predEnd) return;
@@ -231,7 +231,7 @@
                 });
                 visiting.delete(task.id);
                 memo.add(task.id);
-                if (minStart && task.startDate && task.startDate < minStart) {
+                if (!isScheduleAnchored(task) && minStart && task.startDate && task.startDate < minStart) {
                     moveTaskToWorkingDate(task, minStart);
                     shifted++;
                 }
@@ -264,27 +264,28 @@
         var taskMargins = new Map();
         function computeCriticalPath() {
             taskMargins = new Map();
-            const byId = new Map(risks.map(task => [task.id, task]));
-            const successors = new Map(risks.map(task => [task.id, []]));
+            const planned = risks.filter(task=>!isTaskCancelled(task));
+            const byId = new Map(planned.map(task => [task.id, task]));
+            const successors = new Map(planned.map(task => [task.id, []]));
             const degrees = new Map();
-            risks.forEach(task => {
+            planned.forEach(task => {
                 const deps = parseDependsOnFull(task).filter(dep => byId.has(dep.id));
                 degrees.set(task.id, deps.length);
                 deps.forEach(dep => successors.get(dep.id).push({ id: task.id, lag: dep.lag }));
             });
-            const order = risks.filter(task => degrees.get(task.id) === 0).map(task => task.id);
+            const order = planned.filter(task => degrees.get(task.id) === 0).map(task => task.id);
             for (let i = 0; i < order.length; i++) for (const next of successors.get(order[i])) {
                 degrees.set(next.id, degrees.get(next.id) - 1);
                 if (degrees.get(next.id) === 0) order.push(next.id);
             }
-            if (order.length !== risks.length) return new Set();
+            if (order.length !== planned.length) return new Set();
             const early = new Map(), late = new Map(), durations = new Map();
             let finish = null;
             for (const id of order) {
                 const task = byId.get(id);
-                const duration = task.isMilestone ? 0 : Math.max(1, workingDaysBetween(task.startDate, task.endDate || task.startDate));
+                const duration = task.isMilestone ? 0 : Math.max(1, workingDaysBetween(reportingStart(task), reportingEnd(task)));
                 durations.set(id, duration);
-                let start = nextWorkingDate(task.startDate);
+                let start = nextWorkingDate(reportingStart(task));
                 for (const dep of parseDependsOnFull(task)) {
                     if (!early.has(dep.id)) continue;
                     const bound = addWorkingDays(early.get(dep.id), Math.max(1, durations.get(dep.id)) + dep.lag);
@@ -349,6 +350,7 @@
             return isWorkingDay(new Date(date + 'T12:00:00Z')) ? date : addWorkingDays(date, 1);
         }
         function moveTaskToWorkingDate(task, date) {
+            if (isScheduleAnchored(task)) return false;
             const duration = task.isMilestone ? 0 : Math.max(1, workingDaysBetween(task.startDate, task.endDate || task.startDate));
             task.startDate = task.isMilestone ? date : nextWorkingDate(date);
             task.endDate = task.isMilestone ? task.startDate : addWorkingDays(task.startDate, duration - 1);

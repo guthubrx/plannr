@@ -86,6 +86,7 @@ function packGanttTasks(tasks, range, width) {
         const maxX = width - range.left - 32;
         const labelX = Math.max(0, Math.min(start, maxX - 252));
         let x0 = Math.min(start - 28, labelX), x1 = Math.max(end + 28, labelX + 252);
+        for(const date of [task.actualStartDate,task.actualEndDate].filter(Boolean)){const px=(Date.parse(date)-range.min)*scale;x0=Math.min(x0,px-4);x1=Math.max(x1,px+4);}
         const base = baselineData?.tasks?.[task.id];
         if (base) { x0 = Math.min(x0, (Date.parse(base.startDate) - range.min) * scale); x1 = Math.max(x1, (Date.parse(base.endDate) - range.min) * scale); }
         return { task, x0, x1 };
@@ -681,7 +682,7 @@ Chart.register({
             const ctx = canvas.getContext('2d');
             const phases = visiblePlanningGroups();
             const allTasks = phases.flatMap(p => p.tasks);
-            const dates = allTasks.flatMap(task => [Date.parse(task.startDate), Date.parse(task.endDate || task.startDate), Date.parse(task.deadline), Date.parse(baselineData?.tasks?.[task.id]?.startDate), Date.parse(baselineData?.tasks?.[task.id]?.endDate)]).filter(Number.isFinite);
+            const dates = allTasks.flatMap(task => [Date.parse(task.startDate), Date.parse(task.endDate || task.startDate), Date.parse(task.deadline), Date.parse(task.actualStartDate), Date.parse(task.actualEndDate), Date.parse(baselineData?.tasks?.[task.id]?.startDate), Date.parse(baselineData?.tasks?.[task.id]?.endDate)]).filter(Number.isFinite);
             const dayMs = 86400000;
             const minDate = dates.length ? Math.min(...dates) : Date.parse(todayISO());
             const maxDate = dates.length ? Math.max(...dates) : minDate + 14 * dayMs;
@@ -695,12 +696,12 @@ Chart.register({
             // 16 px entre tâches (dont 6 réservés à une éventuelle baseline).
             ctx.font = '600 13px Helvetica, Arial, sans-serif';
             const labelWidth = ganttViewMode === 'cascade' ? range.left - 30 : 244;
-            const taskLines = new Map(allTasks.map(task => [task.id, wrapGanttText(ctx, task.id + ' · ' + task.title, labelWidth, 3)]));
+            const taskLines = new Map(allTasks.map(task => [task.id, wrapGanttText(ctx, task.id + ' · ' + task.title + (isTaskCancelled(task)?' ['+uiText('statusCancelled')+']':''), labelWidth, 3)]));
             let contentHeight = 8;
             const addLane = (tasks, phaseFor) => {
                 const textHeight = Math.max(...tasks.map(task => taskLines.get(task.id).length * 16));
                 const cascade = ganttViewMode === 'cascade';
-                const height = cascade ? Math.max(48, textHeight + 16) : textHeight + 6 + 32 + 16;
+                const height = cascade ? Math.max(48, textHeight + 16, tasks.some(t=>t.actualStartDate||t.actualEndDate)?64:0) : textHeight + 6 + 32 + 16;
                 const y = contentHeight + (cascade ? height / 2 : textHeight + 6 + 16);
                 tasks.forEach(task => rows.push({task, phase: phaseFor(task), y, top: contentHeight, bottom: contentHeight + height, lines: taskLines.get(task.id)}));
                 contentHeight += height;
@@ -728,7 +729,7 @@ Chart.register({
                 if (task.isMilestone && ganttViewMode === 'cascade') milestones.push({task, phase: row.phase, yPosition: row.y, date: start});
                 else {
                     ganttData.push({x: [start, task.isMilestone ? start : Math.max(start + dayMs * 0.5, Date.parse(task.endDate || task.startDate))], y: row.y, task, isMilestone: !!task.isMilestone, color: row.phase.color});
-                    colors.push(row.phase.color);
+                    colors.push(isTaskCancelled(task)?'#7d8d9f':row.phase.color);
                 }
             });
             contentHeight = Math.max(84, contentHeight);
@@ -751,7 +752,7 @@ Chart.register({
                         callbacks: { title: () => '', label: context => {
                             const task = ganttData[context.dataIndex].task;
                             const margin = taskMargins.get(task.id);
-                            return [...wrapGanttText(ctx, task.id + ' · ' + task.title, 320, 4), formatDateFR(task.startDate) + ' → ' + formatDateFR(task.endDate || task.startDate), uiText('duration') + ': ' + (task.isMilestone ? 0 : workingDaysBetween(task.startDate, task.endDate)) + ' ' + uiText('days'), uiText('slack') + ': ' + (margin ? margin.days : '—') + ' ' + uiText('days')];
+                            return [...wrapGanttText(ctx, task.id + ' · ' + task.title, 320, 4), uiText(task.statut), ...(task.actualStartDate?[uiText('actualStart')+': '+formatDateFR(task.actualStartDate)]:[]), ...(task.actualEndDate?[uiText('actualEnd')+': '+formatDateFR(task.actualEndDate)]:[]), formatDateFR(task.startDate) + ' → ' + formatDateFR(task.endDate || task.startDate), uiText('duration') + ': ' + (task.isMilestone ? 0 : workingDaysBetween(task.startDate, task.endDate)) + ' ' + uiText('days'), uiText('slack') + ': ' + (margin ? margin.days : '—') + ' ' + uiText('days')];
                         }}
                     }}
                 }
@@ -779,6 +780,9 @@ Chart.register({
                 const rect = canvas.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
+
+                const anchoredRow = ganttChart.options.readableRows.find(row=>isScheduleAnchored(row.task) && Math.abs(ganttChart.scales.y.getPixelForValue(row.y)-clickY)<20 && clickX>=ganttChart.scales.x.getPixelForValue(Date.parse(row.task.startDate))-24 && clickX<=ganttChart.scales.x.getPixelForValue(Date.parse(row.task.endDate))+24);
+                if (anchoredRow) { openTaskPanel(anchoredRow.task.id); return; }
 
                 // v2.3 : pastille de connexion — testée AVANT le resize
                 // (zones disjointes : pastille à bord+12..+24, resize à ±10)

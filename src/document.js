@@ -32,6 +32,7 @@ function validateDocument(input) {
             task.statut = ({'Terminé':'statusTreated','En cours':'statusInProgress','A faire':'statusNotTreated','À faire':'statusNotTreated','Accepté':'statusAccepted'})[task.statut] || task.statut || 'statusNotTreated';
             if (task.assignedTo === undefined && task.responsable !== undefined) task.assignedTo = String(task.responsable);
             if (parseDependsOnFull(task).some(dep => !Number.isFinite(dep.lag) || dep.lag > 3650)) throw new Error('Délai de dépendance supérieur à 3650 jours');
+            normalizeBusinessTask(task);
             task.id = String(task.id); task.title = String(task.title || 'Tâche');
             if (task.effortDays !== undefined && (!Number.isFinite(task.effortDays) || task.effortDays < 0)) throw new Error('Effort invalide');
         }
@@ -57,6 +58,7 @@ function validateDocument(input) {
     if (data.baseline) for (const row of Object.values(data.baseline.tasks)) {
         if (!row || !validISODate(row.startDate) || (row.endDate && !validISODate(row.endDate))) throw new Error('Dates de référence invalides');
     }
+    data.resources = validateResources(data.resources || []);
     return data;
 }
 
@@ -68,6 +70,7 @@ function applyDocument(data) {
     riskGroups.splice(0, riskGroups.length, ...JSON.parse(JSON.stringify(data.phases)));
     risks.splice(0, risks.length, ...riskGroups.flatMap(g => g.tasks));
     baselineData = data.baseline ? JSON.parse(JSON.stringify(data.baseline)) : null;
+    projectResources = JSON.parse(JSON.stringify(data.resources || []));
     const cal = data.calendar || {};
     calendarConfig = { saturdayWorked: !!cal.saturdayWorked, extraHolidays: new Set(cal.extraHolidays || []), skippedHolidays: new Set(cal.skippedHolidays || []) };
     const meta = data.appState || {};

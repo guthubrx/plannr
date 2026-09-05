@@ -1,0 +1,11 @@
+# Tâches
+- [x] T01 Sauvegarde vérifiée et branche isolée.
+- [x] T02 Modèle, calculs de pilotage et normalisation.
+- [x] T03 Validation, schéma, persistance et exports.
+- [x] T04 Statuts, dates réelles, protection du réalisé.
+- [x] T05 Panneau : reste à faire, responsable, contributeurs, décisions.
+- [x] T06 Simulation de décalage et confirmation.
+- [x] T07 Ressources, paramètres et actions groupées.
+- [x] T08 Indicateurs et présentation compacte.
+- [x] T09 Tests métier, régressions et vérification visuelle.
+- [x] T10 Documentation et intégration.

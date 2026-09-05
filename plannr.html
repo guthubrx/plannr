@@ -2929,11 +2929,55 @@ body.presentation-mode .document-status { display: none; }
 .gantt-scroll { width: 100%; }
 #gantt-content:not(.collapsed) { max-height: none; }
 @media (max-width: 480px) { .app-controls select { padding: 5px 7px !important; font-size: 12px !important; } }
+
+/* Pilotage : informations utiles en priorité, détails à la demande. */
+.dashboard-card-value { font-size: clamp(17px,1.8vw,23px); overflow-wrap: anywhere; }
+.dashboard-card-label { text-transform: none; }
+.action-center { margin: 6px 0; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-soft); font-size: 13px; }
+.action-center summary { cursor: pointer; font-weight: 600; }
+.action-center summary strong { margin-left: 6px; padding: 1px 6px; border-radius: 4px; background: var(--surface); }
+.action-totals { margin: 8px 0; color: var(--muted); }
+#action-groups { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,300px),1fr)); gap: 12px; max-height: 360px; overflow: auto; }
+#action-groups h3 { font-size: 13px; margin: 4px 0; color: var(--ink); }
+#action-groups ul { list-style: none; margin: 0; padding: 0; }
+#action-groups button { width: 100%; text-align: left; white-space: normal; overflow-wrap: anywhere; padding: 5px; border: 0; background: transparent; color: var(--ink); font-size: 13px; }
+#action-groups button:hover { background: var(--surface); }
+#action-groups small { color: var(--muted); }
+.field-help { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.panel-extra { padding: 8px; border: 1px solid var(--line); border-radius: 6px; }
+.panel-extra summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+.panel-extra[open] > :not(summary) { margin-top: 8px; }
+.business-dialog { position: fixed; inset: 0; margin: auto; width: min(760px,calc(100% - 24px)); max-height: 90dvh; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); }
+.business-dialog::backdrop { background: #10192399; }
+.business-dialog form, .business-dialog-content { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.business-dialog h2 { margin: 0; font-size: 20px; }
+fieldset { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 6px; display: grid; gap: 10px; }
+legend { padding: 0 5px; font-size: 13px; font-weight: 600; }
+.business-dialog label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.business-dialog :is(input:not([type="checkbox"]),textarea) { width: 100%; min-width: 0; padding: 7px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-soft); color: var(--ink); font-size: 13px; }
+.business-dialog button, .panel-extra button { padding: 6px 10px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-soft); color: var(--ink); font-size: 13px; }
+.business-dialog input[type="checkbox"] { min-height: 18px; }
+.business-dialog .shading-toggle { flex-direction: row; align-items: center; }
+.business-dialog .panel-actions { background: var(--surface); }
+.business-dialog .primary-action { background: #327594; color: white; }
+.resource-row { display: grid; grid-template-columns: 1fr 95px 1.4fr 34px; gap: 8px; align-items: end; padding: 8px 0; }
+.remove-resource { padding: 7px !important; }
+.form-error { color: #aa3125; font-size: 13px; }
+:root[data-theme="dark"] .form-error { color: #ffb2a9; }
+.simulation-table { overflow: auto; max-width: 100%; }
+.simulation-table table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.simulation-table :is(th,td) { padding: 8px; text-align: left; border-bottom: 1px solid var(--line); min-width: 160px; }
+.simulation-table td:first-child { white-space: normal; overflow-wrap: anywhere; }
+#settings-dialog #palette-dropdown-menu { left: 0 !important; right: auto; }
+@media (max-width: 760px) { .resource-row { grid-template-columns: 1fr 90px 34px; } .resource-row label:nth-child(3) { grid-column: 1 / 3; grid-row: 2; } .resource-row button { grid-column: 3; grid-row: 2; } .business-dialog form, .business-dialog-content { padding: 14px; } }
+.settings-palette { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+#task-form { gap: 12px; }
+@media (max-width: 420px) { #task-form .form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body class="">
     <div class="container">
-<svg class="icon-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><symbol id="ui-logo" viewBox="0 0 24 24"><path d="M3 4v16h18M7 7h6M11 12h9M7 17h9"/></symbol><symbol id="ui-reload" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></symbol><symbol id="ui-save" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol><symbol id="ui-import" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5"/></symbol><symbol id="ui-baseline" viewBox="0 0 24 24"><path d="M4 20V4h8l2 3h6v9h-8l-2-3H4"/></symbol><symbol id="ui-undo" viewBox="0 0 24 24"><path d="M9 4 4 9l5 5M4 9h9a6 6 0 0 1 0 12"/></symbol><symbol id="ui-redo" viewBox="0 0 24 24"><path d="m15 4 5 5-5 5m5-5h-9a6 6 0 0 0 0 12"/></symbol><symbol id="ui-palette" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="ui-presentation" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M12 16v5m-4 0h8"/></symbol><symbol id="ui-edit" viewBox="0 0 24 24"><path d="m4 16 12-12 4 4-12 12H4v-4Zm9-9 4 4"/></symbol><symbol id="ui-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol><symbol id="ui-note" viewBox="0 0 24 24"><path d="M14 3H4v18h16V9l-6-6v6h6M8 13h8m-8 4h5"/></symbol><symbol id="ui-link" viewBox="0 0 24 24"><path d="m10 13 4-4m-6 6-2 2a3.5 3.5 0 0 1-5-5l5-5a3.5 3.5 0 0 1 5 0m2 2 2-2a3.5 3.5 0 0 1 5 5l-5 5a3.5 3.5 0 0 1-5 0"/></symbol></defs></svg>
+<svg class="icon-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><symbol id="ui-logo" viewBox="0 0 24 24"><path d="M3 4v16h18M7 7h6M11 12h9M7 17h9"/></symbol><symbol id="ui-reload" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></symbol><symbol id="ui-save" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol><symbol id="ui-import" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5"/></symbol><symbol id="ui-baseline" viewBox="0 0 24 24"><path d="M4 20V4h8l2 3h6v9h-8l-2-3H4"/></symbol><symbol id="ui-undo" viewBox="0 0 24 24"><path d="M9 4 4 9l5 5M4 9h9a6 6 0 0 1 0 12"/></symbol><symbol id="ui-redo" viewBox="0 0 24 24"><path d="m15 4 5 5-5 5m5-5h-9a6 6 0 0 0 0 12"/></symbol><symbol id="ui-palette" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="ui-presentation" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M12 16v5m-4 0h8"/></symbol><symbol id="ui-edit" viewBox="0 0 24 24"><path d="m4 16 12-12 4 4-12 12H4v-4Zm9-9 4 4"/></symbol><symbol id="ui-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol><symbol id="ui-note" viewBox="0 0 24 24"><path d="M14 3H4v18h16V9l-6-6v6h6M8 13h8m-8 4h5"/></symbol><symbol id="ui-link" viewBox="0 0 24 24"><path d="m10 13 4-4m-6 6-2 2a3.5 3.5 0 0 1-5-5l5-5a3.5 3.5 0 0 1 5 0m2 2 2-2a3.5 3.5 0 0 1 5 5l-5 5a3.5 3.5 0 0 1-5 0"/></symbol><symbol id="ui-settings" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16M8 3v6m8 0v6m-6 0v6"/></symbol></defs></svg>
         <header class="app-header">
             <div class="app-brand">
                 <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-logo"></use></svg>
@@ -2960,7 +3004,7 @@ body.presentation-mode .document-status { display: none; }
                 <select id="language-selector" onchange="setLanguage(this.value)" aria-label="Langue" title="Langue">
                     <option value="fr">FR</option><option value="en">EN</option><option value="es">ES</option><option value="ar">AR</option><option value="zh">ZH</option>
                 </select>
-                <div id="color-palette-selector"></div>
+                <button class="icon-button" onclick="openSettings()" data-ui-label="settings"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-settings"></use></svg></button>
                 <button class="pres-toggle icon-button" id="pres-toggle" onclick="togglePresentation()" data-ui-label="presentation" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-presentation"></use></svg></button>
                 <div class="history-actions" role="group" aria-label="Historique">
                     <button class="icon-button" id="undo-action" onclick="undo()" data-ui-label="undo"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-undo"></use></svg></button>
@@ -2972,78 +3016,8 @@ body.presentation-mode .document-status { display: none; }
         <!-- Bandeau de validation v2.2 : anomalies, butoirs, incohérences, journal -->
         <div id="plannr-banner"></div>
 
-        <!-- Dashboard de vue d'ensemble -->
-        <div class="dashboard-overview">
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="9" y1="9" x2="15" y2="9"></line>
-                        <line x1="9" y1="13" x2="15" y2="13"></line>
-                        <line x1="9" y1="17" x2="13" y2="17"></line>
-                    </svg>
-                    <div class="dashboard-card-content">
-                        <div class="dashboard-card-value" id="dashboard-total-tasks">14</div>
-                        <div class="dashboard-card-label" data-i18n="dashboardTotalTasks">Tâches totales</div>
-                    </div>
-                </div>
-
-                <div class="dashboard-card">
-                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <div class="dashboard-card-content">
-                        <div class="dashboard-card-value" id="dashboard-in-progress">0</div>
-                        <div class="dashboard-card-label" data-i18n="dashboardTasksInProgress">En cours</div>
-                    </div>
-                </div>
-
-                <div class="dashboard-card">
-                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                    <div class="dashboard-card-content">
-                        <div class="dashboard-card-value" id="dashboard-completed">0</div>
-                        <div class="dashboard-card-label" data-i18n="dashboardTasksCompleted">Terminées</div>
-                    </div>
-                </div>
-
-                <div class="dashboard-card">
-                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <polyline points="19 12 12 19 5 12"></polyline>
-                    </svg>
-                    <div class="dashboard-card-content">
-                        <div class="dashboard-card-value" id="dashboard-total-duration">187 j</div>
-                        <div class="dashboard-card-label" data-i18n="dashboardTotalDuration">Durée totale</div>
-                    </div>
-                </div>
-
-                <div class="dashboard-card">
-                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    <div class="dashboard-card-content">
-                        <div class="dashboard-card-value" id="dashboard-progression" style="color: rgb(102, 102, 102);">0%</div>
-                        <div class="dashboard-card-label" data-i18n="dashboardProgression">Progression</div>
-                    </div>
-                </div>
-
-                <div class="dashboard-card">
-                    <svg class="dashboard-card-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                    <div class="dashboard-card-content">
-                        <div class="dashboard-card-value" id="dashboard-overdue">0</div>
-                        <div class="dashboard-card-label" data-i18n="dashboardOverdue">En retard</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="dashboard-overview"><div class="dashboard-grid"><div class="dashboard-card"><div class="dashboard-card-content"><div class="dashboard-card-value" id="business-next">—</div><div class="dashboard-card-label"  data-ui="nextDeadline"></div></div></div><div class="dashboard-card"><div class="dashboard-card-content"><div class="dashboard-card-value" id="business-finish">—</div><div class="dashboard-card-label"  data-ui="forecastFinish"></div></div></div><div class="dashboard-card"><div class="dashboard-card-content"><div class="dashboard-card-value" id="business-drift">—</div><div class="dashboard-card-label"  data-ui="referenceDrift"></div></div></div><div class="dashboard-card"><div class="dashboard-card-content"><div class="dashboard-card-value" id="business-blocked">—</div><div class="dashboard-card-label"  data-ui="blockedCount"></div></div></div><div class="dashboard-card"><div class="dashboard-card-content"><div class="dashboard-card-value" id="dashboard-total-duration">—</div><div class="dashboard-card-label"  data-ui="projectSpan"></div></div></div><div class="dashboard-card"><div class="dashboard-card-content"><div class="dashboard-card-value" id="dashboard-progression">—</div><div class="dashboard-card-label" id="progress-method" data-ui="durationMethod"></div></div></div></div></div>
+        <details id="action-center" class="action-center"><summary><span data-ui="actionCenter"></span> <strong id="action-count">0</strong></summary><p class="action-totals"><span id="dashboard-total-tasks"></span> tâches · <span id="dashboard-in-progress"></span> en cours · <span id="dashboard-completed"></span> terminées · <span id="dashboard-overdue"></span> en retard</p><div id="action-groups"></div></details>
 
         <section class="planning-filters" aria-label="Filtres du planning">
             <input type="search" id="filter-query" aria-label="Rechercher une tâche" oninput="updateFilters()">
@@ -3059,7 +3033,7 @@ body.presentation-mode .document-status { display: none; }
                 <span class="sticky-toggle-label">Épingler la vue d'ensemble</span>
                 <button onclick="toggleSticky()" class="sticky-toggle-btn" id="sticky-toggle-btn" title="Activer/Désactiver le mode collant"></button>
             </div>
-            
+
             <!-- Séparateur -->
             <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
 
@@ -3072,29 +3046,6 @@ body.presentation-mode .document-status { display: none; }
                     <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Compact</button>
                 </div>
             </div>
-
-            <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
-
-            <!-- Barres grises de neutralisation (week-ends / fériés) — affichage seul,
-                 les durées en jours ouvrés restent calculées indépendamment -->
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="sticky-toggle-label">Neutralisation grisée :</span>
-                <label class="shading-toggle">
-                    <input type="checkbox" id="toggle-shade-weekends" checked onchange="toggleWeekendShading(this.checked)"> Week-ends
-                </label>
-                <label class="shading-toggle">
-                    <input type="checkbox" id="toggle-shade-holidays" checked onchange="toggleHolidayShading(this.checked)"> Jours fériés
-                </label>
-            </div>
-
-            <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
-
-            <!-- Calendrier MÉTIER : samedi travaillé (durées, cascade, grisage) -->
-            <label class="shading-toggle" title="Compte les samedis comme jours ouvrés — affecte les durées et la cascade">
-                <input type="checkbox" id="toggle-saturday-worked" onchange="toggleSaturdayWorked(this.checked)"> Samedi ouvré
-            </label>
 
             <!-- Séparateur -->
             <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
@@ -3146,7 +3097,7 @@ body.presentation-mode .document-status { display: none; }
                 <span class="collapse-icon">▼</span>
                 <div style="flex: 1;">
                     <div class="risk-group-title">Charge par responsable</div>
-                    <div class="risk-group-description">Effort des tâches restantes, réparti entre les responsables</div>
+                    <div class="risk-group-description" data-ui="futureLoad"></div>
                 </div>
             </h2>
             <div id="workload-content-inner" class="collapsible-content">
@@ -3161,15 +3112,19 @@ body.presentation-mode .document-status { display: none; }
     <dialog id="task-panel" aria-labelledby="task-panel-title">
       <form id="task-form">
         <header class="panel-header"><h2 id="task-panel-title"></h2><button type="button" onclick="document.getElementById('task-panel').close()" aria-label="Fermer">×</button></header>
-        <p id="task-margin" class="task-margin"></p>
+        <p id="task-margin" class="task-margin"></p><p id="task-reference" class="field-help"></p><p id="schedule-lock-help" class="field-help" data-ui="scheduleLocked" hidden></p>
         <label><span data-ui="title"></span><textarea name="title" rows="2" required></textarea></label>
         <label class="checkbox-label"><input type="checkbox" name="isMilestone"><span data-ui="milestone"></span></label>
         <div class="form-grid"><label><span data-ui="start"></span><input name="startDate" type="date" required></label><label><span data-ui="end"></span><input name="endDate" type="date" required></label></div>
-        <label><span data-ui="assignee"></span><input name="assignedTo"></label>
+        <div class="form-grid"><label><span data-ui="owner"></span><input name="owner"></label><label><span data-ui="assignee"></span><input name="assignedTo"></label></div>
         <div class="form-grid"><label><span data-ui="state"></span><select name="statut"></select></label><label><span data-ui="progress"></span><input name="progress" type="number" min="0" max="100" required></label></div>
-        <label><span data-ui="deps"></span><input name="dependsOn"></label>
+        <label><span data-ui="blocker"></span><input name="blockerReason"></label><label><span data-ui="deps"></span><input name="dependsOn"></label>
         <label><span data-ui="deadline"></span><input name="deadline" type="date"></label>
-        <label><span data-ui="effort"></span><input name="effortDays" type="number" min="0" step="0.25"><small data-ui="effortHelp"></small></label>
+        <div class="form-grid"><label><span data-ui="effort"></span><input name="effortDays" type="number" min="0" step="0.25"></label><label><span data-ui="remaining"></span><input name="remainingEffortDays" type="number" min="0" step="0.1"></label></div><p class="field-help" data-ui="remainingHelp"></p>
+        <div class="form-grid"><label><span data-ui="actualStart"></span><input type="date" name="actualStartDate"></label><label><span data-ui="actualEnd"></span><input type="date" name="actualEndDate"></label></div>
+        <details class="panel-extra"><summary data-ui="allocation"></summary><label><textarea name="allocationShares" rows="3" aria-label="Répartition par contributeur"></textarea><small data-ui="allocationHelp"></small></label></details>
+        <fieldset id="milestone-fields" hidden><legend data-ui="decision"></legend><label><span data-ui="decisionOwner"></span><input name="decisionOwner"></label><label><span data-ui="criteria"></span><textarea name="acceptanceCriteria" rows="3"></textarea></label><div class="form-grid"><label><span data-ui="decision"></span><select name="decision"><option value="pending" data-ui="pending"></option><option value="approved" data-ui="approved"></option><option value="refused" data-ui="refused"></option></select></label><label><span data-ui="decisionDate"></span><input name="decisionDate" type="date"></label></div></fieldset>
+        <details id="schedule-simulation" class="panel-extra"><summary data-ui="simulate"></summary><label><span data-ui="newStart"></span><input id="simulate-start" type="date"></label><button type="button" onclick="previewSchedule()" data-ui="preview"></button></details>
         <label><span data-ui="notes"></span><textarea name="notes" rows="5"></textarea></label>
         <label><span data-ui="link"></span><input name="link" type="url"></label>
         <p id="task-form-error" role="alert"></p>
@@ -3194,7 +3149,39 @@ body.presentation-mode .document-status { display: none; }
         </div>
     </footer>
 
-    <script>        function easterSunday(year) {
+
+    <dialog id="settings-dialog" class="business-dialog" aria-labelledby="settings-title"><form id="settings-form">
+        <div class="panel-header"><h2 id="settings-title" data-ui="settings"></h2><button type="button" onclick="document.getElementById('settings-dialog').close()" aria-label="Fermer">×</button></div>
+        <fieldset><legend data-ui="appearance"></legend><div class="settings-palette"><span data-ui="palette"></span><div id="color-palette-selector"></div></div>            <!-- Barres grises de neutralisation (week-ends / fériés) — affichage seul,
+                 les durées en jours ouvrés restent calculées indépendamment -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="sticky-toggle-label">Neutralisation grisée :</span>
+                <label class="shading-toggle">
+                    <input type="checkbox" id="toggle-shade-weekends" checked onchange="toggleWeekendShading(this.checked)"> Week-ends
+                </label>
+                <label class="shading-toggle">
+                    <input type="checkbox" id="toggle-shade-holidays" checked onchange="toggleHolidayShading(this.checked)"> Jours fériés
+                </label>
+            </div>
+
+            <!-- Séparateur -->
+
+
+            <!-- Calendrier MÉTIER : samedi travaillé (durées, cascade, grisage) -->
+
+
+            <!-- Séparateur -->
+
+
+</fieldset>
+        <fieldset><legend data-ui="projectCalendar"></legend><label class="shading-toggle" title="Compte les samedis comme jours ouvrés — affecte les durées et la cascade">
+                <input type="checkbox" id="toggle-saturday-worked" > Samedi ouvré
+            </label><p class="field-help" data-ui="calendarHelp"></p><label><span data-ui="extraHolidays"></span><textarea id="settings-extra" rows="2"></textarea></label><label><span data-ui="skippedHolidays"></span><textarea id="settings-skipped" rows="2"></textarea></label></fieldset>
+        <fieldset><legend data-ui="resources"></legend><p class="field-help" data-ui="resourceHelp"></p><div id="resource-rows"></div><button type="button" onclick="resourceRow()" data-ui="addResource"></button></fieldset>
+        <p id="settings-error" class="form-error" role="alert"></p><div class="panel-actions"><button type="button" onclick="document.getElementById('settings-dialog').close()" data-ui="cancel"></button><button type="submit" class="primary-action" data-ui="apply"></button></div>
+    </form></dialog>
+    <dialog id="simulation-dialog" class="business-dialog" aria-labelledby="simulation-title"><div class="business-dialog-content"><h2 id="simulation-title" data-ui="simulation"></h2><div id="simulation-content"></div><p id="simulation-error" role="alert" class="form-error"></p><div class="panel-actions"><button type="button" onclick="pendingSimulation=null;document.getElementById('simulation-dialog').close()" data-ui="cancel"></button><button type="button" id="apply-simulation" class="primary-action" onclick="applySimulation()" data-ui="applySimulation"></button></div></div></dialog>
+<script>        function easterSunday(year) {
             const a = year % 19, b = Math.floor(year / 100), c = year % 100,
                   d = Math.floor(b / 4), e = b % 4,
                   f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
@@ -3356,8 +3343,8 @@ body.presentation-mode .document-status { display: none; }
         }
 
         function isTaskOverdue(task) {
-            if (isTaskDone(task)) return false;
-            const ref = task.isMilestone ? task.startDate : (task.endDate || task.startDate);
+            if (isTaskClosed(task)) return false;
+            const ref = reportingEnd(task);
             return !!ref && ref < todayISO();
         }
 
@@ -3393,7 +3380,7 @@ body.presentation-mode .document-status { display: none; }
         }
 
         function taskEndForDeps(task) {
-            return (task.isMilestone || !task.endDate) ? task.startDate : task.endDate;
+            return reportingEnd(task);
         }
 
         // Décale les successeurs : un successeur démarre au plus tôt le jour
@@ -3417,7 +3404,7 @@ body.presentation-mode .document-status { display: none; }
                 let minStart = null;
                 parseDependsOnFull(task).forEach(dep => {
                     const pred = byId[dep.id];
-                    if (!pred) return;
+                    if (!pred || isTaskCancelled(pred)) return;
                     resolve(pred);
                     const predEnd = taskEndForDeps(pred);
                     if (!predEnd) return;
@@ -3427,7 +3414,7 @@ body.presentation-mode .document-status { display: none; }
                 });
                 visiting.delete(task.id);
                 memo.add(task.id);
-                if (minStart && task.startDate && task.startDate < minStart) {
+                if (!isScheduleAnchored(task) && minStart && task.startDate && task.startDate < minStart) {
                     moveTaskToWorkingDate(task, minStart);
                     shifted++;
                 }
@@ -3460,27 +3447,28 @@ body.presentation-mode .document-status { display: none; }
         var taskMargins = new Map();
         function computeCriticalPath() {
             taskMargins = new Map();
-            const byId = new Map(risks.map(task => [task.id, task]));
-            const successors = new Map(risks.map(task => [task.id, []]));
+            const planned = risks.filter(task=>!isTaskCancelled(task));
+            const byId = new Map(planned.map(task => [task.id, task]));
+            const successors = new Map(planned.map(task => [task.id, []]));
             const degrees = new Map();
-            risks.forEach(task => {
+            planned.forEach(task => {
                 const deps = parseDependsOnFull(task).filter(dep => byId.has(dep.id));
                 degrees.set(task.id, deps.length);
                 deps.forEach(dep => successors.get(dep.id).push({ id: task.id, lag: dep.lag }));
             });
-            const order = risks.filter(task => degrees.get(task.id) === 0).map(task => task.id);
+            const order = planned.filter(task => degrees.get(task.id) === 0).map(task => task.id);
             for (let i = 0; i < order.length; i++) for (const next of successors.get(order[i])) {
                 degrees.set(next.id, degrees.get(next.id) - 1);
                 if (degrees.get(next.id) === 0) order.push(next.id);
             }
-            if (order.length !== risks.length) return new Set();
+            if (order.length !== planned.length) return new Set();
             const early = new Map(), late = new Map(), durations = new Map();
             let finish = null;
             for (const id of order) {
                 const task = byId.get(id);
-                const duration = task.isMilestone ? 0 : Math.max(1, workingDaysBetween(task.startDate, task.endDate || task.startDate));
+                const duration = task.isMilestone ? 0 : Math.max(1, workingDaysBetween(reportingStart(task), reportingEnd(task)));
                 durations.set(id, duration);
-                let start = nextWorkingDate(task.startDate);
+                let start = nextWorkingDate(reportingStart(task));
                 for (const dep of parseDependsOnFull(task)) {
                     if (!early.has(dep.id)) continue;
                     const bound = addWorkingDays(early.get(dep.id), Math.max(1, durations.get(dep.id)) + dep.lag);
@@ -3545,6 +3533,7 @@ body.presentation-mode .document-status { display: none; }
             return isWorkingDay(new Date(date + 'T12:00:00Z')) ? date : addWorkingDays(date, 1);
         }
         function moveTaskToWorkingDate(task, date) {
+            if (isScheduleAnchored(task)) return false;
             const duration = task.isMilestone ? 0 : Math.max(1, workingDaysBetween(task.startDate, task.endDate || task.startDate));
             task.startDate = task.isMilestone ? date : nextWorkingDate(date);
             task.endDate = task.isMilestone ? task.startDate : addWorkingDays(task.startDate, duration - 1);
@@ -3727,7 +3716,7 @@ body.presentation-mode .document-status { display: none; }
             const p = effectiveProgress(risk);
             return '<td class="progress-cell">' +
                 '<input type="number" class="editable-progress" data-risk-id="' + risk.id +
-                '" min="0" max="100" step="5" value="' + p + '">' +
+                '" min="0" max="100" step="5" value="' + p + '"' + (isTaskClosed(risk) ? ' disabled' : '') + '>' +
                 '<div class="progress-mini"><div class="progress-mini-fill" style="width:' + p + '%"></div></div>' +
                 '</td>';
         }
@@ -3752,13 +3741,13 @@ body.presentation-mode .document-status { display: none; }
                 input.dataset.editingInitialized = 'true';
                 input.addEventListener('change', function () {
                     const task = risks.find(r => r.id === this.dataset.riskId);
-                    if (!task) return;
+                    if (!task || isTaskClosed(task)) return;
                     saveState();
                     let v = parseInt(this.value, 10);
                     if (!Number.isFinite(v)) v = 0;
                     v = Math.min(100, Math.max(0, v));
                     task.progress = v;
-                    if (v === 100) task.statut = 'statusTreated';
+                    if (v === 100 && !isTaskDone(task)) task.statut = 'statusReview';
                     else if (isTaskDone(task)) task.statut = 'statusInProgress';
                     this.value = v;
                     const fill = this.parentElement.querySelector('.progress-mini-fill');
@@ -3921,7 +3910,7 @@ body.presentation-mode .document-status { display: none; }
         function isDeadlineExceeded(task) {
             if (!task.deadline) return false;
             const end = taskEndForDeps(task);
-            return !!end && end > task.deadline;
+            return !isTaskCancelled(task) && !!end && end > task.deadline;
         }
 
         function deadlineBadgeHTML(risk) {
@@ -3940,7 +3929,7 @@ body.presentation-mode .document-status { display: none; }
             if (isTaskDone(task) && Number.isFinite(prog) && prog < 100) {
                 issues.push('statut Terminé mais avancement ' + prog + ' %');
             }
-            if (!isTaskDone(task) && prog === 100) {
+            if (!isTaskClosed(task) && task.statut !== 'statusReview' && prog === 100) {
                 issues.push('avancement 100 % mais statut « ' + (task.statut || '?') + ' »');
             }
             return issues;
@@ -3998,19 +3987,6 @@ body.presentation-mode .document-status { display: none; }
             if (dataAnomalies.length) {
                 sections.push({ cls: 'banner-error',
                     title: 'Anomalies corrigées au chargement', items: dataAnomalies });
-            }
-            const exceeded = risks.filter(isDeadlineExceeded);
-            if (exceeded.length) {
-                sections.push({ cls: 'banner-error', title: 'Dates butoirs dépassées',
-                    items: exceeded.map(tk => tk.id + ' — ' + tk.title +
-                        ' (butoir ' + formatDateFR(tk.deadline) +
-                        ', fin ' + formatDateFR(taskEndForDeps(tk)) + ')') });
-            }
-            const inconsistencies = risks.flatMap(tk =>
-                taskInconsistencies(tk).map(msg => tk.id + ' — ' + msg));
-            if (inconsistencies.length) {
-                sections.push({ cls: 'banner-warn', title: 'Incohérences',
-                    items: inconsistencies });
             }
             if (dataChangeSummary.length) {
                 sections.push({ cls: 'banner-info',
@@ -4714,6 +4690,7 @@ function validateDocument(input) {
             task.statut = ({'Terminé':'statusTreated','En cours':'statusInProgress','A faire':'statusNotTreated','À faire':'statusNotTreated','Accepté':'statusAccepted'})[task.statut] || task.statut || 'statusNotTreated';
             if (task.assignedTo === undefined && task.responsable !== undefined) task.assignedTo = String(task.responsable);
             if (parseDependsOnFull(task).some(dep => !Number.isFinite(dep.lag) || dep.lag > 3650)) throw new Error('Délai de dépendance supérieur à 3650 jours');
+            normalizeBusinessTask(task);
             task.id = String(task.id); task.title = String(task.title || 'Tâche');
             if (task.effortDays !== undefined && (!Number.isFinite(task.effortDays) || task.effortDays < 0)) throw new Error('Effort invalide');
         }
@@ -4739,6 +4716,7 @@ function validateDocument(input) {
     if (data.baseline) for (const row of Object.values(data.baseline.tasks)) {
         if (!row || !validISODate(row.startDate) || (row.endDate && !validISODate(row.endDate))) throw new Error('Dates de référence invalides');
     }
+    data.resources = validateResources(data.resources || []);
     return data;
 }
 
@@ -4750,6 +4728,7 @@ function applyDocument(data) {
     riskGroups.splice(0, riskGroups.length, ...JSON.parse(JSON.stringify(data.phases)));
     risks.splice(0, risks.length, ...riskGroups.flatMap(g => g.tasks));
     baselineData = data.baseline ? JSON.parse(JSON.stringify(data.baseline)) : null;
+    projectResources = JSON.parse(JSON.stringify(data.resources || []));
     const cal = data.calendar || {};
     calendarConfig = { saturdayWorked: !!cal.saturdayWorked, extraHolidays: new Set(cal.extraHolidays || []), skippedHolidays: new Set(cal.skippedHolidays || []) };
     const meta = data.appState || {};
@@ -4929,6 +4908,169 @@ function initDocumentHistory() {
     // Capture en fin de tour : inclut les éditions inline et leurs événements blur.
     for (const event of ['change', 'blur', 'click', 'mouseup', 'drop']) document.addEventListener(event, saveState, true);
 }
+// Pilotage métier. Calculs purs sauf normalisation explicite du document importé.
+var projectResources = [];
+const BUSINESS_STATUSES = ['statusNotTreated','statusInProgress','statusBlocked','statusReview','statusTreated','statusCancelled'];
+function isTaskCancelled(task) { return task.statut === 'statusCancelled'; }
+function isTaskClosed(task) { return isTaskDone(task) || isTaskCancelled(task); }
+function isScheduleAnchored(task) { return isTaskClosed(task) || !!task.actualStartDate; }
+function deliveryOwner(task) { const names = splitAssignees(task); return task.owner || (names.length === 1 ? names[0] : ''); }
+function contributors(task) { const names = splitAssignees(task); return names.length ? names : task.owner ? [task.owner] : []; }
+function reportingStart(task) { return task.actualStartDate || task.startDate; }
+function reportingEnd(task) { return task.actualEndDate || task.endDate || task.startDate; }
+function remainingEffort(task) {
+    if (isTaskClosed(task) || task.isMilestone) return 0;
+    if (Number.isFinite(task.remainingEffortDays)) return task.remainingEffortDays;
+    if (task.statut === 'statusNotTreated' && !task.actualStartDate && effectiveProgress(task) === 0 && Number.isFinite(task.effortDays)) return task.effortDays;
+    return null;
+}
+function signedWorkingDifference(from, to) {
+    if (!from || !to || from === to) return 0;
+    return to > from ? workingDaysBetween(from,to)-Number(isWorkingDay(new Date(from+'T12:00:00Z'))) : -signedWorkingDifference(to,from);
+}
+function normalizeBusinessTask(task) {
+    const aliases = {'statusAccepted':'statusReview','Accepté':'statusReview','statusDone':'statusTreated','Bloqué':'statusBlocked','À valider':'statusReview','Annulé':'statusCancelled'};
+    task.statut = aliases[task.statut] || task.statut;
+    if (!BUSINESS_STATUSES.includes(task.statut)) throw new Error('Statut inconnu : ' + task.statut);
+    for (const key of ['actualStartDate','actualEndDate','decisionDate']) {
+        if (task[key] === '') delete task[key];
+        if (task[key] !== undefined && (!validISODate(task[key]) || task[key] > todayISO())) throw new Error('Date réelle invalide ou future : ' + key);
+    }
+    if (task.actualStartDate && task.actualEndDate && task.actualEndDate < task.actualStartDate) throw new Error('La fin réelle précède le début réel');
+    if (task.actualEndDate && !isTaskDone(task) && !isTaskCancelled(task)) throw new Error('Une fin réelle nécessite un statut terminé ou annulé');
+    if (task.remainingEffortDays !== undefined && (!Number.isFinite(task.remainingEffortDays) || task.remainingEffortDays < 0)) throw new Error('Reste à faire invalide');
+    for (const key of ['owner','blockerReason','decisionOwner','acceptanceCriteria']) if (task[key] !== undefined && typeof task[key] !== 'string') throw new Error('Champ métier invalide : ' + key);
+    if (task.decision !== undefined && !['pending','approved','refused'].includes(task.decision)) throw new Error('Décision invalide');
+    if (task.allocationShares !== undefined) {
+        const shares = task.allocationShares, names = contributors(task);
+        if (!shares || typeof shares !== 'object' || Array.isArray(shares) || Object.keys(shares).length !== names.length || names.some(n=>!Object.hasOwn(shares,n)) || Object.values(shares).some(n=>!Number.isFinite(n)||n<0||n>1) || Math.abs(Object.values(shares).reduce((a,b)=>a+b,0)-1)>0.00001) throw new Error('La répartition doit couvrir les contributeurs et totaliser 100 %');
+    }
+    if (isTaskDone(task)) { task.progress = 100; if (task.remainingEffortDays !== undefined) task.remainingEffortDays = 0; }
+}
+function validateResources(resources) {
+    if (!Array.isArray(resources)) throw new Error('Liste de ressources invalide');
+    const names = new Set();
+    return resources.map(resource=>{
+        if (!resource || typeof resource.name !== 'string' || !resource.name.trim() || names.has(resource.name.trim())) throw new Error('Nom de ressource vide ou dupliqué');
+        const name = resource.name.trim(); names.add(name);
+        if (!Number.isFinite(resource.capacity) || resource.capacity<0 || resource.capacity>1) throw new Error('Capacité attendue entre 0 et 100 %');
+        if (!Array.isArray(resource.absences || []) || (resource.absences || []).some(date=>!validISODate(date))) throw new Error('Absence invalide');
+        return {name, capacity:resource.capacity, absences:[...new Set(resource.absences || [])].sort()};
+    });
+}
+function projectMetrics(list = risks) {
+    const active = list.filter(task=>!isTaskCancelled(task));
+    const work = active.filter(task=>!task.isMilestone);
+    const start = active.length ? active.map(reportingStart).sort()[0] : null;
+    const finish = active.length ? active.map(reportingEnd).sort().at(-1) : null;
+    const useEffort = work.length > 0 && work.every(task=>Number.isFinite(task.effortDays)) && work.some(task=>task.effortDays>0);
+    let total = 0, complete = 0;
+    for (const task of work) {
+        const weight = useEffort ? task.effortDays : Math.max(1,workingDaysBetween(task.startDate,task.endDate));
+        total += weight; complete += weight * effectiveProgress(task);
+    }
+    const referenceDates = active.map(task=>baselineData?.tasks?.[task.id]?.endDate).filter(Boolean);
+    const referenceFinish = referenceDates.length ? referenceDates.sort().at(-1) : null;
+    const next = active.filter(task=>!isTaskClosed(task)).flatMap(task=>[...new Set([task.deadline,reportingEnd(task)].filter(Boolean))].map(date=>({task,date}))).filter(item=>item.date>=todayISO()).sort((a,b)=>a.date.localeCompare(b.date))[0];
+    return {start,finish,duration:start&&finish?workingDaysBetween(start,finish):0,progress:total?Math.round(complete/total):0,method:useEffort?'effort':'duration',estimated:work.filter(t=>Number.isFinite(t.effortDays)).length,totalWork:work.length,referenceFinish,drift:referenceFinish&&finish?signedWorkingDifference(referenceFinish,finish):null,referenceComplete:referenceDates.length===active.length,next,blocked:active.filter(t=>t.statut==='statusBlocked').length,overdue:active.filter(isTaskOverdue).length};
+}
+// O(tâches × jours × contributeurs). La capacité ne déplace jamais implicitement le planning.
+function computeFutureWorkload(list = risks, asOf = todayISO()) {
+    const people = new Map(), resourceByName = new Map(projectResources.map(r=>[r.name,r]));
+    for (const task of list) {
+        if (isTaskClosed(task) || task.isMilestone) continue;
+        const names = contributors(task), assigned = names.length ? names : [uiText('notAssigned')];
+        const remaining = remainingEffort(task);
+        for (const name of assigned) {
+            const resource = resourceByName.get(name) || {capacity:1,absences:[]};
+            if (!people.has(name)) people.set(name,{name,effort:0,unknown:0,unscheduled:0,tasks:[],days:new Map(),capacity:resource.capacity});
+            const person = people.get(name); person.tasks.push(task);
+            if (remaining === null) { person.unknown++; continue; }
+            const share = task.allocationShares?.[name] ?? 1/assigned.length, effort = remaining*share;
+            person.effort += effort;
+            const days = [], absences = new Set(resource.absences);
+            for (let date = [task.startDate,task.actualStartDate || '',asOf].sort().at(-1); date<=task.endDate; date=addCalendarDays(date,1)) {
+                if (isWorkingDay(new Date(date+'T12:00:00Z')) && !absences.has(date) && resource.capacity>0) days.push(date);
+            }
+            if (!days.length) { person.unscheduled += effort; continue; }
+            for (const date of days) person.days.set(date,(person.days.get(date)||0)+effort/days.length);
+        }
+    }
+    return [...people.values()].sort((a,b)=>a.name.localeCompare(b.name));
+}
+function dependencyConflicts(list = risks) {
+    const byId = new Map(list.map(t=>[t.id,t]));
+    return list.filter(task=>!isTaskClosed(task)).flatMap(task=>parseDependsOnFull(task).flatMap(dep=>{
+        const pred = byId.get(dep.id);
+        if (!pred) return [{task,kind:'dependencyMissing',source:dep.id}];
+        if (isTaskCancelled(pred)) return [{task,kind:'dependencyCancelled',source:dep.id}];
+        return reportingStart(task)<addWorkingDays(reportingEnd(pred),dep.lag+1) ? [{task,kind:'dependencyConflict',source:dep.id}] : [];
+    }));
+}
+function businessActions() {
+    const groups = new Map();
+    const add = (kind,task,detail='')=>{ if (!groups.has(kind)) groups.set(kind,[]); groups.get(kind).push({task,detail}); };
+    for (const task of risks) {
+        if (isTaskCancelled(task)) continue;
+        if (isTaskDone(task)) { if (!task.actualEndDate) add('missingActual',task); continue; }
+        if (task.statut==='statusBlocked') add('blocked',task,task.blockerReason);
+        if (task.statut==='statusReview' || (task.isMilestone && task.decision !== 'approved')) add('validation',task,task.decision==='refused'?uiText('refused'):task.decisionOwner || '');
+        if (isDeadlineExceeded(task) || isTaskOverdue(task)) add('threatened',task,formatDateFR(task.deadline || task.endDate));
+        if (!deliveryOwner(task)) add('missingOwner',task);
+        if (!task.isMilestone && remainingEffort(task)===null) add('missingRemaining',task);
+        if (task.isMilestone && (!task.acceptanceCriteria || !task.decisionOwner)) add('missingDecision',task);
+        if (task.actualStartDate && task.endDate<task.actualStartDate) add('invalidForecast',task);
+    }
+    for (const conflict of dependencyConflicts()) add(conflict.kind,conflict.task,conflict.source);
+    for (const person of computeFutureWorkload()) {
+        if (person.unscheduled>0 || [...person.days.values()].some(n=>n>person.capacity+0.00001)) for (const task of person.tasks) add('capacityIssue',task,person.name);
+    }
+    return [...groups].map(([kind,items])=>{const unique=new Map();for(const item of items){if(!unique.has(item.task.id))unique.set(item.task.id,{...item});else if(item.detail)unique.get(item.task.id).detail += ', '+item.detail;}return {kind,items:[...unique.values()]};});
+}
+// Simulation isolée : aucune écriture du document, de la référence ou de l'historique.
+function simulateSchedule(id, newStart) {
+    if (!validISODate(newStart)) throw new Error('Date de simulation invalide');
+    const list = JSON.parse(JSON.stringify(risks)), byId = new Map(list.map(t=>[t.id,t])), task = byId.get(id);
+    if (!task || isScheduleAnchored(task)) throw new Error(uiText('scheduleLocked'));
+    moveTaskToWorkingDate(task,newStart);
+    const visited = new Set(), visiting = new Set();
+    const resolve = task=>{
+        if (visited.has(task.id)) return;
+        if (visiting.has(task.id)) throw new Error('Cycle de dépendances');
+        visiting.add(task.id);
+        for (const dep of parseDependsOnFull(task)) {
+            const pred = byId.get(dep.id); if (!pred || isTaskCancelled(pred)) continue;
+            resolve(pred);
+            const bound = addWorkingDays(reportingEnd(pred),1+dep.lag);
+            if (!isScheduleAnchored(task) && task.startDate<bound) moveTaskToWorkingDate(task,bound);
+        }
+        visiting.delete(task.id); visited.add(task.id);
+    };
+    list.forEach(resolve);
+    const originals = new Map(risks.map(t=>[t.id,t]));
+    const changes = list.filter(t=>t.startDate!==originals.get(t.id).startDate || t.endDate!==originals.get(t.id).endDate).map(task=>({task,before:originals.get(task.id)}));
+    const before = projectMetrics(), after = projectMetrics(list);
+    return {list,changes,conflicts:dependencyConflicts(list),threatened:list.filter(t=>!isTaskClosed(t)&&isDeadlineExceeded(t)),finish:after.finish,delta:before.finish&&after.finish?signedWorkingDifference(before.finish,after.finish):0,signature:JSON.stringify(canonicalSnapshot())};
+}
+
+// Deux pistes réservées sous chaque barre : référence puis dates réelles renseignées.
+Chart.register({
+    id:'actualDatesPlugin',
+    afterDatasetsDraw(chart) {
+        const rows=chart.options.readableRows;if(!rows)return;
+        const {ctx,scales:{x,y}}=chart,theme=ganttColors();
+        const actualColor=document.documentElement.dataset.theme==='dark'&&!ganttExportWidth?'#66d4be':'#087d6c';
+        chart.$actualBoxes=[];ctx.save();ctx.beginPath();ctx.rect(x.left,y.top,x.right-x.left,y.bottom-y.top);ctx.clip();ctx.fillStyle=actualColor;
+        for(const row of rows) {
+            const task=row.task;if(!task.actualStartDate&&!task.actualEndDate)continue;
+            const x0=x.getPixelForValue(Date.parse(task.actualStartDate||task.actualEndDate)),x1=x.getPixelForValue(Date.parse(task.actualEndDate||task.actualStartDate));
+            const box={x:Math.min(x0,x1)-2,y:y.getPixelForValue(row.y)+24,width:Math.max(4,Math.abs(x1-x0)+4),height:4,id:task.id};
+            ctx.fillRect(box.x,box.y,box.width,box.height);chart.$actualBoxes.push(box);
+        }
+        ctx.restore();
+        if(chart.$actualBoxes.length){ctx.save();ctx.fillStyle=actualColor;ctx.fillRect(x.left+4,14,18,4);ctx.font='11px Helvetica, Arial, sans-serif';ctx.textBaseline='middle';ctx.textAlign='left';ctx.fillStyle=theme.ink;ctx.fillText(uiText('actualLegend'),x.left+28,16);ctx.restore();}
+    }
+});
 // O(n) : filtres de présentation, sans incidence sur le calcul ni les exports.
 var planningFilters = { query: '', phase: '', person: '', status: '', overdue: false };
 var editingTaskId = null;
@@ -5006,6 +5148,7 @@ function openTaskPanel(id) {
     document.getElementById('task-form-error').textContent = '';
     const margin = taskMargins.get(id);
     document.getElementById('task-margin').textContent = margin ? uiText('slack') + ' : ' + margin.days + ' ' + uiText('days') + (margin.days === 0 ? ' · ' + uiText('critical') : '') : '';
+    populateBusinessPanel(task);
     if (!dialog.open) dialog.showModal();
     form.elements.title.focus();
 }
@@ -5014,6 +5157,8 @@ function applyTaskPanel(event) {
     const form = event.target, task = risks.find(t => t.id === editingTaskId); if (!task) return;
     const value = name => form.elements[name].value.trim();
     const next = { ...task, title: value('title'), startDate: value('startDate'), endDate: value('endDate'), assignedTo: value('assignedTo'), notes: value('notes'), link: value('link'), deadline: value('deadline'), statut: value('statut'), progress: Number(value('progress')), isMilestone: form.elements.isMilestone.checked };
+    if ((isScheduleAnchored(task) && (next.startDate!==task.startDate || next.isMilestone!==!!task.isMilestone)) || (isTaskClosed(task) && next.endDate!==task.endDate)) { document.getElementById('task-form-error').textContent=uiText('scheduleLocked'); return; }
+    try { readBusinessPanel(next); } catch(error) { document.getElementById('task-form-error').textContent=error.message; return; }
     const dependencies = value('dependsOn').split(',').map(s => s.trim()).filter(Boolean);
     const blocked = collectDescendants(task.id); blocked.add(task.id);
     const byId = new Set(risks.map(t => t.id));
@@ -5027,7 +5172,7 @@ function applyTaskPanel(event) {
     if (next.effortDays !== undefined && (!Number.isFinite(next.effortDays) || next.effortDays < 0)) return;
     if (dependencies.length) next.dependsOn = [...new Set(dependencies)]; else delete next.dependsOn;
     if (isTaskDone(next)) next.progress = 100;
-    else if (next.progress === 100) next.statut = 'statusTreated';
+    else if (next.progress === 100 && next.statut === 'statusInProgress') next.statut = 'statusReview';
     commitDocument();
     Object.keys(task).forEach(key => delete task[key]); Object.assign(task, next);
     applyDependencyCascade({}); refreshDocumentViews(); commitDocument();
@@ -5035,43 +5180,25 @@ function applyTaskPanel(event) {
 }
 
 // O(t*d*a), d = jours ouvrés des tâches, a = nombre de responsables.
-function computeWorkload() {
-    const people = new Map();
-    for (const task of risks) {
-        if (task.isMilestone || isTaskDone(task)) continue;
-        const assignees = splitAssignees(task);
-        const names = assignees.length ? assignees : [uiText('notAssigned')];
-        const duration = workingDaysBetween(task.startDate, task.endDate || task.startDate);
-        for (const name of names) {
-            if (!people.has(name)) people.set(name, { name, effort: 0, unknown: 0, tasks: [], days: new Map() });
-            const person = people.get(name); person.tasks.push(task);
-            if (!Number.isFinite(task.effortDays)) { person.unknown++; continue; }
-            const effort = task.effortDays / names.length; person.effort += effort;
-            if (!duration) continue;
-            for (let date = task.startDate; date <= (task.endDate || task.startDate); date = addCalendarDays(date, 1)) {
-                if (isWorkingDay(new Date(date + 'T12:00:00Z'))) person.days.set(date, (person.days.get(date) || 0) + effort / duration);
-            }
-        }
-    }
-    return [...people.values()].sort((a,b) => a.name.localeCompare(b.name));
-}
+function computeWorkload() { return computeFutureWorkload(); }
 function renderWorkload() {
     const host = document.getElementById('workload-content'); if (!host) return;
     host.innerHTML = '<p class="workload-explanation">' + uiText('capacity') + '</p>' + computeWorkload().map(person => {
-        const overload = [...person.days.entries()].filter(([,load]) => load > 1.00001);
-        return '<article class="workload-person' + (overload.length ? ' has-conflict' : '') + '"><h3 class="workload-name">' + escapeHtml(person.name) + '</h3><p><strong>' + Math.round(person.effort * 100) / 100 + ' j-personnes</strong> · ' + person.unknown + ' ' + uiText('unestimated') + '</p><p class="workload-tasks">' + person.tasks.map(t => escapeHtml(t.id + ' · ' + t.title)).join('<br>') + '</p>' + (overload.length ? '<details><summary>' + overload.length + ' ' + uiText('overloaded') + '</summary>' + overload.map(([date, load]) => '<div>' + formatDateFR(date) + ' · ' + Math.round(load * 100) + '%</div>').join('') + '</details>' : '') + '</article>';
+        const overload = [...person.days.entries()].filter(([,load]) => load > person.capacity + 0.00001);
+        return '<article class="workload-person' + (overload.length ? ' has-conflict' : '') + '"><h3 class="workload-name">' + escapeHtml(person.name) + '</h3><p><strong>' + (person.effort===0 && person.unknown ? '—' : Math.round(person.effort * 100) / 100) + ' j-personnes</strong> · ' + person.unknown + ' ' + uiText('remainingUnknown') + '</p><p>' + (person.unscheduled ? person.unscheduled + ' ' + uiText('unscheduled') : '') + '</p><p class="workload-tasks">' + person.tasks.map(t => escapeHtml(t.id + ' · ' + t.title)).join('<br>') + '</p>' + (overload.length ? '<details><summary>' + overload.length + ' ' + uiText('overloaded') + '</summary>' + overload.map(([date, load]) => '<div>' + formatDateFR(date) + ' · ' + Math.round(load * 100) + '%</div>').join('') + '</details>' : '') + '</article>';
     }).join('');
 }
 function refreshWorkspaceLabels() {
     document.querySelectorAll('[data-ui]').forEach(el => { el.textContent = uiText(el.dataset.ui); });
     document.querySelectorAll('[data-ui-label]').forEach(el => { el.title = uiText(el.dataset.uiLabel); el.setAttribute('aria-label', el.title); });
     document.getElementById('filter-query').placeholder = uiText('search');
-    refreshFilterOptions(); decoratePlanning();
+    refreshFilterOptions(); decoratePlanning(); renderBusinessDashboard();
 }
 function initWorkspace() {
     refreshWorkspaceLabels();
     document.getElementById('task-form').addEventListener('submit', applyTaskPanel);
-    document.getElementById('task-form').elements.isMilestone.addEventListener('change', e => { document.getElementById('task-form').elements.endDate.disabled = e.target.checked; });
+    document.getElementById('settings-form').addEventListener('submit', saveSettings);
+    document.getElementById('task-form').elements.isMilestone.addEventListener('change', e => { document.getElementById('task-form').elements.endDate.disabled = e.target.checked; document.getElementById('milestone-fields').hidden=!e.target.checked; });
     initDocumentHistory();
 }
 
@@ -5109,6 +5236,120 @@ function ganttColors() {
 
 function uiIcon(name) {
     return '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-' + name + '"></use></svg>';
+}
+Object.assign(WORKSPACE_I18N.fr, {
+    beforeSchedule:'Planning actuel', afterSchedule:'Planning simulé', actualLegend:'Réel renseigné', appearance:'Apparence (application immédiate)', projectCalendar:'Calendrier du projet', removeResource:'Retirer la personne', saveBeforeSimulation:'Enregistrez les modifications du détail avant de simuler.', allocationEdit:'Modifiez les contributeurs et leur répartition ensemble dans Détails.', statusNotTreated:'À faire',statusInProgress:'En cours',statusBlocked:'Bloqué',statusReview:'À valider',statusTreated:'Terminé',statusCancelled:'Annulé',
+    start:'Début prévisionnel',end:'Fin prévisionnelle',owner:'Responsable de livraison',assignee:'Contributeurs (séparés par une virgule)',remaining:'Reste à faire (jours-personnes)',remainingHelp:'Saisi indépendamment du pourcentage. Pour une tâche à faire, l’effort initial sert de valeur par défaut ; sinon un champ vide signifie inconnu.',actualStart:'Début réel',actualEnd:'Fin réelle',blocker:'Cause du blocage / décision attendue',allocation:'Répartition de l’effort (%)',allocationHelp:'Facultatif : une ligne par contributeur, ex. Alice=60 puis Bob=40. Total 100 %. Sans saisie, parts égales.',decisionOwner:'Responsable de validation',criteria:'Critères d’acceptation',decision:'Décision du jalon',decisionDate:'Date de décision',pending:'En attente',approved:'Approuvée',refused:'Refusée',referenceDates:'Référence',noReference:'Aucune référence figée',scheduleLocked:'Début ancré ou tâche clôturée : le réalisé est protégé. Modifiez la fin prévisionnelle dans Détails si la tâche est encore active.',
+    nextDeadline:'Prochaine échéance',forecastFinish:'Fin prévisionnelle',referenceDrift:'Écart à la référence',blockedCount:'Blocages',projectSpan:'Durée du projet',effortMethod:'Avancement pondéré par effort',durationMethod:'Avancement pondéré par durée',estimateCoverage:'tâches estimées',partialReference:'Référence partielle',
+    actionCenter:'À traiter',blocked:'Tâches bloquées',validation:'Validations attendues',threatened:'Échéances menacées ou dépassées',missingOwner:'Responsable de livraison à désigner',missingRemaining:'Reste à faire à estimer',missingActual:'Fin réelle à renseigner',missingDecision:'Jalons à préciser',invalidForecast:'Prévision antérieure au début réel',dependencyMissing:'Dépendance inconnue',dependencyCancelled:'Dépendance vers une tâche annulée',dependencyConflict:'Contraintes non respectées',capacityIssue:'Charge à rééquilibrer ou replanifier',noActions:'Aucune action signalée',
+    settings:'Paramètres',resources:'Disponibilités des contributeurs',resourceHelp:'Capacité dédiée au projet, par jour ouvré. Sans configuration : 100 %. Les absences ne déplacent pas les tâches ; elles réduisent les jours disponibles pour répartir le reste à faire.',resourceName:'Nom',capacityPercent:'Capacité (%)',absences:'Absences (AAAA-MM-JJ, séparées par des virgules)',addResource:'Ajouter une personne',extraHolidays:'Jours non ouvrés supplémentaires',skippedHolidays:'Jours fériés travaillés',calendarHelp:'Dates au format AAAA-MM-JJ séparées par des virgules.',
+    simulate:'Simuler un décalage',newStart:'Nouveau début',preview:'Voir les conséquences',simulation:'Conséquences du décalage',affected:'tâche(s) déplacée(s)',finishImpact:'Décalage de la fin du projet',applySimulation:'Appliquer ce planning',noScheduleChanges:'Aucune modification de date',simulationStale:'Le document a changé. Relancez la simulation.',unscheduled:'j-personnes à replanifier',futureLoad:'Charge restante à partir d’aujourd’hui',remainingUnknown:'tâche(s) sans reste à faire',capacity:'Charge calculée sur les jours à venir, selon le reste à faire et les disponibilités. Un reste inconnu n’est pas assimilé à zéro.',noEffort:'reste à faire non renseigné'
+});
+Object.assign(WORKSPACE_I18N.en, {
+    beforeSchedule:'Current schedule', afterSchedule:'Simulated schedule', actualLegend:'Recorded actual dates', appearance:'Appearance (applies immediately)', projectCalendar:'Project calendar', removeResource:'Remove person', saveBeforeSimulation:'Save changes to task details before simulating.', allocationEdit:'Edit contributors and their allocation together in Details.', statusNotTreated:'To do',statusInProgress:'In progress',statusBlocked:'Blocked',statusReview:'Awaiting approval',statusTreated:'Done',statusCancelled:'Cancelled',
+    start:'Forecast start',end:'Forecast finish',owner:'Delivery owner',assignee:'Contributors (comma separated)',remaining:'Remaining work (person-days)',remainingHelp:'Independent of progress percentage. Initial effort is used for unstarted To do tasks; otherwise blank means unknown.',actualStart:'Actual start',actualEnd:'Actual finish',blocker:'Blocker / decision needed',allocation:'Effort allocation (%)',allocationHelp:'Optional: one contributor per line, e.g. Alice=60 then Bob=40. Total 100%. Equal shares if blank.',decisionOwner:'Approver',criteria:'Acceptance criteria',decision:'Milestone decision',decisionDate:'Decision date',pending:'Pending',approved:'Approved',refused:'Refused',referenceDates:'Baseline',noReference:'No baseline saved',scheduleLocked:'Anchored start or closed task: actual history is protected. Edit the forecast finish in Details if still active.',
+    nextDeadline:'Next deadline',forecastFinish:'Forecast finish',referenceDrift:'Baseline variance',blockedCount:'Blockers',projectSpan:'Project duration',effortMethod:'Effort-weighted progress',durationMethod:'Duration-weighted progress',estimateCoverage:'estimated tasks',partialReference:'Partial baseline',
+    actionCenter:'Action required',blocked:'Blocked tasks',validation:'Approvals awaited',threatened:'Threatened or overdue deadlines',missingOwner:'Delivery owner missing',missingRemaining:'Remaining work to estimate',missingActual:'Actual finish missing',missingDecision:'Milestones to clarify',invalidForecast:'Forecast before actual start',dependencyMissing:'Unknown dependency',dependencyCancelled:'Dependency on cancelled task',dependencyConflict:'Unmet constraints',capacityIssue:'Work to rebalance or reschedule',noActions:'No action flagged',
+    settings:'Settings',resources:'Contributor availability',resourceHelp:'Daily capacity allocated to this project. Default 100%. Absences reduce available days without moving tasks.',resourceName:'Name',capacityPercent:'Capacity (%)',absences:'Absences (YYYY-MM-DD, comma separated)',addResource:'Add person',extraHolidays:'Additional non-working days',skippedHolidays:'Working public holidays',calendarHelp:'Comma-separated YYYY-MM-DD dates.',
+    simulate:'Simulate a reschedule',newStart:'New start',preview:'Preview consequences',simulation:'Reschedule consequences',affected:'task(s) moved',finishImpact:'Project finish shift',applySimulation:'Apply this schedule',noScheduleChanges:'No date changes',simulationStale:'The document changed. Run the simulation again.',unscheduled:'person-days to reschedule',futureLoad:'Remaining workload from today',remainingUnknown:'task(s) without remaining estimate',capacity:'Future workload based on remaining work and availability. Unknown estimates are not treated as zero.',noEffort:'remaining work unspecified'
+});
+var pendingSimulation = null, panelBusinessSignature = '';
+function panelValuesSignature() { return JSON.stringify([...new FormData(document.getElementById('task-form')).entries()]); }
+function renderBusinessDashboard() {
+    const m=projectMetrics(), put=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};
+    put('business-next',m.next?formatDateFR(m.next.date):'—');
+    document.getElementById('business-next').title=m.next?m.next.task.id+' · '+m.next.task.title:'';
+    put('business-finish',m.finish?formatDateFR(m.finish):'—');
+    put('business-drift',m.drift===null?'—':(m.drift>0?'+':'')+m.drift+' j');
+    document.getElementById('business-drift').title=m.referenceFinish?uiText(m.referenceComplete?'referenceDates':'partialReference')+' · '+formatDateFR(m.referenceFinish):uiText('noReference');
+    put('business-blocked',m.blocked);put('dashboard-total-duration',m.duration+' j');put('dashboard-progression',m.progress+'%');
+    put('progress-method',uiText(m.method==='effort'?'effortMethod':'durationMethod'));
+    document.getElementById('dashboard-progression').title=m.estimated+'/'+m.totalWork+' '+uiText('estimateCoverage');
+    put('dashboard-total-tasks',risks.length);put('dashboard-in-progress',risks.filter(t=>t.statut==='statusInProgress').length);put('dashboard-completed',risks.filter(isTaskDone).length);put('dashboard-overdue',m.overdue);
+}
+function renderBusinessActions() {
+    const host=document.getElementById('action-groups');if(!host)return;
+    const groups=businessActions(), ids=new Set(groups.flatMap(g=>g.items.map(i=>i.task.id)));
+    document.getElementById('action-count').textContent=ids.size;
+    host.innerHTML=groups.length?groups.map(group=>'<section><h3>'+uiText(group.kind)+' <span>'+group.items.length+'</span></h3><ul>'+group.items.map(({task,detail})=>'<li><button type="button" data-task-id="'+escapeHtml(task.id)+'"><strong>'+escapeHtml(task.id)+'</strong> '+escapeHtml(task.title)+(detail?' <small>· '+escapeHtml(detail)+'</small>':'')+'</button></li>').join('')+'</ul></section>').join(''):'<p>'+uiText('noActions')+'</p>';
+    host.querySelectorAll('[data-task-id]').forEach(button=>button.onclick=()=>openTaskPanel(button.dataset.taskId));
+}
+function populateBusinessPanel(task) {
+    const f=document.getElementById('task-form');
+    for(const key of ['owner','remainingEffortDays','actualStartDate','actualEndDate','blockerReason','decisionOwner','acceptanceCriteria','decisionDate']) f.elements[key].value=task[key]??'';
+    f.elements.owner.placeholder=deliveryOwner(task);
+    f.elements.decision.value=task.decision||'pending';
+    f.elements.allocationShares.value=task.allocationShares?Object.entries(task.allocationShares).map(([name,share])=>name+'='+Math.round(share*10000)/100).join('\n'):'';
+    const baseline=baselineData?.tasks?.[task.id];
+    document.getElementById('task-reference').textContent=baseline?uiText('referenceDates')+' : '+formatDateFR(baseline.startDate)+' → '+formatDateFR(baseline.endDate):uiText('noReference');
+    document.getElementById('simulate-start').value=task.startDate;
+    document.getElementById('schedule-simulation').hidden=isScheduleAnchored(task);
+    f.elements.startDate.disabled=isScheduleAnchored(task);
+    f.elements.endDate.disabled=task.isMilestone||isTaskClosed(task);
+    document.getElementById('schedule-lock-help').hidden=!isScheduleAnchored(task);
+    document.getElementById('milestone-fields').hidden=!task.isMilestone;
+    panelBusinessSignature=panelValuesSignature();
+}
+function readBusinessPanel(next) {
+    const f=document.getElementById('task-form');
+    for(const key of ['owner','actualStartDate','actualEndDate','blockerReason','decisionOwner','acceptanceCriteria','decisionDate']) {
+        const value=f.elements[key].value.trim();if(value)next[key]=value;else delete next[key];
+    }
+    const remaining=f.elements.remainingEffortDays.value;
+    if(remaining==='')delete next.remainingEffortDays;else next.remainingEffortDays=Number(remaining);
+    const shares=f.elements.allocationShares.value.trim();
+    if(!shares)delete next.allocationShares;
+    else {
+        const entries=shares.split('\n').filter(s=>s.trim()).map(line=>{const at=line.lastIndexOf('=');if(at<1)throw new Error(uiText('allocationHelp'));return [line.slice(0,at).trim(),Number(line.slice(at+1))/100];});
+        if(new Set(entries.map(e=>e[0])).size!==entries.length)throw new Error(uiText('allocationHelp'));
+        next.allocationShares=Object.fromEntries(entries);
+    }
+    if(next.isMilestone)next.decision=f.elements.decision.value;
+    normalizeBusinessTask(next);
+    if(next.actualStartDate&&!isTaskClosed(next)&&next.endDate<next.actualStartDate)throw new Error(uiText('invalidForecast'));
+}
+function previewSchedule() {
+    try {
+        if(panelBusinessSignature!==panelValuesSignature())throw new Error(uiText('saveBeforeSimulation'));
+        pendingSimulation=simulateSchedule(editingTaskId,document.getElementById('simulate-start').value);
+        const p=pendingSimulation;
+        document.getElementById('simulation-content').innerHTML='<p><strong>'+p.changes.length+' '+uiText('affected')+'</strong> · '+uiText('finishImpact')+' : '+(p.delta>0?'+':'')+p.delta+' '+uiText('days')+'</p>'+(p.changes.length?'<div class="simulation-table"><table><thead><tr><th>'+uiText('title')+'</th><th>'+uiText('beforeSchedule')+'</th><th>'+uiText('afterSchedule')+'</th></tr></thead><tbody>'+p.changes.map(({task,before})=>'<tr><td>'+escapeHtml(task.id+' · '+task.title)+'</td><td>'+formatDateFR(before.startDate)+' → '+formatDateFR(before.endDate)+'</td><td>'+formatDateFR(task.startDate)+' → '+formatDateFR(task.endDate)+'</td></tr>').join('')+'</tbody></table></div>':'<p>'+uiText('noScheduleChanges')+'</p>')+'<p>'+uiText('threatened')+' : '+p.threatened.map(t=>escapeHtml(t.id)).join(', ')+'</p>'+(p.conflicts.length?'<p class="form-error">'+uiText('dependencyConflict')+' : '+p.conflicts.map(c=>escapeHtml(c.task.id+' ← '+c.source)).join(', ')+'</p>':'');
+        document.getElementById('simulation-error').textContent='';
+        document.getElementById('apply-simulation').disabled=!p.changes.length;
+        document.getElementById('simulation-dialog').showModal();
+    }catch(error){document.getElementById('task-form-error').textContent=error.message;}
+}
+function applySimulation() {
+    if(!pendingSimulation)return;
+    if(pendingSimulation.signature!==JSON.stringify(canonicalSnapshot())){document.getElementById('simulation-error').textContent=uiText('simulationStale');return;}
+    commitDocument();
+    const byId=new Map(risks.map(t=>[t.id,t]));
+    for(const {task} of pendingSimulation.changes)Object.assign(byId.get(task.id),{startDate:task.startDate,endDate:task.endDate,duration:task.duration});
+    pendingSimulation=null;document.getElementById('simulation-dialog').close();document.getElementById('task-panel').close();refreshDocumentViews();commitDocument();
+}
+function resourceRow(resource={name:'',capacity:1,absences:[]}) {
+    const row=document.createElement('div');row.className='resource-row';
+    row.innerHTML='<label>'+uiText('resourceName')+'<input class="resource-name" required></label><label>'+uiText('capacityPercent')+'<input class="resource-capacity" type="number" min="0" max="100" step="1" required></label><label>'+uiText('absences')+'<textarea class="resource-absences" rows="2"></textarea></label><button type="button" class="remove-resource" aria-label="'+uiText('removeResource')+'">'+uiIcon('trash')+'</button>';
+    row.querySelector('.resource-name').value=resource.name;row.querySelector('.resource-capacity').value=resource.capacity*100;row.querySelector('.resource-absences').value=resource.absences.join(', ');row.querySelector('button').onclick=()=>row.remove();
+    document.getElementById('resource-rows').appendChild(row);
+}
+function openSettings() {
+    document.getElementById('resource-rows').innerHTML='';projectResources.forEach(resourceRow);
+    document.getElementById('settings-extra').value=[...calendarConfig.extraHolidays].join(', ');document.getElementById('settings-skipped').value=[...calendarConfig.skippedHolidays].join(', ');
+    document.getElementById('toggle-saturday-worked').checked=calendarConfig.saturdayWorked;
+    document.getElementById('settings-error').textContent='';document.getElementById('settings-dialog').showModal();
+}
+function saveSettings(event) {
+    event.preventDefault();
+    const dates=text=>text.split(',').map(s=>s.trim()).filter(Boolean);
+    try{
+        const resources=validateResources([...document.querySelectorAll('.resource-row')].map(row=>({name:row.querySelector('.resource-name').value,capacity:Number(row.querySelector('.resource-capacity').value)/100,absences:dates(row.querySelector('.resource-absences').value)})));
+        const extra=dates(document.getElementById('settings-extra').value),skipped=dates(document.getElementById('settings-skipped').value);
+        if([...extra,...skipped].some(date=>!validISODate(date)))throw new Error(uiText('calendarHelp'));
+        commitDocument();projectResources=resources;calendarConfig={saturdayWorked:document.getElementById('toggle-saturday-worked').checked,extraHolidays:new Set(extra),skippedHolidays:new Set(skipped)};
+        risks.forEach(t=>{t.duration=t.isMilestone?0:workingDaysBetween(t.startDate,t.endDate);});
+        applyDependencyCascade({silent:true});refreshDocumentViews();commitDocument();document.getElementById('settings-dialog').close();
+    }catch(error){document.getElementById('settings-error').textContent=error.message;}
 }
         let ganttChart = null;
         var ganttExportWidth = null;
@@ -5198,6 +5439,7 @@ function packGanttTasks(tasks, range, width) {
         const maxX = width - range.left - 32;
         const labelX = Math.max(0, Math.min(start, maxX - 252));
         let x0 = Math.min(start - 28, labelX), x1 = Math.max(end + 28, labelX + 252);
+        for(const date of [task.actualStartDate,task.actualEndDate].filter(Boolean)){const px=(Date.parse(date)-range.min)*scale;x0=Math.min(x0,px-4);x1=Math.max(x1,px+4);}
         const base = baselineData?.tasks?.[task.id];
         if (base) { x0 = Math.min(x0, (Date.parse(base.startDate) - range.min) * scale); x1 = Math.max(x1, (Date.parse(base.endDate) - range.min) * scale); }
         return { task, x0, x1 };
@@ -5793,7 +6035,7 @@ Chart.register({
             const ctx = canvas.getContext('2d');
             const phases = visiblePlanningGroups();
             const allTasks = phases.flatMap(p => p.tasks);
-            const dates = allTasks.flatMap(task => [Date.parse(task.startDate), Date.parse(task.endDate || task.startDate), Date.parse(task.deadline), Date.parse(baselineData?.tasks?.[task.id]?.startDate), Date.parse(baselineData?.tasks?.[task.id]?.endDate)]).filter(Number.isFinite);
+            const dates = allTasks.flatMap(task => [Date.parse(task.startDate), Date.parse(task.endDate || task.startDate), Date.parse(task.deadline), Date.parse(task.actualStartDate), Date.parse(task.actualEndDate), Date.parse(baselineData?.tasks?.[task.id]?.startDate), Date.parse(baselineData?.tasks?.[task.id]?.endDate)]).filter(Number.isFinite);
             const dayMs = 86400000;
             const minDate = dates.length ? Math.min(...dates) : Date.parse(todayISO());
             const maxDate = dates.length ? Math.max(...dates) : minDate + 14 * dayMs;
@@ -5807,12 +6049,12 @@ Chart.register({
             // 16 px entre tâches (dont 6 réservés à une éventuelle baseline).
             ctx.font = '600 13px Helvetica, Arial, sans-serif';
             const labelWidth = ganttViewMode === 'cascade' ? range.left - 30 : 244;
-            const taskLines = new Map(allTasks.map(task => [task.id, wrapGanttText(ctx, task.id + ' · ' + task.title, labelWidth, 3)]));
+            const taskLines = new Map(allTasks.map(task => [task.id, wrapGanttText(ctx, task.id + ' · ' + task.title + (isTaskCancelled(task)?' ['+uiText('statusCancelled')+']':''), labelWidth, 3)]));
             let contentHeight = 8;
             const addLane = (tasks, phaseFor) => {
                 const textHeight = Math.max(...tasks.map(task => taskLines.get(task.id).length * 16));
                 const cascade = ganttViewMode === 'cascade';
-                const height = cascade ? Math.max(48, textHeight + 16) : textHeight + 6 + 32 + 16;
+                const height = cascade ? Math.max(48, textHeight + 16, tasks.some(t=>t.actualStartDate||t.actualEndDate)?64:0) : textHeight + 6 + 32 + 16;
                 const y = contentHeight + (cascade ? height / 2 : textHeight + 6 + 16);
                 tasks.forEach(task => rows.push({task, phase: phaseFor(task), y, top: contentHeight, bottom: contentHeight + height, lines: taskLines.get(task.id)}));
                 contentHeight += height;
@@ -5840,7 +6082,7 @@ Chart.register({
                 if (task.isMilestone && ganttViewMode === 'cascade') milestones.push({task, phase: row.phase, yPosition: row.y, date: start});
                 else {
                     ganttData.push({x: [start, task.isMilestone ? start : Math.max(start + dayMs * 0.5, Date.parse(task.endDate || task.startDate))], y: row.y, task, isMilestone: !!task.isMilestone, color: row.phase.color});
-                    colors.push(row.phase.color);
+                    colors.push(isTaskCancelled(task)?'#7d8d9f':row.phase.color);
                 }
             });
             contentHeight = Math.max(84, contentHeight);
@@ -5863,7 +6105,7 @@ Chart.register({
                         callbacks: { title: () => '', label: context => {
                             const task = ganttData[context.dataIndex].task;
                             const margin = taskMargins.get(task.id);
-                            return [...wrapGanttText(ctx, task.id + ' · ' + task.title, 320, 4), formatDateFR(task.startDate) + ' → ' + formatDateFR(task.endDate || task.startDate), uiText('duration') + ': ' + (task.isMilestone ? 0 : workingDaysBetween(task.startDate, task.endDate)) + ' ' + uiText('days'), uiText('slack') + ': ' + (margin ? margin.days : '—') + ' ' + uiText('days')];
+                            return [...wrapGanttText(ctx, task.id + ' · ' + task.title, 320, 4), uiText(task.statut), ...(task.actualStartDate?[uiText('actualStart')+': '+formatDateFR(task.actualStartDate)]:[]), ...(task.actualEndDate?[uiText('actualEnd')+': '+formatDateFR(task.actualEndDate)]:[]), formatDateFR(task.startDate) + ' → ' + formatDateFR(task.endDate || task.startDate), uiText('duration') + ': ' + (task.isMilestone ? 0 : workingDaysBetween(task.startDate, task.endDate)) + ' ' + uiText('days'), uiText('slack') + ': ' + (margin ? margin.days : '—') + ' ' + uiText('days')];
                         }}
                     }}
                 }
@@ -5891,6 +6133,9 @@ Chart.register({
                 const rect = canvas.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
+
+                const anchoredRow = ganttChart.options.readableRows.find(row=>isScheduleAnchored(row.task) && Math.abs(ganttChart.scales.y.getPixelForValue(row.y)-clickY)<20 && clickX>=ganttChart.scales.x.getPixelForValue(Date.parse(row.task.startDate))-24 && clickX<=ganttChart.scales.x.getPixelForValue(Date.parse(row.task.endDate))+24);
+                if (anchoredRow) { openTaskPanel(anchoredRow.task.id); return; }
 
                 // v2.3 : pastille de connexion — testée AVANT le resize
                 // (zones disjointes : pastille à bord+12..+24, resize à ±10)
@@ -6488,7 +6733,7 @@ function exportToPDF() {
         const scale = 388 / chartCanvas.width;
         const sliceHeight = Math.floor(225 / scale);
         const ratio = chartCanvas.width / ganttChart.width;
-        const boundaries = [...new Set(ganttChart.options.readableRows.map(row => Math.ceil(ganttChart.scales.y.getPixelForValue(row.bottom - 8) * ratio)))].sort((a,b)=>a-b);
+        const boundaries = [...new Set(ganttChart.options.readableRows.map(row => Math.ceil(ganttChart.scales.y.getPixelForValue(row.bottom - 4) * ratio)))].sort((a,b)=>a-b);
         for (let offset = 0, page = 1; offset < chartCanvas.height; page++) {
             const limit = Math.min(chartCanvas.height, offset + sliceHeight);
             const candidates = boundaries.filter(y => y > offset && y <= limit);
@@ -6507,20 +6752,24 @@ function exportToPDF() {
     doc.addPage();
     const rows = riskGroups.flatMap(group => group.tasks.map(task => [group.name, task.id, task.title, task.startDate, task.endDate || task.startDate, task.duration, getStatusOptions().find(s => s.value === task.statut)?.label || task.statut || '', task.assignedTo || '', task.effortDays ?? '—', task.notes || '']));
     doc.autoTable({startY: 18, margin: 16, head: [['Phase','#','Tâche','Début','Fin','J ouvrés','Statut','Responsables','Effort','Notes']], body: rows, styles:{fontSize:9,cellPadding:3,overflow:'linebreak'}, headStyles:{fillColor:[36,91,121]}, columnStyles:{0:{cellWidth:40},1:{cellWidth:16},2:{cellWidth:76},3:{cellWidth:25},4:{cellWidth:25},5:{cellWidth:20},6:{cellWidth:26},7:{cellWidth:38},8:{cellWidth:20},9:{cellWidth:62}}, rowPageBreak:'avoid'});
+    doc.addPage();
+    doc.autoTable({startY:18,margin:16,head:[['ID','Responsable','Reste à faire','Début réel','Fin réelle','Décision / critères / blocage']],body:risks.map(task=>[task.id,deliveryOwner(task),remainingEffort(task) ?? 'Inconnu',task.actualStartDate||'—',task.actualEndDate||'—',[task.blockerReason,task.decisionOwner,task.decision?uiText(task.decision):null,task.acceptanceCriteria,task.decisionDate,task.allocationShares?Object.entries(task.allocationShares).map(([name,share])=>name+' '+Math.round(share*10000)/100+' %').join(', '):null].filter(Boolean).join(' · ')]),styles:{fontSize:10,cellPadding:3,overflow:'linebreak'},rowPageBreak:'avoid'});
+    if(projectResources.length) {doc.addPage();doc.autoTable({head:[['Personne','Capacité projet','Absences']],body:projectResources.map(r=>[r.name,r.capacity*100+'%',r.absences.join(', ')]),styles:{fontSize:10,cellPadding:3,overflow:'linebreak'}});}
     doc.save('plannr-' + todayISO() + '.pdf');
 }
 function exportRows(group) {
-    return group.tasks.map(task => [task.id, task.title, task.startDate, task.endDate || task.startDate, task.duration, task.progress ?? effectiveProgress(task), task.statut || '', task.assignedTo || task.responsable || '', task.effortDays ?? '', (task.dependsOn || []).join(', '), task.deadline || '', task.notes || '', task.link || '']);
+    return group.tasks.map(task => [task.id, task.title, task.startDate, task.endDate || task.startDate, task.duration, task.progress ?? effectiveProgress(task), task.statut || '', task.assignedTo || task.responsable || '', task.effortDays ?? '', (task.dependsOn || []).join(', '), task.deadline || '', task.notes || '', task.link || '', deliveryOwner(task), task.remainingEffortDays ?? '', task.actualStartDate || '', task.actualEndDate || '', task.blockerReason || '', task.allocationShares ? JSON.stringify(task.allocationShares) : '', task.decisionOwner || '', task.acceptanceCriteria || '', task.decision || '', task.decisionDate || '']);
 }
-function exportHeaders() { return ['ID','Tâche','Début','Fin','Durée ouvrée','Avancement (%)','Statut','Responsables','Effort (j-personnes)','Dépendances','Butoir','Notes','Lien']; }
+function exportHeaders() { return ['ID','Tâche','Début','Fin','Durée ouvrée','Avancement (%)','Statut','Responsables','Effort (j-personnes)','Dépendances','Butoir','Notes','Lien','Responsable de livraison','Reste à faire (j-personnes)','Début réel','Fin réelle','Blocage','Répartition','Valideur','Critères d’acceptation','Décision','Date de décision']; }
 function exportToExcel() {
     const wb = XLSX.utils.book_new();
     riskGroups.forEach(group => {
         const ws = XLSX.utils.aoa_to_sheet([exportHeaders(), ...exportRows(group)]);
-        ws['!cols'] = [10,60,14,14,14,14,22,30,20,25,14,70,45].map(wch=>({wch}));
+        ws['!cols'] = [10,60,14,14,14,14,22,30,20,25,14,70,45,30,20,14,14,40,40,30,60,20,14].map(wch=>({wch}));
         XLSX.utils.book_append_sheet(wb, ws, (group.id + ' ' + group.name).replace(/[\\/?:*\[\]]/g,'').slice(0,31));
     });
     if (!wb.SheetNames.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([exportHeaders()]), 'Planning');
+    if(projectResources.length){const ws=XLSX.utils.aoa_to_sheet([['Personne','Capacité (%)','Absences'],...projectResources.map(r=>[r.name,r.capacity*100,r.absences.join(', ')])]);ws['!cols']=[{wch:30},{wch:16},{wch:65}];XLSX.utils.book_append_sheet(wb,ws,'Disponibilités');}
     XLSX.writeFile(wb,'plannr-' + todayISO() + '.xlsx');
 }
 function exportToCSV() {
@@ -7117,6 +7366,8 @@ function exportToCSV() {
                 // Écouter les changements de statut
                 dropdown.addEventListener('change', function(e) {
                     const newStatus = e.target.value;
+                    const current = risks.find(r=>r.id===riskId);
+                    if(current.actualEndDate && !isTaskClosed({statut:newStatus})) { this.value=current.statut; showToast(uiText('scheduleLocked')); return; }
 
                     // Sauvegarder dans localStorage
                     appStorage.setItem(storageKey, newStatus);
@@ -7128,8 +7379,8 @@ function exportToCSV() {
                     }
 
                     // Mettre à jour le dashboard
-                    if (isTaskDone(risk)) risk.progress = 100;
-                    else if (risk.progress === 100) risk.progress = 0;
+                    if (isTaskDone(risk)) { risk.progress = 100; if(risk.remainingEffortDays!==undefined)risk.remainingEffortDays=0; }
+                    else if (risk.progress === 100 && risk.statut === 'statusNotTreated') risk.progress = 0;
                     updateDashboard(); updateGantt(); renderPlanning();
 
                     showToast('Statut mis à jour');
@@ -7197,6 +7448,8 @@ function exportToCSV() {
                     const newValue = element.textContent.trim();
                     const originalValue = element.dataset.originalValue || '';
 
+                    const assignedTask=risks.find(r=>r.id===riskId);
+                    if(assignedTask?.allocationShares && newValue!==originalValue) { element.textContent=originalValue; showToast(uiText('allocationEdit')); return; }
                     // Si vide, afficher le placeholder
                     if (!newValue || newValue === t('clickToAdd')) {
                         element.textContent = t('clickToAdd');
@@ -7327,9 +7580,10 @@ function exportToCSV() {
                     if (!task) return;
 
                     // Mettre à jour la date
+                    if (isTaskClosed(task) || (task.actualStartDate && dateType === 'startDate')) { this.value=task[dateType]; showToast(uiText('scheduleLocked')); return; }
                     if (!validISODate(newValue)) { this.value = task[dateType]; return; }
                     if (dateType === 'startDate') moveTaskToWorkingDate(task, newValue);
-                    else if (newValue < task.startDate) { this.value = task.endDate; return; }
+                    else if (newValue < (task.actualStartDate || task.startDate)) { this.value = task.endDate; return; }
                     else task.endDate = newValue;
 
                     // Mettre à jour le span d'affichage français
@@ -7413,7 +7667,7 @@ function exportToCSV() {
         // et l'import — le round-trip est garanti par construction.
         function buildCanonicalData() {
             return {
-                version: "2.3",
+                version: "2.4",
                 timestamp: new Date().toISOString(),
                 appState: {
                     title: document.getElementById('main-title').textContent,
@@ -7424,6 +7678,7 @@ function exportToCSV() {
                 // Clé canonique v2.1 : `phases` — la lecture (loader, import,
                 // reload) accepte aussi l'ancienne clé `riskGroups`.
                 phases: riskGroups,
+                resources: projectResources,
                 // Baseline incluse si figée (undefined = clé omise au stringify)
                 baseline: baselineData || undefined,
                 // Calendrier métier (v2.2) : omis si tout est aux défauts
@@ -7802,12 +8057,7 @@ function exportToCSV() {
         }
 
         function getStatusOptions() {
-            return [
-                { value: "statusNotTreated", label: t('statusNotTreated'), emoji: "⚪" },
-                { value: "statusInProgress", label: t('statusInProgress'), emoji: "🔄" },
-                { value: "statusTreated", label: t('statusTreated'), emoji: "✅" },
-                { value: "statusAccepted", label: t('statusAccepted'), emoji: "🤝" }
-            ];
+            return BUSINESS_STATUSES.map(value=>({value,label:uiText(value)}));
         }
 
         // Helper pour générer les options avec carrés colorés
@@ -8841,74 +9091,10 @@ function exportToCSV() {
         }
 
         // Lire les valeurs des formulaires
-        function updateDashboard(currentRisks) {
+        function updateDashboard() {
             saveState();
-            // Récupérer toutes les tâches depuis les phases
-            const allTasks = riskGroups.flatMap(p => p.tasks);
-
-            // Vérifier que les éléments existent avant de les mettre à jour
-            const totalEl = document.getElementById('dashboard-total-tasks');
-            const inProgressEl = document.getElementById('dashboard-in-progress');
-            const completedEl = document.getElementById('dashboard-completed');
-            const durationEl = document.getElementById('dashboard-total-duration');
-            const progressionEl = document.getElementById('dashboard-progression');
-
-            if (!totalEl || !inProgressEl || !completedEl || !durationEl || !progressionEl) {
-                return; // Un des éléments n'existe pas
-            }
-
-            // 1. Nombre total de tâches
-            totalEl.textContent = allTasks.length;
-
-            // 2. Tâches en cours
-            const inProgressTasks = allTasks.filter(task => {
-                return task.statut === 'statusInProgress' || task.statut === 'En cours';
-            }).length;
-            inProgressEl.textContent = inProgressTasks;
-
-            // 3. Tâches terminées
-            const completedTasks = allTasks.filter(task => {
-                return task.statut === 'statusDone' || task.statut === 'statusTreated' || task.statut === 'Terminé';
-            }).length;
-            completedEl.textContent = completedTasks;
-
-            // 4. Durée totale du projet (somme des durées OUVRÉES, jalons exclus)
-            const totalDuration = allTasks.reduce((sum, task) => sum +
-                (task.isMilestone ? 0 : workingDaysBetween(task.startDate, task.endDate || task.startDate)), 0);
-            durationEl.textContent = `${totalDuration} j`;
-
-            // 5. Tâches en retard (échéance dépassée, non terminées)
-            const overdueEl = document.getElementById('dashboard-overdue');
-            if (overdueEl) {
-                const overdueCount = allTasks.filter(isTaskOverdue).length;
-                overdueEl.textContent = overdueCount;
-                overdueEl.style.color = overdueCount > 0 ? '#FF3B30' : '#1A6A3E';
-            }
-
-            // 6. Progression PONDÉRÉE par la durée ouvrée (jalons exclus) —
-            // une tâche de 30 j pèse 30x plus qu'une tâche de 1 j
-            const weightedTasks = allTasks.filter(task => !task.isMilestone);
-            let wSum = 0, wTotal = 0;
-            weightedTasks.forEach(task => {
-                const w = Math.max(1, workingDaysBetween(task.startDate, task.endDate || task.startDate));
-                wTotal += w;
-                wSum += w * effectiveProgress(task);
-            });
-            const completionRate = wTotal > 0 ? Math.round(wSum / wTotal) : 0;
-            progressionEl.textContent = `${completionRate}%`;
-
-            // Colorer selon le taux de complétion
-            if (completionRate >= 75) {
-                progressionEl.style.color = '#1A6A3E'; // Vert
-            } else if (completionRate >= 50) {
-                progressionEl.style.color = '#FF9500'; // Orange
-            } else {
-                progressionEl.style.color = '#666666'; // Gris
-            }
-
-            // v2.2 : vues dérivées rafraîchies avec chaque refresh du dashboard
-            renderWorkload();
-            renderValidationBanner();
+            renderBusinessDashboard();
+            renderWorkload(); renderBusinessActions(); renderValidationBanner();
         }
 
         // ========================================
