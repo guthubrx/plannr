@@ -192,7 +192,7 @@ test('002 thème mémorisé, indépendant du document, rendu PDF clair et retour
     const download = page.waitForEvent('download');
     await page.evaluate(()=>exportToPDF()); await download;
     await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
-    expect(await page.evaluate(()=>ganttColors().surface)).toBe('#182330');
+    expect(await page.evaluate(()=>ganttColors().surface)).toBe('#15181c');
     expect(await exported(page)).toEqual(before);
     await page.locator('#theme-selector').selectOption('light');
     await page.reload();

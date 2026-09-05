@@ -51,54 +51,33 @@
             <button onclick="resetFilters()" data-ui="reset"></button><output id="filter-count" aria-live="polite"></output>
         </section>
         <!-- Toggle sticky discret au-dessus -->
-        <div class="sticky-toggle-container">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="sticky-toggle-label">Épingler la vue d'ensemble</span>
-                <button onclick="toggleSticky()" class="sticky-toggle-btn" id="sticky-toggle-btn" title="Activer/Désactiver le mode collant"></button>
-            </div>
-
-            <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
-
-            <!-- Toggle Vue Compact/Cascade/Groupe -->
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="sticky-toggle-label">Vue :</span>
-                <div class="view-toggle-wrapper" style="background: var(--line); padding: 2px; border-radius: 8px; display: flex;">
-                    <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active" style="border: medium; background: var(--surface); padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(29, 29, 31); cursor: pointer; box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px; transition: 0.2s;">Cascade</button>
-                    <button onclick="setGanttView('consolide')" id="view-btn-consolide" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Consolidé</button>
-                    <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Compact</button>
-                </div>
-            </div>
-
-            <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
-
-            <!-- Fenêtre temporelle du Gantt (FR-5) -->
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="sticky-toggle-label">Fenêtre :</span>
-                <div class="view-toggle-wrapper" style="background: var(--line); padding: 2px; border-radius: 8px; display: flex;">
-                    <button class="zoom-btn" data-span="all" onclick="setGanttZoom(null)">Tout</button>
-                    <button class="zoom-btn" data-span="90" onclick="setGanttZoom(90)">3 mois</button>
-                    <button class="zoom-btn" data-span="30" onclick="setGanttZoom(30)">1 mois</button>
-                    <button class="zoom-btn" data-span="14" onclick="setGanttZoom(14)">2 sem</button>
-                </div>
-                <span id="zoom-nav" style="display: none; align-items: center; gap: 4px;">
-                    <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(-1)" title="Reculer d'une demi-fenêtre">◀</button>
-                    <button class="zoom-btn zoom-nav-btn" onclick="ganttGoToday()">Aujourd'hui</button>
-                    <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(1)" title="Avancer d'une demi-fenêtre">▶</button>
-                </span>
-            </div>
-        </div>
-
         <!-- Diagramme de Gantt sticky en haut -->
         <div class="sticky-charts-section sticky-disabled" id="sticky-section">
 
             <!-- Section collapsable pour le Gantt -->
             <div class="collapsible-section" style="margin-bottom: 8px;">
-                <h3 class="collapsible-header" onclick="toggleCollapse('gantt-content')" style="margin-top: 0; margin-bottom: 8px;">
-                    <span class="collapse-icon">▼</span>
-                    <span data-i18n="ganttTitle">Diagramme de Gantt</span>
-                </h3>
+                <div class="gantt-heading">
+                    <h3><button class="collapsible-header" onclick="toggleCollapse('gantt-content')" aria-controls="gantt-content" aria-expanded="true"><span class="collapse-icon">▼</span><span data-i18n="ganttTitle">Diagramme de Gantt</span></button></h3>
+                    <div class="gantt-controls" role="group" aria-label="Commandes du Gantt">
+                        <button onclick="toggleSticky()" class="sticky-toggle-btn" id="sticky-toggle-btn" data-ui-label="pinGantt" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6m-5 0v6l-4 4v2h12v-2l-4-4V3M12 15v6"/></svg></button>
+                        <div class="view-toggle-wrapper" role="group" aria-label="Vue du Gantt">
+                            <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active">Cascade</button>
+                            <button onclick="setGanttView('consolide')" id="view-btn-consolide" class="view-toggle-btn">Consolidé</button>
+                            <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn">Compact</button>
+                        </div>
+                        <div class="view-toggle-wrapper" role="group" aria-label="Période affichée">
+                            <button class="zoom-btn" data-span="all" onclick="setGanttZoom(null)">Tout</button>
+                            <button class="zoom-btn" data-span="90" onclick="setGanttZoom(90)">3 mois</button>
+                            <button class="zoom-btn" data-span="30" onclick="setGanttZoom(30)">1 mois</button>
+                            <button class="zoom-btn" data-span="14" onclick="setGanttZoom(14)">2 sem</button>
+                        </div>
+                        <span id="zoom-nav" style="display: none; align-items: center; gap: 4px;">
+                            <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(-1)" aria-label="Période précédente" title="Période précédente"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
+                            <button class="zoom-btn zoom-nav-btn" onclick="ganttGoToday()">Aujourd'hui</button>
+                            <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(1)" aria-label="Période suivante" title="Période suivante"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
+                        </span>
+                    </div>
+                </div>
                 <div id="gantt-content" class="collapsible-content">
                     <div class="dashboard-layout">
                         <div class="charts-column">

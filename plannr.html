@@ -594,7 +594,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
         
         .risk-group-number {
-            background: #0071e3;
+            background: var(--primary);
             color: white;
             font-weight: 600;
             font-size: 18px;
@@ -636,7 +636,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .editable-group-description:focus {
-            outline: 2px solid #0071e3;
+            outline: 2px solid var(--accent);
             background: var(--surface);
             cursor: text;
             color: var(--ink);
@@ -667,11 +667,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-risk-title:hover {
             background: rgba(0, 113, 227, 0.05);
-            outline: 1px dashed rgba(0, 113, 227, 0.3);
+            outline: 1px dashed var(--accent);
         }
 
         .editable-risk-title:focus {
-            outline: 2px solid #0071e3;
+            outline: 2px solid var(--accent);
             background: var(--surface);
             cursor: text;
         }
@@ -701,11 +701,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-remediation:hover {
             background: rgba(0, 113, 227, 0.05);
-            outline: 1px dashed rgba(0, 113, 227, 0.3);
+            outline: 1px dashed var(--accent);
         }
 
         .editable-remediation:focus {
-            outline: 2px solid #0071e3;
+            outline: 2px solid var(--accent);
             background: var(--surface);
             cursor: text;
         }
@@ -742,11 +742,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-responsable:hover {
             background: rgba(0, 113, 227, 0.05);
-            outline: 1px dashed rgba(0, 113, 227, 0.3);
+            outline: 1px dashed var(--accent);
         }
 
         .editable-responsable:focus {
-            outline: 2px solid #0071e3;
+            outline: 2px solid var(--accent);
             background: var(--surface);
             cursor: text;
         }
@@ -772,7 +772,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .risk-group-header-collapsible .risk-group-number {
-            background: #0071e3;
+            background: var(--primary);
             color: white;
             font-weight: 600;
             font-size: 18px;
@@ -809,7 +809,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
         
         .risk-group-number {
-            background: #0071e3;
+            background: var(--primary);
             color: white;
             font-weight: 600;
             font-size: 18px;
@@ -899,20 +899,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         /* Hover sur l'ensemble risque + remédiation */
         .risks-table tbody tr[data-risk-id]:hover,
         .risks-table tbody tr[data-risk-id]:hover + .remediation-row {
-            background-color: #f0f4f8 !important;
+            background-color: var(--row-hover) !important;
         }
 
         .risks-table tbody tr.dragging {
             opacity: 0.5;
-            background: #e3f2fd;
+            background: var(--selection);
         }
 
         .risks-table tbody tr.drag-over-top {
-            border-top: 2px solid #0071e3;
+            border-top: 2px solid var(--accent);
         }
 
         .risks-table tbody tr.drag-over-bottom {
-            border-bottom: 2px solid #0071e3;
+            border-bottom: 2px solid var(--accent);
         }
 
         .risks-table td {
@@ -933,7 +933,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             cursor: pointer;
             user-select: none;
             margin-right: 8px;
-            color: #0071e3;
+            color: var(--accent);
             font-size: 12px;
             transition: transform 0.2s ease;
         }
@@ -1004,13 +1004,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .risks-table .dropdowns-cell select:hover {
-            border-color: #0071e3;
+            border-color: var(--accent);
             background-color: #f9f9fb;
         }
 
         .risks-table .dropdowns-cell select:focus {
             outline: none;
-            border-color: #0071e3;
+            border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
         }
 
@@ -1036,13 +1036,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .risks-table .dropdown-single-cell select:hover {
-            border-color: #0071e3;
+            border-color: var(--accent);
             background-color: #f9f9fb;
         }
 
         .risks-table .dropdown-single-cell select:focus {
             outline: none;
-            border-color: #0071e3;
+            border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
         }
 
@@ -1069,13 +1069,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .risks-table .status-dropdown:hover {
-            border-color: #0071e3;
+            border-color: var(--accent);
             background-color: #f9f9fb;
         }
 
         .risks-table .status-dropdown:focus {
             outline: none;
-            border-color: #0071e3;
+            border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
         }
 
@@ -1828,7 +1828,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .editable-title:focus,
         .editable-subtitle:focus {
-            outline: 2px solid #0071e3;
+            outline: 2px solid var(--accent);
             background: var(--surface);
             cursor: text;
         }
@@ -1859,12 +1859,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .editable-group-name:hover {
-            background: rgba(255, 255, 255, 0.2);
-            outline: 1px dashed rgba(255, 255, 255, 0.5);
+            background: var(--row-hover);
+            outline: 1px dashed var(--accent);
         }
 
         .editable-group-name:focus {
-            outline: 2px solid #0071e3;
+            outline: 2px solid var(--accent);
             background: var(--surface);
             cursor: text;
             color: var(--ink);
@@ -1894,12 +1894,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .editable-section-title:hover {
-            background: rgba(0, 113, 227, 0.1);
-            outline: 1px dashed rgba(0, 113, 227, 0.3);
+            background: var(--row-hover);
+            outline: 1px dashed var(--accent);
         }
 
         .editable-section-title:focus {
-            outline: 2px solid #0071e3;
+            outline: 2px solid var(--accent);
             background: var(--surface);
             cursor: text;
         }
@@ -1921,7 +1921,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             position: absolute;
             top: 40px;
             right: 40px;
-            background: #0071e3;
+            background: var(--primary);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -1937,11 +1937,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .export-button:hover {
-            background: #0077ed;
+            background: var(--primary-hover);
         }
 
         .export-button:active {
-            background: #005bb5;
+            background: var(--primary-hover);
         }
 
         /* Bouton toggle sticky - Style Apple discret */
@@ -1959,44 +1959,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             color: var(--muted);
             font-weight: 500;
             user-select: none;
-        }
-
-        .sticky-toggle-btn {
-            background: var(--line);
-            border: none;
-            border-radius: 20px;
-            padding: 4px;
-            width: 48px;
-            height: 28px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .sticky-toggle-btn::before {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--surface);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            left: 4px;
-        }
-
-        .sticky-toggle-btn:hover {
-            background: #d1d1d6;
-        }
-
-        .sticky-toggle-btn.active {
-            background: #0071e3;
-        }
-
-        .sticky-toggle-btn.active::before {
-            transform: translateX(20px);
         }
 
         .sticky-charts-section.sticky-disabled {
@@ -2037,7 +1999,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .group-separator:hover .group-separator-label {
-            color: #0071e3;
+            color: var(--accent);
             background: var(--surface-soft);
         }
 
@@ -2113,7 +2075,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         .risk-separator:hover .risk-separator-label {
             opacity: 1;
-            color: #0071e3;
+            color: var(--accent);
         }
 
         .risk-separator-label:hover {
@@ -2129,12 +2091,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .risk-separator-row.separator-drag-over .risk-separator::before {
             opacity: 1;
             height: 3px;
-            background: #0071e3;
+            background: var(--primary);
         }
 
         .risk-separator-row.separator-drag-over .risk-separator-label {
             opacity: 1;
-            background: #0071e3;
+            background: var(--primary);
             color: white;
             transform: scale(1.05);
         }
@@ -2169,7 +2131,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .toast.success {
-            background: #0071e3;
+            background: var(--primary);
         }
 
         .toast.error {
@@ -2193,7 +2155,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         /* Highlight temporaire pour nouveaux risques */
         @keyframes highlight-new-row {
             0% {
-                background-color: rgba(0, 113, 227, 0.2);
+                background-color: var(--selection);
             }
             100% {
                 background-color: transparent;
@@ -2250,7 +2212,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             transition: background 0.15s;
         }
         .date-display:hover {
-            background: #f0f0f5;
+            background: var(--row-hover);
         }
 
         .milestone-x {
@@ -2278,7 +2240,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             display: inline-block;
             vertical-align: middle;
             font-size: 14px;
-            color: #0071e3;
+            color: var(--accent);
             cursor: pointer;
             padding: 2px 4px;
         }
@@ -2308,7 +2270,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
 
         .app-footer a {
-            color: #0071e3;
+            color: var(--accent);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s ease;
@@ -2532,7 +2494,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     /* ── Mode Présentation ── */
     .pres-toggle { padding: 8px 14px; font-size: 13px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.1); font-weight: 600; color: var(--ink); transition: all .2s; display: flex; align-items: center; gap: 6px; }
     .pres-toggle:hover { background: var(--surface-soft); }
-    .pres-toggle.active { background: var(--ink); color: white; border-color: var(--ink); }
+    .pres-toggle.active { background: var(--primary); color: var(--on-primary); border-color: var(--ink); }
 
     body.presentation-mode .app-controls > *:not(.pres-toggle) { display: none !important; }
     body.presentation-mode .risks-table input[type="date"] { -webkit-appearance: none !important; appearance: none !important; border: none !important; background: transparent !important; outline: none !important; pointer-events: none !important; color: inherit !important; font-family: inherit !important; }
@@ -2584,7 +2546,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 .depends-placeholder { color: #c7c7cc; }
 .depends-input {
     width: 100%; min-width: 80px; padding: 3px 6px;
-    border: 1px solid #0071e3; border-radius: 6px; font-size: 12.5px;
+    border: 1px solid var(--accent); border-radius: 6px; font-size: 12.5px;
 }
 .overdue-badge {
     display: inline-block; margin-left: 4px; padding: 1px 6px;
@@ -2613,7 +2575,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     display: flex; align-items: center; gap: 5px;
     font-size: 13px; color: var(--ink); cursor: pointer; user-select: none;
 }
-.shading-toggle input { accent-color: #0071e3; cursor: pointer; }
+.shading-toggle input { accent-color: var(--accent); cursor: pointer; }
 
 /* ==================================================================
    v2.2 — bandeau, badges, notes/lien, fenêtre temporelle, charge, flash
@@ -2660,7 +2622,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 .zoom-btn.active { background: var(--surface); color: var(--ink);
     box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 .zoom-nav-btn { background: var(--line); }
-.zoom-nav-btn:hover { background: #d8d8dc; }
+.zoom-nav-btn:hover { background: var(--row-hover); }
 
 .workload-person { padding: 8px 0; border-bottom: 1px solid var(--surface-soft); }
 .workload-person:last-child { border-bottom: none; }
@@ -2675,8 +2637,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
 @keyframes plannr-row-flash {
-    0% { background: #CDE6FF; }
-    60% { background: #E8F3FF; }
+    0% { background: var(--selection); }
+    60% { background: var(--row-hover); }
     100% { background: transparent; }
 }
 
@@ -2703,7 +2665,7 @@ tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
     border-radius: 6px; cursor: pointer;
 }
 .dp-row:hover { background: var(--surface-soft); }
-.dp-row input[type="checkbox"] { accent-color: #0071e3; }
+.dp-row input[type="checkbox"] { accent-color: var(--accent); }
 .dp-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dp-lag { color: var(--muted); font-size: 12px; white-space: nowrap; }
 .dp-lag-input {
@@ -2720,14 +2682,21 @@ tr.row-flash td { animation: plannr-row-flash 1.8s ease; }
     margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--surface-soft);
 }
 .dp-ok {
-    padding: 5px 18px; border: none; border-radius: 8px; background: #0071e3;
+    padding: 5px 18px; border: none; border-radius: 8px; background: var(--primary);
     color: white; font-size: 13px; font-weight: 500; cursor: pointer;
 }
-.dp-ok:hover { background: #0060c0; }
+.dp-ok:hover { background: var(--primary-hover); }
 .dp-esc { color: #c7c7cc; font-size: 11px; }
 
 /* Session 002 — espaces réservés, contrôles regroupés, défilement local. */
-:root { --ink: #192c3d; --muted: #516678; --line: #dbe3e9; --accent: #245b79; }
+/* Palette éditoriale partagée : surfaces neutres, accent vert, états appariés. */
+:root {
+ --ink: #23292f; --muted: #596570; --line: #d9dfe5; --accent: #227265;
+ --surface: #ffffff; --surface-soft: #f7f8fa; --page: #eef1f4;
+ --row-hover: #f0f5f3; --selection: #deeee7; --primary: #227265; --primary-hover: #195c51; --on-primary: #ffffff;
+ --danger: #a34444; --danger-bg: #fbecec; --warning: #795c21; --warning-bg: #fbf6e9;
+ --chart-header: #eef1f4; --chart-grid: #e4e8ed; --chart-shading: rgba(35,41,47,.055); --chart-dependency: #63707c;
+}
 body { color: var(--ink); background: var(--page); padding: 20px; }
 .container { width: 100%; padding: 28px; max-width: 1920px; }
 .app-header { flex-wrap: wrap; align-items: flex-start; }
@@ -2738,7 +2707,7 @@ button, input, select, textarea { font: inherit; }
 button, select, input { min-height: 36px; }
 button { cursor: pointer; }
 button:disabled { opacity: .45; cursor: default; }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 3px solid #2685b2; outline-offset: 3px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 [hidden] { display: none !important; }
 .document-status { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 8px 0 22px; color: var(--muted); font-size: 13px; }
 .history-actions { display: flex; gap: 6px; }
@@ -2784,7 +2753,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .date-display { display: none; }
 .editable-date { position: static !important; opacity: 1 !important; pointer-events: auto !important; width: 122px !important; height: 34px !important; font-size: 13px; border: 1px solid var(--line); border-radius: 4px; padding: 3px; }
 .risks-table td { vertical-align: top; padding: 12px 8px; }
-.task-details-button { display: block; margin-top: 8px; font-size: 12px; color: var(--accent); background: #eef5f8; border: 1px solid #c4d9e5; border-radius: 5px; padding: 3px 10px; min-height: 28px; }
+.task-details-button { display: block; margin-top: 8px; font-size: 12px; color: var(--accent); background: var(--surface-soft); border: 1px solid #c4d9e5; border-radius: 5px; padding: 3px 10px; min-height: 28px; }
 .dependency-cell, .depends-cell { min-width: 125px; white-space: normal; }
 #task-panel { position: fixed; inset: 0 0 0 auto; margin: 0; width: min(560px, 100%); max-width: 100vw; height: 100dvh; max-height: 100dvh; padding: 0; border: 0; border-left: 1px solid var(--line); box-shadow: -12px 0 60px #122d4333; color: var(--ink); }
 #task-panel::backdrop { background: #142f4555; }
@@ -2797,9 +2766,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #task-form textarea { resize: vertical; }
 #task-form small { font-weight: 400; color: var(--muted); }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.task-margin { color: var(--accent); padding: 10px; background: #edf5f8; border-radius: 5px; }
+.task-margin { color: var(--accent); padding: 10px; background: var(--surface-soft); border-radius: 5px; }
 .panel-actions { display: flex; gap: 10px; justify-content: flex-end; position: sticky; bottom: 0; background: var(--surface); padding: 12px 0; }
-.panel-actions .primary-action { background: var(--accent); color: white; border-color: var(--accent); }
+.panel-actions .primary-action { background: var(--primary); color: var(--on-primary); border-color: var(--accent); }
 #task-form-error { color: #9a3025; }
 @media (max-width: 760px) {
   body { padding: 8px; } .container { padding: 14px; border-radius: 10px; }
@@ -2825,10 +2794,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .risks-table th { white-space: nowrap; }
 
 /* Thèmes de l'application HTML, y compris les surfaces de saisie. */
-:root { color-scheme: light; --surface: #ffffff; --surface-soft: #f3f6f8; --page: #edf2f5; }
+:root { color-scheme: light; }
 :root[data-theme="dark"] {
- color-scheme: dark; --ink: #edf3fa; --muted: #b6c6d8; --line: #42546a;
- --accent: #98d3f3; --surface: #182330; --surface-soft: #223143; --page: #101923;
+ color-scheme: dark; --ink: #e3e8ed; --muted: #a4aeb8; --line: #414a55;
+ --accent: #8bc8b9; --surface: #15181c; --surface-soft: #1b1f24; --page: #101215;
+ --row-hover: #24332f; --selection: #293b37; --primary: #8bc8b9; --primary-hover: #a5d7cb; --on-primary: #15181c;
+ --danger: #dd9494; --danger-bg: #392626; --warning: #cfb577; --warning-bg: #302a1e;
+ --chart-header: #252b32; --chart-grid: #303740; --chart-shading: rgba(227,232,237,.055); --chart-dependency: #a4aeb8;
 }
 .theme-control { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
 .theme-control select { padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); }
@@ -2839,20 +2811,20 @@ input, select, textarea, button { color: var(--ink); }
 :root[data-theme="dark"] :is(.risks-table th, .risks-table td) { border-color: var(--line); }
 :root[data-theme="dark"] :is(.risk-group-title, .editable-risk-title, .editable-responsable, .shading-toggle, .workload-name, .dashboard-card-value, .chart-wrapper h3) { color: var(--ink) !important; }
 :root[data-theme="dark"] :is(.risk-group-description, .workload-tasks, .workload-total, .dp-hint, .dp-phase, .banner-section li) { color: var(--muted); }
-:root[data-theme="dark"] :is(.workload-person.has-conflict, .workload-conflicts) { background: #3b3021; color: #f4ce92; }
-:root[data-theme="dark"] :is(#save-status[data-dirty="true"], .banner-warn .banner-title, .inconsistency-badge) { color: #f4ce92; }
-:root[data-theme="dark"] :is(.banner-error .banner-title, #task-form-error, .deadline-badge.exceeded) { color: #ffb2a9; }
-:root[data-theme="dark"] .deadline-badge.exceeded { background: #49312f; }
-:root[data-theme="dark"] .banner-info .banner-title { color: #98d3f3; }
-:root[data-theme="dark"] .panel-actions .primary-action { background: #327594; color: white; }
-:root[data-theme="dark"] a { color: #98d3f3; }
-:root[data-theme="dark"] input::placeholder, :root[data-theme="dark"] textarea::placeholder { color: #9dadc1; opacity: 1; }
+:root[data-theme="dark"] :is(.workload-person.has-conflict, .workload-conflicts) { background: var(--warning-bg); color: var(--warning); }
+:root[data-theme="dark"] :is(#save-status[data-dirty="true"], .banner-warn .banner-title, .inconsistency-badge) { color: var(--warning); }
+:root[data-theme="dark"] :is(.banner-error .banner-title, #task-form-error, .deadline-badge.exceeded) { color: var(--danger); }
+:root[data-theme="dark"] .deadline-badge.exceeded { background: var(--danger-bg); }
+:root[data-theme="dark"] .banner-info .banner-title { color: var(--accent); }
+:root[data-theme="dark"] .panel-actions .primary-action { background: var(--primary); color: var(--on-primary); }
+:root[data-theme="dark"] a { color: var(--accent); }
+:root[data-theme="dark"] input::placeholder, :root[data-theme="dark"] textarea::placeholder { color: var(--muted); opacity: 1; }
 
 .theme-switching *, .theme-switching *::before, .theme-switching *::after { transition: none !important; }
 
 .risks-table tbody tr.risk-odd { background-color: var(--surface-soft); }
 .zoom-btn:hover { background: var(--surface-soft); color: var(--ink); }
-:root[data-theme="dark"] .risks-table tbody tr[data-risk-id]:hover + .remediation-row { background-color: var(--surface-soft) !important; }
+
 
 /* Barre de travail compacte : commandes et état partagent la même ligne. */
 .icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
@@ -2959,11 +2931,11 @@ legend { padding: 0 5px; font-size: 13px; font-weight: 600; }
 .business-dialog input[type="checkbox"] { min-height: 18px; }
 .business-dialog .shading-toggle { flex-direction: row; align-items: center; }
 .business-dialog .panel-actions { background: var(--surface); }
-.business-dialog .primary-action { background: #327594; color: white; }
+.business-dialog .primary-action { background: var(--primary); color: var(--on-primary); }
 .resource-row { display: grid; grid-template-columns: 1fr 95px 1.4fr 34px; gap: 8px; align-items: end; padding: 8px 0; }
 .remove-resource { padding: 7px !important; }
 .form-error { color: #aa3125; font-size: 13px; }
-:root[data-theme="dark"] .form-error { color: #ffb2a9; }
+:root[data-theme="dark"] .form-error { color: var(--danger); }
 .simulation-table { overflow: auto; max-width: 100%; }
 .simulation-table table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .simulation-table :is(th,td) { padding: 8px; text-align: left; border-bottom: 1px solid var(--line); min-width: 160px; }
@@ -2973,6 +2945,44 @@ legend { padding: 0 5px; font-size: 13px; font-weight: 600; }
 .settings-palette { display: flex; align-items: center; gap: 10px; font-size: 13px; }
 #task-form { gap: 12px; }
 @media (max-width: 420px) { #task-form .form-grid { grid-template-columns: 1fr; } }
+
+/* Les états transitoires conservent le même couple fond/texte dans les deux thèmes. */
+.risks-table tbody tr[data-risk-id]:focus-within { background-color: var(--row-hover); }
+:is(.editable-group-name, .editable-section-title):hover { color: var(--ink); }
+:is(.task-details-button, .task-margin, .planning-filters input, .planning-filters select, #task-form input, #task-form select, #task-form textarea) { border-color: var(--line); }
+:is(.depends-placeholder, .dp-esc, .dp-disabled) { color: var(--muted); }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
+:is(.banner-info .banner-title, .app-footer a, .milestone-badge, .milestone-badge:hover) { color: var(--accent); }
+:is(.deadline-badge.exceeded, .depends-cycle) { background: var(--danger-bg); color: var(--danger); }
+:is(.form-error, #task-form-error, .banner-error .banner-title) { color: var(--danger); }
+:is(.workload-conflicts, .workload-person.has-conflict) { background: var(--warning-bg); color: var(--warning); }
+:is(.inconsistency-badge, .banner-warn .banner-title, #save-status[data-dirty="true"]) { color: var(--warning); }
+:is(.dp-ok, .toast, .toast.success, .panel-actions .primary-action, .business-dialog .primary-action) { background: var(--primary); color: var(--on-primary); }
+:is(.dp-ok, .panel-actions .primary-action, .business-dialog .primary-action):hover { background: var(--primary-hover); color: var(--on-primary); }
+::selection { background: var(--selection); color: var(--ink); }
+@media print {
+ :root, :root[data-theme="dark"] {
+  color-scheme: light; --ink: #23292f; --muted: #596570; --line: #d9dfe5; --accent: #227265;
+  --surface: #ffffff; --surface-soft: #f7f8fa; --page: #ffffff; --row-hover: #f0f5f3; --selection: #deeee7;
+  --primary: #227265; --on-primary: #ffffff; --danger: #a34444; --danger-bg: #fbecec; --warning: #795c21; --warning-bg: #fbf6e9;
+ }
+ tr.row-flash td, .new-row { animation: none !important; }
+}
+
+/* En-tête du diagramme : titre à gauche, commandes compactes à droite. */
+.gantt-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 16px; padding: 5px 8px; margin-bottom: 8px; border-radius: 6px; background: var(--surface-soft); }
+.gantt-heading h3 { margin: 0; flex: 0 0 auto; }
+.gantt-heading .collapsible-header { display: flex; align-items: center; gap: 8px; border: 0; margin: 0; padding: 3px 0; background: transparent; color: var(--ink); font-size: 14px; min-height: 32px; }
+.gantt-controls { margin-left: auto; display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; min-width: 0; }
+.view-toggle-wrapper { display: flex; flex-wrap: wrap; padding: 2px; border-radius: 6px; background: var(--surface-soft) !important; }
+.gantt-controls :is(.view-toggle-btn, .zoom-btn) { display: inline-flex; align-items: center; justify-content: center; font-size: 12px; padding: 4px 9px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); min-height: 30px; white-space: nowrap; cursor: pointer; }
+.gantt-controls :is(.view-toggle-btn, .zoom-btn).active { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+.gantt-controls :is(.view-toggle-btn, .zoom-btn):hover { background: var(--row-hover) !important; color: var(--ink) !important; }
+.sticky-toggle-btn { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 32px; width: 32px; height: 32px; min-height: 32px; padding: 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.sticky-toggle-btn:hover { background: var(--row-hover); color: var(--ink); }
+.sticky-toggle-btn[aria-pressed="true"] { background: var(--selection); color: var(--accent); border-color: var(--accent); box-shadow: inset 0 -2px var(--accent); }
+@media (max-width: 760px) { .gantt-controls { margin-left: 0; width: 100%; } }
+@media print { .gantt-controls { display: none !important; } }
     </style>
 </head>
 <body class="">
@@ -3028,54 +3038,33 @@ legend { padding: 0 5px; font-size: 13px; font-weight: 600; }
             <button onclick="resetFilters()" data-ui="reset"></button><output id="filter-count" aria-live="polite"></output>
         </section>
         <!-- Toggle sticky discret au-dessus -->
-        <div class="sticky-toggle-container">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="sticky-toggle-label">Épingler la vue d'ensemble</span>
-                <button onclick="toggleSticky()" class="sticky-toggle-btn" id="sticky-toggle-btn" title="Activer/Désactiver le mode collant"></button>
-            </div>
-
-            <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
-
-            <!-- Toggle Vue Compact/Cascade/Groupe -->
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="sticky-toggle-label">Vue :</span>
-                <div class="view-toggle-wrapper" style="background: var(--line); padding: 2px; border-radius: 8px; display: flex;">
-                    <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active" style="border: medium; background: var(--surface); padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(29, 29, 31); cursor: pointer; box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px; transition: 0.2s;">Cascade</button>
-                    <button onclick="setGanttView('consolide')" id="view-btn-consolide" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Consolidé</button>
-                    <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn" style="border: medium; background: transparent; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: rgb(102, 102, 102); cursor: pointer; transition: 0.2s; box-shadow: none;">Compact</button>
-                </div>
-            </div>
-
-            <!-- Séparateur -->
-            <div style="width: 1px; height: 16px; background: var(--line); margin: 0 12px;"></div>
-
-            <!-- Fenêtre temporelle du Gantt (FR-5) -->
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="sticky-toggle-label">Fenêtre :</span>
-                <div class="view-toggle-wrapper" style="background: var(--line); padding: 2px; border-radius: 8px; display: flex;">
-                    <button class="zoom-btn" data-span="all" onclick="setGanttZoom(null)">Tout</button>
-                    <button class="zoom-btn" data-span="90" onclick="setGanttZoom(90)">3 mois</button>
-                    <button class="zoom-btn" data-span="30" onclick="setGanttZoom(30)">1 mois</button>
-                    <button class="zoom-btn" data-span="14" onclick="setGanttZoom(14)">2 sem</button>
-                </div>
-                <span id="zoom-nav" style="display: none; align-items: center; gap: 4px;">
-                    <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(-1)" title="Reculer d'une demi-fenêtre">◀</button>
-                    <button class="zoom-btn zoom-nav-btn" onclick="ganttGoToday()">Aujourd'hui</button>
-                    <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(1)" title="Avancer d'une demi-fenêtre">▶</button>
-                </span>
-            </div>
-        </div>
-
         <!-- Diagramme de Gantt sticky en haut -->
         <div class="sticky-charts-section sticky-disabled" id="sticky-section">
 
             <!-- Section collapsable pour le Gantt -->
             <div class="collapsible-section" style="margin-bottom: 8px;">
-                <h3 class="collapsible-header" onclick="toggleCollapse('gantt-content')" style="margin-top: 0; margin-bottom: 8px;">
-                    <span class="collapse-icon">▼</span>
-                    <span data-i18n="ganttTitle">Diagramme de Gantt</span>
-                </h3>
+                <div class="gantt-heading">
+                    <h3><button class="collapsible-header" onclick="toggleCollapse('gantt-content')" aria-controls="gantt-content" aria-expanded="true"><span class="collapse-icon">▼</span><span data-i18n="ganttTitle">Diagramme de Gantt</span></button></h3>
+                    <div class="gantt-controls" role="group" aria-label="Commandes du Gantt">
+                        <button onclick="toggleSticky()" class="sticky-toggle-btn" id="sticky-toggle-btn" data-ui-label="pinGantt" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6m-5 0v6l-4 4v2h12v-2l-4-4V3M12 15v6"/></svg></button>
+                        <div class="view-toggle-wrapper" role="group" aria-label="Vue du Gantt">
+                            <button onclick="setGanttView('cascade')" id="view-btn-cascade" class="view-toggle-btn active">Cascade</button>
+                            <button onclick="setGanttView('consolide')" id="view-btn-consolide" class="view-toggle-btn">Consolidé</button>
+                            <button onclick="setGanttView('compact')" id="view-btn-compact" class="view-toggle-btn">Compact</button>
+                        </div>
+                        <div class="view-toggle-wrapper" role="group" aria-label="Période affichée">
+                            <button class="zoom-btn" data-span="all" onclick="setGanttZoom(null)">Tout</button>
+                            <button class="zoom-btn" data-span="90" onclick="setGanttZoom(90)">3 mois</button>
+                            <button class="zoom-btn" data-span="30" onclick="setGanttZoom(30)">1 mois</button>
+                            <button class="zoom-btn" data-span="14" onclick="setGanttZoom(14)">2 sem</button>
+                        </div>
+                        <span id="zoom-nav" style="display: none; align-items: center; gap: 4px;">
+                            <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(-1)" aria-label="Période précédente" title="Période précédente"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
+                            <button class="zoom-btn zoom-nav-btn" onclick="ganttGoToday()">Aujourd'hui</button>
+                            <button class="zoom-btn zoom-nav-btn" onclick="ganttPan(1)" aria-label="Période suivante" title="Période suivante"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
+                        </span>
+                    </div>
+                </div>
                 <div id="gantt-content" class="collapsible-content">
                     <div class="dashboard-layout">
                         <div class="charts-column">
@@ -5076,9 +5065,11 @@ var planningFilters = { query: '', phase: '', person: '', status: '', overdue: f
 var editingTaskId = null;
 const WORKSPACE_I18N = {
     fr: {
+        pinGantt: 'Épingler le diagramme pendant le défilement',
         saveAction: 'Enregistrer', importAction: 'Importer', reload: 'Recharger les données du fichier', save: 'Enregistrer le fichier', import: 'Importer un document', reference: 'Référence', baselineHelp: 'Figer le planning comme référence', export: 'Exporter', presentation: 'Mode présentation', edit: 'Revenir à l’édition', palette: 'Palette de couleurs', browserShort: 'Navigateur', fileDirtyShort: 'fichier à enregistrer', fileSavedShort: 'fichier enregistré', pendingShort: 'Sauvegarde en attente', theme: 'Apparence', light: 'Clair', dark: 'Sombre', search: 'Rechercher une tâche, une note…', phase: 'Toutes les phases', person: 'Tous les responsables', status: 'Tous les statuts', overdue: 'En retard', reset: 'Réinitialiser', visible: 'tâches visibles', empty: 'Aucune tâche ne correspond aux filtres.', details: 'Détails', task: 'Détail de la tâche', title: 'Titre', start: 'Début', end: 'Fin', assignee: 'Responsables (séparés par une virgule)', progress: 'Avancement (%)', state: 'Statut', deps: 'Dépendances et délai ouvré (ex. 1.2+3, 2.1)', notes: 'Notes', link: 'Lien http(s)', deadline: 'Date butoir', effort: 'Effort total (jours-personnes)', effortHelp: 'Facultatif. Réparti également entre les responsables et les jours ouvrés de la tâche.', milestone: 'Jalon ponctuel', cancel: 'Annuler', apply: 'Appliquer', slack: 'Marge', days: 'jours ouvrés', critical: 'Chemin critique', saveError: 'Sauvegarde navigateur impossible — exportez votre travail', browserSaved: 'Sauvegardé dans ce navigateur à', browserPending: 'Sauvegarde navigateur en attente', fileDirty: 'Modifications non enregistrées dans un fichier', fileSaved: 'Fichier enregistré à', downloaded: 'Téléchargement lancé à', imported: 'Document complet chargé', importError: 'Import refusé', reloadError: 'Impossible de recharger le fichier de données', invalid: 'Vérifiez les dates, le lien et les dépendances (sans cycle).', noEffort: 'effort non renseigné', workload: 'Charge estimée', capacity: 'Capacité : 1 jour-personne par jour ouvré. Les efforts manquants ne sont pas assimilés à une charge à temps plein.', overloaded: 'jours en surcharge', notAssigned: 'Sans responsable', unestimated: 'tâche(s) sans effort', duration: 'Durée', undo: 'Annuler', redo: 'Rétablir', finish: 'Fin prévisionnelle', chartHelp: 'Les lignes s’adaptent pour séparer les tâches. Sur petit écran, faites défiler le calendrier horizontalement. Cliquez sur une barre pour retrouver la tâche ; ouvrez Détails pour le texte complet.'
     },
     en: {
+        pinGantt: 'Pin the chart while scrolling',
         saveAction: 'Save', importAction: 'Import', reload: 'Reload data from file', save: 'Save file', import: 'Import a document', reference: 'Baseline', baselineHelp: 'Set the current plan as baseline', export: 'Export', presentation: 'Presentation mode', edit: 'Return to editing', palette: 'Color palette', browserShort: 'Browser', fileDirtyShort: 'file unsaved', fileSavedShort: 'file saved', pendingShort: 'Save pending', theme: 'Appearance', light: 'Light', dark: 'Dark', search: 'Search tasks, notes…', phase: 'All phases', person: 'All assignees', status: 'All statuses', overdue: 'Overdue', reset: 'Reset', visible: 'visible tasks', empty: 'No tasks match your filters.', details: 'Details', task: 'Task details', title: 'Title', start: 'Start', end: 'End', assignee: 'Assignees (comma separated)', progress: 'Progress (%)', state: 'Status', deps: 'Dependencies and working-day lag (e.g. 1.2+3, 2.1)', notes: 'Notes', link: 'http(s) link', deadline: 'Deadline', effort: 'Total effort (person-days)', effortHelp: 'Optional. Shared equally among assignees and working days.', milestone: 'Milestone', cancel: 'Cancel', apply: 'Apply', slack: 'Float', days: 'working days', critical: 'Critical path', saveError: 'Browser save failed — export your work', browserSaved: 'Saved in this browser at', browserPending: 'Browser save pending', fileDirty: 'Changes not saved to a file', fileSaved: 'File saved at', downloaded: 'Download started at', imported: 'Full document loaded', importError: 'Import rejected', reloadError: 'Cannot reload the data file', invalid: 'Check dates, link and dependencies (no cycles).', noEffort: 'effort unspecified', workload: 'Estimated workload', capacity: 'Capacity: 1 person-day per working day. Missing estimates are not assumed to be full-time work.', overloaded: 'overloaded days', notAssigned: 'Unassigned', unestimated: 'task(s) without an estimate', duration: 'Duration', undo: 'Undo', redo: 'Redo', finish: 'Forecast finish', chartHelp: 'Rows expand to keep tasks separate. Scroll the calendar horizontally on narrow screens. Click a bar to locate its task; open Details for the full text.'
     }
 };
@@ -5228,10 +5219,10 @@ function initTheme() {
 }
 function ganttColors() {
     // Le PDF conserve un fond clair, quelle que soit la préférence de lecture.
-    const dark = document.documentElement.dataset.theme === 'dark' && !ganttExportWidth;
-    return dark
-        ? {surface:'#182330', header:'#253649', ink:'#edf3fa', muted:'#b6c6d8', grid:'#2b3b4d', shading:'rgba(184,204,228,0.065)', dependency:'#9cabbc', critical:'#ff9b92'}
-        : {surface:'#ffffff', header:'#eef3f7', ink:'#192c3d', muted:'#324b60', grid:'#e9eef2', shading:'rgba(60,60,67,0.055)', dependency:'#727277', critical:'#B71C1C'};
+    if (ganttExportWidth) return {surface:'#ffffff',header:'#eef1f4',ink:'#23292f',muted:'#596570',grid:'#e4e8ed',shading:'rgba(35,41,47,.055)',dependency:'#63707c',critical:'#a34444'};
+    const style = getComputedStyle(document.documentElement);
+    const token = name => style.getPropertyValue('--'+name).trim();
+    return {surface:token('surface'),header:token('chart-header'),ink:token('ink'),muted:token('muted'),grid:token('chart-grid'),shading:token('chart-shading'),dependency:token('chart-dependency'),critical:token('danger')};
 }
 
 function uiIcon(name) {
@@ -6940,6 +6931,7 @@ function exportToCSV() {
 
             // Toggle : si active, on désactive ; si inactif, on active
             const isCurrentlyActive = toggleBtn.classList.contains('active');
+            toggleBtn.setAttribute('aria-pressed', String(!isCurrentlyActive));
 
             if (isCurrentlyActive) {
                 // Désactiver sticky
@@ -6961,6 +6953,7 @@ function exportToCSV() {
             const toggleBtn = document.getElementById('sticky-toggle-btn');
 
             // Par défaut, sticky désactivé si pas de préférence
+            toggleBtn.setAttribute('aria-pressed', String(stickyEnabled === 'true'));
             if (stickyEnabled === 'true') {
                 // Sticky activé = bouton vert (active) et section sticky
                 toggleBtn.classList.add('active');
@@ -6978,7 +6971,7 @@ function exportToCSV() {
 
         function toggleCollapse(contentId) {
             const content = document.getElementById(contentId);
-            const header = content.previousElementSibling;
+            const header = content.previousElementSibling.querySelector('[aria-controls]') || content.previousElementSibling;
 
             // Toggle des classes (ajouter ou retirer la classe 'collapsed')
             header.classList.toggle('collapsed');
@@ -6986,6 +6979,7 @@ function exportToCSV() {
 
             // Sauvegarder l'état dans localStorage pour mémoriser la préférence
             const isCollapsed = content.classList.contains('collapsed');
+            if (header.hasAttribute('aria-expanded')) header.setAttribute('aria-expanded', String(!isCollapsed));
             appStorage.setItem(`collapse-${contentId}`, isCollapsed);
         }
 

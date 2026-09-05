@@ -161,6 +161,7 @@
 
             // Toggle : si active, on désactive ; si inactif, on active
             const isCurrentlyActive = toggleBtn.classList.contains('active');
+            toggleBtn.setAttribute('aria-pressed', String(!isCurrentlyActive));
 
             if (isCurrentlyActive) {
                 // Désactiver sticky
@@ -182,6 +183,7 @@
             const toggleBtn = document.getElementById('sticky-toggle-btn');
 
             // Par défaut, sticky désactivé si pas de préférence
+            toggleBtn.setAttribute('aria-pressed', String(stickyEnabled === 'true'));
             if (stickyEnabled === 'true') {
                 // Sticky activé = bouton vert (active) et section sticky
                 toggleBtn.classList.add('active');
@@ -199,7 +201,7 @@
 
         function toggleCollapse(contentId) {
             const content = document.getElementById(contentId);
-            const header = content.previousElementSibling;
+            const header = content.previousElementSibling.querySelector('[aria-controls]') || content.previousElementSibling;
 
             // Toggle des classes (ajouter ou retirer la classe 'collapsed')
             header.classList.toggle('collapsed');
@@ -207,6 +209,7 @@
 
             // Sauvegarder l'état dans localStorage pour mémoriser la préférence
             const isCollapsed = content.classList.contains('collapsed');
+            if (header.hasAttribute('aria-expanded')) header.setAttribute('aria-expanded', String(!isCollapsed));
             appStorage.setItem(`collapse-${contentId}`, isCollapsed);
         }
 
