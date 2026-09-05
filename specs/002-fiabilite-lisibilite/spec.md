@@ -22,3 +22,6 @@ Format historique accepté. Aucune migration vers un framework. Aucun réseau re
 
 ## Complément validé — Apparence et densité
 À la demande de l'utilisateur après inspection du Gantt : choix Clair/Sombre directement dans l'application HTML principale, préférence mémorisée, espacement réduit entre libellés et barres et entre tâches dans les trois vues. Les titres longs doivent garder un espace adapté sans collisions.
+
+## Complément validé — Barre compacte et iconographie
+Réunir identité du projet, commandes, historique et sauvegarde sur une ligne sur grand écran ; employer des icônes SVG géométriques, conserver les libellés nécessaires et supprimer les titres/espaces redondants.

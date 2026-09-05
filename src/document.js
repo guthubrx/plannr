@@ -194,6 +194,11 @@ function renderSaveStatus() {
     host.textContent = storageFailure ? uiText('saveError') : (browserSavedAt ? uiText('browserSaved') + ' ' + time(browserSavedAt) : uiText('browserPending'));
     host.textContent += ' · ' + (dirty ? uiText('fileDirty') : uiText('fileSaved') + ' ' + time(fileSavedAt));
     if (downloadedAt) host.textContent += ' · ' + uiText('downloaded') + ' ' + time(downloadedAt);
+    const detail = host.textContent;
+    const compact = storageFailure ? uiText('saveError') : (browserSavedAt ? uiText('browserShort') : uiText('pendingShort')) + ' · ' + uiText(dirty ? 'fileDirtyShort' : 'fileSavedShort');
+    host.title = detail;
+    host.innerHTML = '<span class="sr-only">' + escapeHtml(detail) + '</span><span aria-hidden="true">' + escapeHtml(compact) + '</span>';
+
 }
 function markFileSaved(signature) {
     fileSignature = signature; fileSavedAt = new Date().toISOString(); persistDocument();

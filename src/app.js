@@ -108,7 +108,7 @@
 
                         // N'afficher le toast que si la valeur a changé
                         if (newValue !== originalValue) {
-                            showToast('✅ Modification sauvegardée');
+                            showToast('Modification sauvegardée');
                         }
                     }
                 });
@@ -145,7 +145,10 @@
             var btn = document.getElementById('pres-toggle');
             var active = document.body.classList.contains('presentation-mode');
             btn.classList.toggle('active', active);
-            btn.textContent = active ? '✏️ Édition' : '🖥️ Présentation';
+            btn.innerHTML = uiIcon(active ? 'edit' : 'presentation');
+            btn.dataset.uiLabel = active ? 'edit' : 'presentation';
+            btn.title = uiText(btn.dataset.uiLabel); btn.setAttribute('aria-label', btn.title);
+            btn.setAttribute('aria-pressed', String(active));
         }
 
         // ========================================
@@ -291,7 +294,7 @@
 
                         // N'afficher le toast que si la valeur a changé
                         if (newValue !== originalValue) {
-                            showToast('✅ Modification sauvegardée');
+                            showToast('Modification sauvegardée');
                         }
                     }
                 });
@@ -363,7 +366,7 @@
 
                         // N'afficher le toast que si la valeur a changé
                         if (newValue !== originalValue) {
-                            showToast('✅ Modification sauvegardée');
+                            showToast('Modification sauvegardée');
                         }
                     }
                 });
@@ -449,7 +452,7 @@
 
                         // N'afficher le toast que si la valeur a changé
                         if (newValue !== originalValue) {
-                            showToast('✅ Modification sauvegardée');
+                            showToast('Modification sauvegardée');
                         }
                     }
                 });
@@ -539,7 +542,7 @@
 
                         // N'afficher le toast que si la valeur a changé
                         if (newValue !== originalValue) {
-                            showToast('✅ Modification sauvegardée');
+                            showToast('Modification sauvegardée');
                         }
                     }
                 });
@@ -599,7 +602,7 @@
                     else if (risk.progress === 100) risk.progress = 0;
                     updateDashboard(); updateGantt(); renderPlanning();
 
-                    showToast('✅ Statut mis à jour');
+                    showToast('Statut mis à jour');
                 });
             });
         }
@@ -681,7 +684,7 @@
 
                         // N'afficher le toast que si la valeur a changé
                         if (newValue !== originalValue) {
-                            showToast('✅ Modification sauvegardée');
+                            showToast('Modification sauvegardée');
                         }
                     }
                     refreshFilterOptions(); updateGantt(); updateDashboard(); decoratePlanning();
@@ -750,7 +753,7 @@
 
                         // N'afficher le toast que si la valeur a changé
                         if (newValue !== originalValue) {
-                            showToast('✅ Modification sauvegardée');
+                            showToast('Modification sauvegardée');
                         }
                     }
                 });
@@ -1280,7 +1283,7 @@
         // Helper pour générer les options avec carrés colorés
         function generateOptions(scale, selectedValue) {
             return scale.map(item =>
-                `<option value="${item.value}" ${item.value === selectedValue ? 'selected' : ''} style="background-color: ${item.color};">${item.emoji} ${item.label}</option>`
+                `<option value="${item.value}" ${item.value === selectedValue ? 'selected' : ''} style="background-color: ${item.color};">${item.label}</option>`
             ).join('');
         }
 
@@ -1289,7 +1292,7 @@
             const statusOptions = getStatusOptions();
 
             return statusOptions.map(item =>
-                `<option value="${item.value}" ${item.value === selectedStatus ? 'selected' : ''}>${item.emoji} ${item.label}</option>`
+                `<option value="${item.value}" ${item.value === selectedStatus ? 'selected' : ''}>${item.label}</option>`
             ).join('');
         }
 
@@ -1442,10 +1445,11 @@
 
             // Créer le bouton trigger
             const trigger = document.createElement('button');
-            trigger.className = 'dropdown-trigger';
+            trigger.className = 'dropdown-trigger icon-button';
+            trigger.dataset.uiLabel = 'palette';
+            trigger.title = uiText('palette'); trigger.setAttribute('aria-label', trigger.title);
             trigger.onclick = togglePaletteDropdown;
-            trigger.style.cssText = 'padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); min-width: 180px;';
-            trigger.innerHTML = '<span class="trigger-label">🎨 Palette...</span><span style="margin-left: auto;">▼</span>';
+            trigger.innerHTML = uiIcon('palette');
 
             // Créer le menu avec styles inline
             const menu = document.createElement('div');
@@ -1530,15 +1534,10 @@
 
         // Mettre à jour le label de la dropdown avec la palette actuelle
         function updateDropdownLabel(name, colors) {
-            const trigger = document.querySelector('.dropdown-trigger span:first-child');
+            const trigger = document.querySelector('.dropdown-trigger');
             if (trigger) {
-                trigger.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        ${colors.slice(0, 6).map(color =>
-                            `<div style="width: 10px; height: 10px; border-radius: 50%; background: ${color}; border: 1px solid rgba(0,0,0,0.1);"></div>`
-                        ).join('')}
-                    </div>
-                `;
+                trigger.title = uiText('palette') + ' · ' + name;
+                trigger.setAttribute('aria-label', trigger.title);
             }
         }
 
@@ -1564,7 +1563,7 @@
             applyPalette(currentPalette);
             updateDropdownLabel(palette.name, currentPalette);
 
-            showToast(`🎨 Palette "${palette.name}" appliquée`);
+            showToast(`Palette "${palette.name}" appliquée`);
         }
 
         let chartBefore, chartAfter;
@@ -1784,7 +1783,7 @@
                 // Ajouter le bouton de suppression
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = `<span>🗑️</span><span>${t('deleteGroup')}</span>`;
+                deleteBtn.innerHTML = uiIcon('trash') + '<span>' + t('deleteGroup') + '</span>';
                 deleteBtn.onclick = (e) => {
                     e.stopPropagation();
                     deleteGroup(group.id);
@@ -1932,7 +1931,7 @@
                             </td>
                             ${renderDependsCellHTML(risk)}
                             <td style="text-align: center; padding: 4px;">
-                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('${risk.id}')" title="Supprimer cette tâche">🗑️</button>
+                                <button class="delete-btn delete-risk-btn" onclick="deleteRisk('${risk.id}')" title="Supprimer cette tâche" aria-label="Supprimer cette tâche">${uiIcon('trash')}</button>
                             </td>
                         `;
 

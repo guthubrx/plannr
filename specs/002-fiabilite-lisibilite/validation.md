@@ -39,3 +39,6 @@ Exports réels générés : PDF, XLSX, CSV et HTML. PDF de démonstration de tro
 Le complément porte la suite à 61 tests. Les 18 combinaisons de deux thèmes × trois vues × trois largeurs contrôlent les collisions entre titres, barres, jalons et bandeaux de phase. Des tests supplémentaires contrôlent la préférence après rechargement, l'absence de mutation du document/historique et le retour au thème sombre après PDF.
 
 Compact et consolidé : lignes de 70/86/102 px pour 1/2/3 lignes de texte, écart étiquette–barre de 6 px et réserve de 16 px sous la barre (dont 6 pour une baseline). Cascade : 48 px minimum, 64 px pour un titre de trois lignes. Les textes et contrôles vérifiés, y compris lignes alternées du tableau et zoom, atteignent un contraste de 4,5:1. Captures de démonstration inspectées dans les deux thèmes, ainsi que le tableau et le panneau sombres.
+
+## Complément — Barre compacte et icônes
+65 tests réussis en 25,1 s sur Chromium. En-tête de 55 px environ à 1440 et 1715 px : marque, commandes et état se trouvent sur la même ligne. Contrôles sans emoji, boutons à icône nommés et titrés, état de présentation accessible. Captures inspectées à 1715 et 390 px ; retour à la ligne sur mobile sans débordement. Le détail des horodatages de sauvegarde reste accessible au survol, au focus et aux lecteurs d’écran.

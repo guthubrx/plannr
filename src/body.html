@@ -1,71 +1,41 @@
 
     <div class="container">
-        <!-- Header avec icône, titre et contrôles -->
-        <div class="app-header">
-            <img src="icon.svg" alt="Plannr" class="app-icon">
-
-            <div class="app-title-section">
-                <h1 id="main-title" class="editable-title">Plannr - Planning de Projet</h1>
-                <p id="main-subtitle" class="editable-subtitle" style="color: var(--muted); margin: 4px 0 0 0; font-size: 15px;" data-i18n="pageSubtitle">ViGi360 · SNCF Gares &amp; Connexions · Gare du Nord / Gare de Lyon · Avril–Août 2026</p>
+<svg class="icon-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><symbol id="ui-logo" viewBox="0 0 24 24"><path d="M3 4v16h18M7 7h6M11 12h9M7 17h9"/></symbol><symbol id="ui-reload" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></symbol><symbol id="ui-save" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol><symbol id="ui-import" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5"/></symbol><symbol id="ui-baseline" viewBox="0 0 24 24"><path d="M4 20V4h8l2 3h6v9h-8l-2-3H4"/></symbol><symbol id="ui-undo" viewBox="0 0 24 24"><path d="M9 4 4 9l5 5M4 9h9a6 6 0 0 1 0 12"/></symbol><symbol id="ui-redo" viewBox="0 0 24 24"><path d="m15 4 5 5-5 5m5-5h-9a6 6 0 0 0 0 12"/></symbol><symbol id="ui-palette" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol><symbol id="ui-presentation" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M12 16v5m-4 0h8"/></symbol><symbol id="ui-edit" viewBox="0 0 24 24"><path d="m4 16 12-12 4 4-12 12H4v-4Zm9-9 4 4"/></symbol><symbol id="ui-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol><symbol id="ui-note" viewBox="0 0 24 24"><path d="M14 3H4v18h16V9l-6-6v6h6M8 13h8m-8 4h5"/></symbol><symbol id="ui-link" viewBox="0 0 24 24"><path d="m10 13 4-4m-6 6-2 2a3.5 3.5 0 0 1-5-5l5-5a3.5 3.5 0 0 1 5 0m2 2 2-2a3.5 3.5 0 0 1 5 5l-5 5a3.5 3.5 0 0 1-5 0"/></symbol></defs></svg>
+        <header class="app-header">
+            <div class="app-brand">
+                <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-logo"></use></svg>
+                <div class="app-title-section">
+                    <h1 id="main-title" class="editable-title">Plannr - Planning de Projet</h1>
+                    <p id="main-subtitle" class="editable-subtitle">Projet Exemple — 2026</p>
+                </div>
             </div>
-
-            <div class="app-controls studio-toolbar">
-                <label class="theme-control" for="theme-selector"><span data-ui="theme">Apparence</span>
-                    <select id="theme-selector" onchange="setTheme(this.value)">
-                        <option value="light" data-ui="light">Clair</option>
-                        <option value="dark" data-ui="dark">Sombre</option>
-                    </select>
-                </label>
-                <!-- Input caché pour l'import -->
-                <input type="file" id="import-file" style="display: none" accept=".json" onchange="importFromJSON(this)">
-                
-                <!-- Bouton Recharger données -->
-                <button onclick="reloadPlannrData()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); transition: background 0.2s;" title="Recharger plannr-data.js (contourne le cache)">
-                    <span>🔄</span> Recharger
-                </button>
-
-                <!-- Bouton Baseline : fige le planning actuel comme référence (v2.1) -->
-                <button onclick="setBaseline()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); transition: background 0.2s;" title="Figer le planning actuel comme baseline — la dérive s'affichera en gris sous les barres du Gantt">
-                    <span>📌</span> <span data-i18n="baselineBtn">Baseline</span>
-                </button>
-
-                <!-- Enregistrement direct de plannr-data.js (FR-9) -->
-                <button onclick="saveDataToDisk()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); transition: background 0.2s;" title="Écrit plannr-data.js directement sur le disque (Chrome/Edge) ou le télécharge">
-                    <span>💾</span> Enregistrer
-                </button>
-
-                <!-- Bouton Import -->
-                <button onclick="document.getElementById('import-file').click()" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); transition: background 0.2s;">
-                    <span>📥</span> Import
-                </button>
-
-                <select id="export-format-selector" onchange="handleExport(this.value)" style="padding: 8px 12px 8px 36px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface) url('data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2386868b%22 stroke-width=%222%22&gt;&lt;path d=%22M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4%22/&gt;&lt;polyline points=%227 10 12 15 17 10%22/&gt;&lt;line x1=%2212%22 y1=%2215%22 x2=%2212%22 y2=%223%22/&gt;&lt;/svg&gt;') no-repeat 10px center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); appearance: none; padding-right: 30px; background-size: 16px;">
-                    <option value="" disabled="disabled" selected="selected">Exporter...</option>
-                    <option value="pdf">📄 PDF</option>
-                    <option value="excel">📊 Excel (XLSX)</option>
-                    <option value="csv">📋 CSV</option>
-                    <option value="html">🌐 HTML (Web)</option>
-                    <option value="json">💾 JSON (Données)</option>
-                    <option value="datajs">🗂️ plannr-data.js (rechargeable)</option>
-                    <option value="ics">📅 ICS (jalons calendrier)</option>
+            <div class="app-controls studio-toolbar" role="group" aria-label="Commandes du projet">
+                <input type="file" id="import-file" hidden accept=".json" onchange="importFromJSON(this)">
+                <select id="theme-selector" onchange="setTheme(this.value)" aria-label="Apparence" title="Apparence">
+                    <option value="light" data-ui="light">Clair</option><option value="dark" data-ui="dark">Sombre</option>
                 </select>
-                <select id="language-selector" onchange="setLanguage(this.value)" style="padding: 8px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-                    <option value="fr" selected="selected">🇫🇷 Français</option>
-                    <option value="en">🇬🇧 English</option>
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="ar">🇸🇦 العربية</option>
-                    <option value="zh">🇨🇳 中文</option>
+                <button class="icon-button" onclick="reloadPlannrData()" data-ui-label="reload"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-reload"></use></svg></button>
+                <button onclick="saveDataToDisk()" data-ui-label="save"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-save"></use></svg><span data-ui="saveAction">Enregistrer</span></button>
+                <button onclick="document.getElementById('import-file').click()" data-ui-label="import"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-import"></use></svg><span data-ui="importAction">Importer</span></button>
+                <button onclick="setBaseline()" data-ui-label="baselineHelp"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-baseline"></use></svg><span data-ui="reference">Référence</span></button>
+                <select id="export-format-selector" onchange="handleExport(this.value)" aria-label="Exporter" title="Exporter">
+                    <option value="" disabled selected data-ui="export">Exporter</option>
+                    <option value="pdf">PDF</option><option value="excel">Excel (XLSX)</option><option value="csv">CSV</option>
+                    <option value="html">HTML (Web)</option><option value="json">JSON (Données)</option>
+                    <option value="datajs">plannr-data.js</option><option value="ics">ICS (calendrier)</option>
                 </select>
-
-                <!-- Sélecteur de palette de couleurs pour le Gantt -->
+                <select id="language-selector" onchange="setLanguage(this.value)" aria-label="Langue" title="Langue">
+                    <option value="fr">FR</option><option value="en">EN</option><option value="es">ES</option><option value="ar">AR</option><option value="zh">ZH</option>
+                </select>
                 <div id="color-palette-selector"></div>
-
-                <!-- Mode Présentation -->
-                <button class="pres-toggle" id="pres-toggle" onclick="togglePresentation()" title="Mode présentation — masquer les contrôles">🖥️ Présentation</button>
+                <button class="pres-toggle icon-button" id="pres-toggle" onclick="togglePresentation()" data-ui-label="presentation" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-presentation"></use></svg></button>
+                <div class="history-actions" role="group" aria-label="Historique">
+                    <button class="icon-button" id="undo-action" onclick="undo()" data-ui-label="undo"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-undo"></use></svg></button>
+                    <button class="icon-button" id="redo-action" onclick="redo()" data-ui-label="redo"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ui-redo"></use></svg></button>
+                </div>
             </div>
-        </div>
-
-        <div class="document-status"><div class="history-actions"><button id="undo-action" onclick="undo()" data-ui="undo">Annuler</button><button id="redo-action" onclick="redo()" data-ui="redo">Rétablir</button></div><output id="save-status" role="status" aria-live="polite"></output></div>
+            <div class="document-status"><output id="save-status" role="status" aria-live="polite" tabindex="0"></output></div>
+        </header>
         <!-- Bandeau de validation v2.2 : anomalies, butoirs, incohérences, journal -->
         <div id="plannr-banner"></div>
 
@@ -226,10 +196,7 @@
                     <div class="dashboard-layout">
                         <div class="charts-column">
                             <div class="chart-wrapper" style="width: 100%;">
-                                <div class="chart-header">
-                                    <h3 data-i18n="ganttTitle">Diagramme de Gantt - Planning du projet</h3>
-                                </div>
-                                <p class="chart-help" data-ui="chartHelp"></p><div class="gantt-scroll" tabindex="0" role="region" aria-label="Calendrier défilant"><div class="chart-canvas" style="position: relative;">
+                                <p class="chart-help sr-only" id="gantt-help" data-ui="chartHelp"></p><div class="gantt-scroll" tabindex="0" role="region" aria-label="Calendrier défilant" aria-describedby="gantt-help"><div class="chart-canvas" style="position: relative;">
                                     <canvas id="ganttChart" role="img" aria-label="Diagramme de Gantt, données accessibles dans le tableau des tâches"></canvas>
                                 <div id="gantt-separator-overlay" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none;"></div></div></div>
                             </div>

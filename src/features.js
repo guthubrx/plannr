@@ -403,7 +403,7 @@
             const has = !!(risk.notes && String(risk.notes).trim());
             return ' <span class="notes-icon' + (has ? ' has-notes' : '') +
                 '" data-risk-id="' + escapeHtml(risk.id) + '" title="' +
-                (has ? escapeHtml(risk.notes) : 'Ajouter une note') + '">📝</span>';
+                (has ? escapeHtml(risk.notes) : 'Ajouter une note') + '">' + uiIcon('note') + '</span>';
         }
 
         function linkIconHTML(risk) {
@@ -411,7 +411,7 @@
             return url
                 ? ' <a class="link-icon" href="' + escapeHtml(url) +
                   '" target="_blank" rel="noopener noreferrer" title="' +
-                  escapeHtml(url) + '">🔗</a>'
+                  escapeHtml(url) + '">' + uiIcon('link') + '</a>'
                 : '';
         }
 
@@ -617,7 +617,7 @@
                 await writable.write(content);
                 await writable.close();
                 markFileSaved(signature);
-                showToast('💾 plannr-data.js enregistré');
+                showToast('plannr-data.js enregistré');
             } catch (err) {
                 if (err && err.name === 'AbortError') return; // annulé par l'utilisateur
                 fsDataFileHandle = null;

@@ -1156,7 +1156,7 @@ Chart.register({
                     renderPlanning();
                     updateDashboard();
 
-                    showToast('✅ Tâche redimensionnée');
+                    showToast('Tâche redimensionnée');
                     return;
                 }
 
@@ -1227,7 +1227,7 @@ Chart.register({
                     renderPlanning();
                     updateDashboard();
 
-                    showToast('✅ Jalon déplacé');
+                    showToast('Jalon déplacé');
                     if (subtreeShifted > 0) {
                         showToast(t('subtreeShifted').replace('{n}', subtreeShifted));
                     } else if (dragDeltaDays < 0 && collectDescendants(movedMilestone.id).size > 0) {
@@ -1307,7 +1307,7 @@ Chart.register({
                     updateDashboard();
 
                     const itemType = isMilestone ? 'Jalon' : 'Tâche';
-                    showToast(`✅ ${itemType} déplacé(e)`);
+                    showToast(`${itemType} déplacé(e)`);
                     if (subtreeShifted > 0) {
                         showToast(t('subtreeShifted').replace('{n}', subtreeShifted));
                     } else if (dragDeltaDays < 0 && collectDescendants(task.id).size > 0) {

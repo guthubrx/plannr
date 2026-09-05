@@ -240,3 +240,26 @@ for (const theme of ['light','dark']) {
         for(const item of contrast) expect(item.ratio, item.selector).toBeGreaterThanOrEqual(4.5);
     });
 }
+
+
+for (const theme of ['light','dark']) for(const width of [1440,1715]) {
+    test(`002 barre unique et icônes accessibles ${theme} à ${width}px`, async ({page})=>{
+        await page.setViewportSize({width,height:950});
+        await page.locator('#theme-selector').selectOption(theme);
+        const geometry=await page.evaluate(()=>{
+            const rect=selector=>document.querySelector(selector).getBoundingClientRect();
+            const brand=rect('.app-brand'), tools=rect('.app-controls'), status=rect('.document-status');
+            return {sameLine:Math.max(brand.top,tools.top,status.top)<Math.min(brand.bottom,tools.bottom,status.bottom),height:rect('.app-header').height,overflow:document.documentElement.scrollWidth>innerWidth,
+                unnamed:[...document.querySelectorAll('.app-controls .icon-button')].filter(b=>!b.getAttribute('aria-label')||!b.title).length,
+                emoji:/\p{Extended_Pictographic}/u.test(document.querySelector('.app-controls').textContent)};
+        });
+        expect(geometry.sameLine).toBe(true);expect(geometry.height).toBeLessThan(60);
+        expect(geometry.overflow).toBe(false);expect(geometry.unnamed).toBe(0);expect(geometry.emoji).toBe(false);
+        await page.locator('#save-status').focus();
+        await expect(page.locator('#save-status')).toHaveAttribute('title',/Sauvegardé|en attente/);
+        await page.locator('#pres-toggle').click();
+        await expect(page.locator('#pres-toggle')).toHaveAttribute('aria-pressed','true');
+        await page.locator('#pres-toggle').click();
+        await expect(page.locator('#undo-action')).toBeVisible();
+    });
+}
